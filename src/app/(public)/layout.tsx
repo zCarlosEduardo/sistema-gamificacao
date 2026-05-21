@@ -1,10 +1,10 @@
-interface PublicLayoutProps {
+export default function PublicLayout({
+  children,
+}: {
   children: React.ReactNode;
-}
-
-export default function PublicLayout({ children }: PublicLayoutProps) {
+}) {
   return (
-    <div className="min-h-full flex flex-col bg-gray-900 text-white">
+    <div className="min-h-full flex flex-col bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">
       <main className="flex-1">{children}</main>
     </div>
   );

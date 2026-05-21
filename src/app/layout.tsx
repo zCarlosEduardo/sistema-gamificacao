@@ -1,5 +1,5 @@
-// src/app/layout.tsx
 import "./globals.css";
+import { ThemeProvider } from "@/components/ui/theme/theme-provider";
 
 export const metadata = {
   title: "Sistema de Gamificação",
@@ -11,13 +11,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html 
-      lang="pt-BR" 
-      className="h-full antialiased bg-gray-900 text-white"
+    <html
+      lang="pt-BR"
       suppressHydrationWarning
     >
-      <body className="h-full bg-gray-900 text-white antialiased">
-        {children}
+      <body className="h-full antialiased bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

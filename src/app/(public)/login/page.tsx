@@ -16,95 +16,165 @@ export default function Login() {
     setLoading(true);
     setError("");
 
-    try {
-      await signIn.email({
-        email,
-        password,
-        callbackURL: "/", 
-      }, {
-        onRequest: () => {
-          setLoading(true);
-        },
-        onSuccess: async (ctx) => {
-          console.log("Login com sucesso:", ctx);
-          
+    await signIn.email(
+      { email, password },
+      {
+        onSuccess: () => {
           router.push("/");
           router.refresh();
         },
         onError: (ctx) => {
-          console.error("Erro capturado no Better Auth:", ctx);
           setError(ctx.error.message ?? "E-mail ou senha incorretos.");
           setLoading(false);
-        }
-      });
-    } catch (err) {
-      console.error("Erro inesperado no submit:", err);
-      setError("Ocorreu um erro inesperado ao tentar entrar.");
-      setLoading(false);
-    }
+        },
+      },
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white antialiased">
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col gap-5 w-full max-w-sm p-8 bg-gray-800 rounded-xl shadow-2xl border border-gray-700/50"
-      >
-        <div className="flex flex-col gap-1">
-          <h1 className="text-2xl font-bold tracking-tight text-white">Entrar</h1>
-          <p className="text-sm text-gray-400">Entre com suas credenciais para acessar o sistema</p>
-        </div>
-
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-lg text-sm font-medium animate-in fade-in duration-200">
-            {error}
-          </div>
-        )}
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">E-mail</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-            disabled={loading}
-            required
+    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 border border-[#1e1e2e] rounded-xl overflow-hidden">
+        {/* Lado esquerdo */}
+        <div className="relative bg-[#0f0f1a] p-10 flex flex-col justify-start gap-12 border-b lg:border-b-0 lg:border-r border-[#1e1e2e] overflow-hidden">
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              backgroundImage:
+                "linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px)",
+              backgroundSize: "32px 32px",
+            }}
           />
-        </div>
-
-        <div className="flex flex-col gap-1.5">
-          <label className="text-xs font-semibold text-gray-300 uppercase tracking-wider">Senha</label>
-          <input
-            type="password"
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-gray-950 border border-gray-700 rounded-lg px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
-            disabled={loading}
-            required
+          <div
+            className="absolute -top-10 -left-10 w-48 h-48 rounded-full pointer-events-none"
+            style={{ background: "rgba(124,58,237,.15)", filter: "blur(60px)" }}
           />
-        </div>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full mt-2 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-medium rounded-lg px-4 py-2.5 text-sm shadow-lg shadow-blue-600/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {loading ? (
-            <>
-              <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          <div className="relative z-10">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
+              style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)" }}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 fill-none stroke-white stroke-2"
+              >
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
-              <span>Entrando...</span>
-            </>
-          ) : (
-            "Entrar"
+            </div>
+            <p className="text-white font-bold text-xl tracking-tight">
+              GameHQ
+            </p>
+            <p className="text-[#6366f1] text-xs tracking-widest uppercase mt-0.5">
+              Plataforma de Gamificação
+            </p>
+          </div>
+
+          <div className="relative z-10">
+            <p className="text-[#7c3aed] text-xs tracking-widest uppercase flex items-center gap-2 mb-3">
+              <span className="w-5 h-px bg-[#7c3aed]" />
+              Engajamento real
+            </p>
+            <h1 className="text-white text-3xl font-bold leading-tight tracking-tight mb-3">
+              Transforme metas
+              <br />
+              em <span className="text-[#7c3aed]">conquistas</span>
+            </h1>
+            <p className="text-[#6b7280] text-sm leading-relaxed">
+              Acompanhe desempenho, acumule pontos e troque por recompensas
+              reais.
+            </p>
+          </div>
+
+          {/* <div className="relative z-10 grid grid-cols-2 gap-3">
+            {[
+              { val: "98%", label: "Engajamento médio" },
+              { val: "3x", label: "Mais produtividade" },
+              { val: "500+", label: "Usuários ativos" },
+              { val: "12k", label: "Recompensas trocadas" },
+            ].map((s) => (
+              <div
+                key={s.label}
+                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3"
+              >
+                <p className="text-white text-xl font-bold">{s.val}</p>
+                <p className="text-[#6b7280] text-xs mt-0.5">{s.label}</p>
+              </div>
+            ))}
+          </div> */}
+        </div>
+
+        {/* Lado direito */}
+        <div className="bg-[#0d0d17] p-10 flex flex-col justify-center">
+
+          <h2 className="text-white text-2xl font-bold tracking-tight mb-1">
+            Bem-vindo de volta
+          </h2>
+          <p className="text-[#6b7280] text-sm mb-8">
+            Entre com suas credenciais para acessar o painel
+          </p>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg mb-5">
+              {error}
+            </div>
           )}
-        </button>
-      </form>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+            <div>
+              <label className="block text-[#9ca3af] text-xs uppercase tracking-widest mb-2">
+                E-mail
+              </label>
+              <input
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full bg-[#0a0a14] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-sm text-white placeholder-[#374151] focus:outline-none focus:border-[#7c3aed] transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[#9ca3af] text-xs uppercase tracking-widest mb-2">
+                Senha
+              </label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className="w-full bg-[#0a0a14] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-sm text-white placeholder-[#374151] focus:outline-none focus:border-[#7c3aed] transition-colors"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-sm font-medium rounded-lg py-3 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {loading ? "Entrando..." : "Entrar no sistema →"}
+            </button>
+          </form>
+
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-[#1e1e2e]" />
+            <span className="text-[#374151] text-xs tracking-widest">
+              acesso restrito
+            </span>
+            <div className="flex-1 h-px bg-[#1e1e2e]" />
+          </div>
+
+          <p className="text-[#374151] text-xs text-center">
+            Não consegue acessar? Fale com o{" "}
+            <a href="#" className="text-[#6366f1] hover:underline">
+              administrador do sistema
+            </a>
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
