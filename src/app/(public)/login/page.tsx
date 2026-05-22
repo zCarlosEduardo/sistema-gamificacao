@@ -1,15 +1,38 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "@/lib/auth-client";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
+  const { data: session, isPending } = useSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isPending && session?.user) {
+      router.replace("/");
+    }
+  }, [session, isPending, router]);
+
+  if (isPending) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full border-2 border-zinc-700 border-t-[#7c3aed] animate-spin" />
+      </div>
+    );
+  }
+
+  if (session?.user) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="w-6 h-6 rounded-full border-2 border-zinc-700 border-t-[#7c3aed] animate-spin" />
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -20,8 +43,7 @@ export default function Login() {
       { email, password },
       {
         onSuccess: () => {
-          router.push("/");
-          router.refresh();
+          router.replace("/");
         },
         onError: (ctx) => {
           setError(ctx.error.message ?? "E-mail ou senha incorretos.");
@@ -84,28 +106,10 @@ export default function Login() {
               reais.
             </p>
           </div>
-
-          {/* <div className="relative z-10 grid grid-cols-2 gap-3">
-            {[
-              { val: "98%", label: "Engajamento médio" },
-              { val: "3x", label: "Mais produtividade" },
-              { val: "500+", label: "Usuários ativos" },
-              { val: "12k", label: "Recompensas trocadas" },
-            ].map((s) => (
-              <div
-                key={s.label}
-                className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3"
-              >
-                <p className="text-white text-xl font-bold">{s.val}</p>
-                <p className="text-[#6b7280] text-xs mt-0.5">{s.label}</p>
-              </div>
-            ))}
-          </div> */}
         </div>
 
         {/* Lado direito */}
         <div className="bg-[#0d0d17] p-10 flex flex-col justify-center">
-
           <h2 className="text-white text-2xl font-bold tracking-tight mb-1">
             Bem-vindo de volta
           </h2>

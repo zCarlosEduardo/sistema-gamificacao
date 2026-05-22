@@ -11,10 +11,13 @@ export async function proxy(request: NextRequest) {
   if (bypass) return NextResponse.next();
 
   // Captura os possíveis nomes de cookie que o Better Auth utiliza
-  const authToken = request.cookies.get("token")?.value 
-    ?? request.cookies.get("better-auth.session_token")?.value
-    ?? request.cookies.get("__secure-better-auth.session_token")?.value; // Para produção (HTTPS)
-    
+  const authToken =
+    request.cookies.get("token")?.value ??
+    request.cookies.get("better-auth.session_token")?.value ??
+    request.headers
+      .get("cookie")
+      ?.match(/better-auth\.session_token=([^;]+)/)?.[1];
+
   const path = request.nextUrl.pathname;
   const publicRoute = publicRoutes.find((route) => route.path === path);
 
@@ -31,7 +34,11 @@ export async function proxy(request: NextRequest) {
   }
 
   // 3. Autenticado tentando acessar o login -> Redireciona para a Home (Evita entrar no login logado)
-  if (authToken && publicRoute && publicRoute.whenAuthenticated === "redirect") {
+  if (
+    authToken &&
+    publicRoute &&
+    publicRoute.whenAuthenticated === "redirect"
+  ) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     return NextResponse.redirect(redirectUrl);
@@ -42,7 +49,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config: ProxyConfig = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*$).*)",
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*$).*)"],
 };

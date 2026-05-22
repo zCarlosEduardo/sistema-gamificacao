@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useSession } from "@/lib/auth-client";
 
 interface Tenant {
@@ -36,6 +36,24 @@ const TenantContext = createContext<TenantContextType>({
   hasPermission: () => false,
 });
 
+const CACHE_KEY = "tenant_cache";
+
+function getCache(tenantId: string) {
+  try {
+    const raw = sessionStorage.getItem(`${CACHE_KEY}_${tenantId}`);
+    if (!raw) return null;
+    return JSON.parse(raw) as { tenant: Tenant; membro: TenantMembro };
+  } catch {
+    return null;
+  }
+}
+
+function setCache(tenantId: string, data: { tenant: Tenant; membro: TenantMembro }) {
+  try {
+    sessionStorage.setItem(`${CACHE_KEY}_${tenantId}`, JSON.stringify(data));
+  } catch {}
+}
+
 export function TenantProvider({
   children,
   tenantId,
@@ -44,65 +62,76 @@ export function TenantProvider({
   tenantId: string;
 }) {
   const { data: session } = useSession();
-  const [tenant, setTenant] = useState<Tenant | null>(null);
-  const [membro, setMembro] = useState<TenantMembro | null>(null);
-  const [loading, setLoading] = useState(true);
+  const fetchedRef = useRef(false);
+
+  const cached = typeof window !== "undefined" ? getCache(tenantId) : null;
+
+  const [state, setState] = useState<{
+    tenant: Tenant | null;
+    membro: TenantMembro | null;
+    loading: boolean;
+  }>({
+    tenant: cached?.tenant ?? null,
+    membro: cached?.membro ?? null,
+    loading: !cached,
+  });
 
   useEffect(() => {
-    console.log("session:", session);
-    console.log("tenantId:", tenantId);
+    
+    if (!session?.user || !tenantId) return;
+    if (fetchedRef.current) return;
+    if (state.tenant && state.membro) return;
 
-    if (!session?.user || !tenantId) {
-      setLoading(false); // <- aqui
-      return;
-    }
+    fetchedRef.current = true;
 
     async function fetchDados() {
-      setLoading(true);
+      setState((prev) => ({ ...prev, loading: true }));
       try {
         const [tenantRes, membroRes] = await Promise.all([
           fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}`, {
             credentials: "include",
             headers: { "x-tenant-id": tenantId },
           }),
-          fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/meu-acesso`,
-            {
-              credentials: "include",
-              headers: { "x-tenant-id": tenantId },
-            },
-          ),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/meu-acesso`, {
+            credentials: "include",
+            headers: { "x-tenant-id": tenantId },
+          }),
         ]);
 
         const tenantData = await tenantRes.json();
         const membroData = await membroRes.json();
 
-        setTenant(tenantData);
-        setMembro({
+        const membroFormatado: TenantMembro = {
           role: membroData.role,
           permissoes: membroData.permissoes.map(
-            (p: { permissao: { chave: string } }) => p.permissao.chave,
+            (p: { permissao: { chave: string } }) => p.permissao.chave
           ),
+        };
+
+        setCache(tenantId, { tenant: tenantData, membro: membroFormatado });
+
+        setState({
+          tenant: tenantData,
+          membro: membroFormatado,
+          loading: false,
         });
       } catch (err) {
         console.error("Erro ao buscar dados do tenant:", err);
-      } finally {
-        setLoading(false);
+        setState((prev) => ({ ...prev, loading: false }));
       }
     }
 
     fetchDados();
   }, [session, tenantId]);
 
-function hasPermission(permission: string): boolean {
-  console.log('hasPermission:', { permission, membro });
-  if (!membro) return false;
-  if (membro.role === "SUPER_ADMIN" || membro.role === "ADMIN") return true;
-  return membro.permissoes.includes(permission);
-}
+  function hasPermission(permission: string): boolean {
+    if (!state.membro) return false;
+    if (state.membro.role === "SUPER_ADMIN" || state.membro.role === "ADMIN") return true;
+    return state.membro.permissoes.includes(permission);
+  }
 
   return (
-    <TenantContext.Provider value={{ tenant, membro, loading, hasPermission }}>
+    <TenantContext.Provider value={{ ...state, hasPermission }}>
       {children}
     </TenantContext.Provider>
   );

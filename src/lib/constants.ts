@@ -1,0 +1,1 @@
+export const TENANT_ID_FIXO = "6c5c54be-64a7-407c-a8e5-4b2928c5d5cc";
