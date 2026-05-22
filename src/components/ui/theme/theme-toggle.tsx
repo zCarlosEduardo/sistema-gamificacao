@@ -18,7 +18,8 @@ export function ThemeToggle() {
   return (
     <motion.button
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="relative flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm font-medium overflow-hidden min-w-28 text-center"
+      className="relative flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700
+       bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white text-sm font-medium overflow-hidden min-w-28 text-center"
       whileHover={{ scale: 1.03 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 400, damping: 20 }}
