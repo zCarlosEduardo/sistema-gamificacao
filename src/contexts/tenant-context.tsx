@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { useSession } from "@/lib/auth-client";
 
 interface Tenant {
   id: string;
@@ -61,26 +60,31 @@ export function TenantProvider({
   children: React.ReactNode;
   tenantId: string;
 }) {
-  const { data: session } = useSession();
   const fetchedRef = useRef(false);
-
-  const cached = typeof window !== "undefined" ? getCache(tenantId) : null;
 
   const [state, setState] = useState<{
     tenant: Tenant | null;
     membro: TenantMembro | null;
     loading: boolean;
   }>({
-    tenant: cached?.tenant ?? null,
-    membro: cached?.membro ?? null,
-    loading: !cached,
+    tenant: null,
+    membro: null,
+    loading: true,
   });
 
   useEffect(() => {
-    
-    if (!session?.user || !tenantId) return;
-    if (fetchedRef.current) return;
-    if (state.tenant && state.membro) return;
+    if (!tenantId) return;
+
+    // Navegação client-side: já tem dados, não refaz
+    if (fetchedRef.current && state.tenant) return;
+
+    // Tenta cache primeiro
+    const cached = getCache(tenantId);
+    if (cached) {
+      setState({ tenant: cached.tenant, membro: cached.membro, loading: false });
+      fetchedRef.current = true;
+      return;
+    }
 
     fetchedRef.current = true;
 
@@ -98,23 +102,22 @@ export function TenantProvider({
           }),
         ]);
 
+        if (!tenantRes.ok || !membroRes.ok) {
+          throw new Error("Erro na requisição dos dados do Tenant");
+        }
+
         const tenantData = await tenantRes.json();
         const membroData = await membroRes.json();
 
         const membroFormatado: TenantMembro = {
           role: membroData.role,
           permissoes: membroData.permissoes.map(
-            (p: { permissao: { chave: string } }) => p.permissao.chave
+            (p: { permissao: { chave: string } }) => p.permissao.chave,
           ),
         };
 
         setCache(tenantId, { tenant: tenantData, membro: membroFormatado });
-
-        setState({
-          tenant: tenantData,
-          membro: membroFormatado,
-          loading: false,
-        });
+        setState({ tenant: tenantData, membro: membroFormatado, loading: false });
       } catch (err) {
         console.error("Erro ao buscar dados do tenant:", err);
         setState((prev) => ({ ...prev, loading: false }));
@@ -122,7 +125,7 @@ export function TenantProvider({
     }
 
     fetchDados();
-  }, [session, tenantId]);
+  }, [tenantId]);
 
   function hasPermission(permission: string): boolean {
     if (!state.membro) return false;

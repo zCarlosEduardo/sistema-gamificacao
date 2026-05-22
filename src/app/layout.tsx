@@ -1,16 +1,11 @@
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme/theme-provider";
-import { Providers } from "@/components/providers";
 
 export const metadata = {
   title: "Sistema de Gamificação",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <body
@@ -18,9 +13,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <ThemeProvider>
-          <Providers>
-            {children}
-          </Providers>
+          {children}
         </ThemeProvider>
       </body>
     </html>

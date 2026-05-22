@@ -10,41 +10,51 @@ export async function proxy(request: NextRequest) {
   const bypass = process.env.BYPASS_AUTH === "true";
   if (bypass) return NextResponse.next();
 
-  // Captura os possíveis nomes de cookie que o Better Auth utiliza
   const authToken =
-    request.cookies.get("token")?.value ??
     request.cookies.get("better-auth.session_token")?.value ??
-    request.headers
-      .get("cookie")
-      ?.match(/better-auth\.session_token=([^;]+)/)?.[1];
+    request.cookies.get("token")?.value;
 
   const path = request.nextUrl.pathname;
   const publicRoute = publicRoutes.find((route) => route.path === path);
 
-  // 1. Não autenticado tentando acessar rota pública (Ex: /login) -> Permite
-  if (!authToken && publicRoute) {
-    return NextResponse.next();
-  }
+  if (!authToken && publicRoute) return NextResponse.next();
 
-  // 2. Não autenticado tentando acessar rota privada -> Joga para o Login
   if (!authToken && !publicRoute) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE;
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 3. Autenticado tentando acessar o login -> Redireciona para a Home (Evita entrar no login logado)
-  if (
-    authToken &&
-    publicRoute &&
-    publicRoute.whenAuthenticated === "redirect"
-  ) {
+  if (authToken && publicRoute && publicRoute.whenAuthenticated === "redirect") {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/";
     return NextResponse.redirect(redirectUrl);
   }
 
-  // 4. Se tiver token e for rota privada, deixa o Next.js passar livremente
+  // Valida sessão no Nest e passa dados via header
+  try {
+    const sessionRes = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/auth/get-session`,
+      {
+        headers: {
+          cookie: `better-auth.session_token=${authToken}`,
+        },
+      }
+    );
+
+    if (sessionRes.ok) {
+      const session = await sessionRes.json();
+      const response = NextResponse.next();
+      // Passa userId via header para o client não precisar buscar
+      if (session?.user?.id) {
+        response.headers.set("x-user-id", session.user.id);
+        response.headers.set("x-user-name", session.user.name ?? "");
+        response.headers.set("x-user-email", session.user.email ?? "");
+      }
+      return response;
+    }
+  } catch {}
+
   return NextResponse.next();
 }
 

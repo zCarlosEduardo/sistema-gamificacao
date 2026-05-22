@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut, useSession } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
-import { ThemeToggle } from "@/components/ui/theme/theme-toggle";
 
 const menuItems = [
   { label: "Dashboard", href: "/", permission: null },
@@ -63,12 +62,18 @@ export function Topbar() {
     (item) => item.permission === null || hasPermission(item.permission),
   );
 
-  async function handleSignOut() {
-    await signOut();
-    router.push("/login");
-  }
-
   const initials = session?.user?.name ? getInitials(session.user.name) : "??";
+
+async function handleSignOut() {
+  const { error } = await signOut();
+  
+  if (!error) {
+    router.push("/login");
+  } else {
+    console.error("Erro no signOut:", error);
+    router.push("/login"); // redireciona de qualquer forma
+  }
+}
 
   return (
     <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
@@ -117,7 +122,7 @@ export function Topbar() {
         {/* Direita */}
         <div className="flex items-center gap-3">
           {/* Pontos */}
-          <div className="hidden sm:flex items-center gap-1.5  px-3 py-1.5 rounded-full">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full">
             <div className="flex flex-col text-xs font-medium text-zinc-900 dark:text-white text-center uppercase w-full">
               <span>total {tenant?.nomeMoeda ?? "Coins"}</span>
               <span className="text-amber-500 dark:text-amber-500">0</span>
