@@ -34,3 +34,47 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+```
+sistema-gamificacao
+├─ eslint.config.mjs
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ (private)
+│  │  │  ├─ layout.tsx
+│  │  │  ├─ metas
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ page.tsx
+│  │  │  └─ personalizacao
+│  │  │     └─ page.tsx
+│  │  ├─ (public)
+│  │  │  ├─ layout.tsx
+│  │  │  └─ login
+│  │  │     └─ page.tsx
+│  │  ├─ favicon.ico
+│  │  ├─ globals.css
+│  │  └─ layout.tsx
+│  ├─ components
+│  │  ├─ can-access.tsx
+│  │  ├─ layout
+│  │  │  └─ topbar.tsx
+│  │  ├─ providers.tsx
+│  │  └─ ui
+│  │     └─ theme
+│  │        ├─ theme-provider.tsx
+│  │        └─ theme-toggle.tsx
+│  ├─ contexts
+│  │  └─ tenant-context.tsx
+│  ├─ lib
+│  │  ├─ auth-client.ts
+│  │  └─ constants.ts
+│  └─ proxy.ts
+└─ tsconfig.json
+
+```

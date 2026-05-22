@@ -3,52 +3,72 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { signOut, useSession } from "@/lib/auth-client";
+import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
 
 const menuItems = [
   { label: "Dashboard", href: "/", permission: null },
   { label: "Metas", href: "/metas", permission: "metas.ver" },
   { label: "Mercado", href: "/mercado", permission: "mercado.ver" },
-  {
-    label: "Meus Resgates",
-    href: "/resgates/meus",
-    permission: "resgates.ver",
-  },
+  { label: "Meus Resgates", href: "/resgates/meus", permission: "resgates.ver" },
   { label: "Resgates", href: "/resgates", permission: "resgates.aprovar" },
   { label: "Equipe", href: "/equipe", permission: "equipe.ver" },
   { label: "Usuários", href: "/usuarios", permission: "usuarios.ver" },
   { label: "Pools", href: "/pools", permission: "pools.ver" },
-  {
-    label: "Personalização",
-    href: "/personalizacao",
-    permission: "personalizacao.ver",
-  },
+  { label: "Personalização", href: "/personalizacao", permission: "personalizacao.ver" },
 ];
 
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
+interface Tenant {
+  nome: string;
+  logo: string | null;
+  corPrimaria: string;
+  nomeMoeda: string;
 }
 
-export function Topbar() {
+interface Membro {
+  role: string;
+  permissoes: string[];
+}
+
+interface User {
+  name: string;
+  email: string;
+}
+
+interface TopbarProps {
+  initialUser: User;
+  initialTenant: Tenant | null;
+  initialMembro: Membro | null;
+}
+
+function getInitials(name: string) {
+  return name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();
+}
+
+function hasPermissionStatic(membro: Membro | null, permission: string): boolean {
+  if (!membro) return false;
+  if (membro.role === "SUPER_ADMIN" || membro.role === "ADMIN") return true;
+  return membro.permissoes.includes(permission);
+}
+
+export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const { data: session } = useSession();
-  const { tenant, hasPermission } = useTenant();
+  const { tenant: tenantCtx, membro: membroCtx, hasPermission } = useTenant();
   const [menuAberto, setMenuAberto] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [mounted, setMounted] = useState(false);
 
+  // Usa props iniciais até o contexto hidratar
+  const tenant = tenantCtx ?? initialTenant;
+  const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
 
+  function checkPermission(permission: string) {
+    if (tenantCtx) return hasPermission(permission);
+    return hasPermissionStatic(membro, permission);
+  }
+
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
     function handleClickFora(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
         setMenuAberto(false);
@@ -58,40 +78,39 @@ export function Topbar() {
     return () => document.removeEventListener("mousedown", handleClickFora);
   }, []);
 
+  async function handleSignOut() {
+    await signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          router.replace("/login");
+          router.refresh();
+        },
+      },
+    });
+  }
+
   const itensVisiveis = menuItems.filter(
-    (item) => item.permission === null || hasPermission(item.permission),
+    (item) => item.permission === null || checkPermission(item.permission),
   );
 
-  const initials = session?.user?.name ? getInitials(session.user.name) : "??";
-
-async function handleSignOut() {
-  const { error } = await signOut();
-  
-  if (!error) {
-    router.push("/login");
-  } else {
-    console.error("Erro no signOut:", error);
-    router.push("/login"); // redireciona de qualquer forma
-  }
-}
+  const initials = initialUser?.name ? getInitials(initialUser.name) : "??";
 
   return (
     <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
       <div className="flex items-center justify-between px-6 h-14">
-        {/* Logo + Nav */}
         <div className="flex items-center gap-8">
-          {mounted && tenant?.logo ? (
+          {tenant?.logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img src={tenant.logo} alt={tenant.nome} className="h-7 w-auto" />
           ) : (
             <div
               className="w-24 h-12 rounded-lg flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: mounted ? corPrimaria : "#7C3AED" }}
+              style={{ background: corPrimaria }}
             >
-              {mounted ? (tenant?.nome?.[0] ?? "Logo aqui") : "Logo aqui"}
+              {tenant?.nome?.[0] ?? "Logo"}
             </div>
           )}
 
-          {/* Menu */}
           <nav className="flex items-center gap-1">
             {itensVisiveis.map((item) => {
               const ativo = pathname === item.href;
@@ -119,17 +138,14 @@ async function handleSignOut() {
           </nav>
         </div>
 
-        {/* Direita */}
         <div className="flex items-center gap-3">
-          {/* Pontos */}
-          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full">
-            <div className="flex flex-col text-xs font-medium text-zinc-900 dark:text-white text-center uppercase w-full">
+          <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5">
+            <div className="flex flex-col text-xs font-medium text-zinc-900 dark:text-white text-center uppercase">
               <span>total {tenant?.nomeMoeda ?? "Coins"}</span>
-              <span className="text-amber-500 dark:text-amber-500">0</span>
+              <span className="text-amber-500">0</span>
             </div>
           </div>
 
-          {/* Avatar */}
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setMenuAberto(!menuAberto)}
@@ -148,32 +164,24 @@ async function handleSignOut() {
                   transition={{ duration: 0.15 }}
                   className="absolute right-0 top-10 w-52 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg overflow-hidden z-50"
                 >
-                  {/* Info usuário */}
                   <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
                     <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
-                      {session?.user?.name}
+                      {initialUser?.name}
                     </p>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                      {session?.user?.email}
+                      {initialUser?.email}
                     </p>
                   </div>
 
-                  {/* Ações */}
                   <div className="py-1">
                     <button
-                      onClick={() => {
-                        router.push("/perfil");
-                        setMenuAberto(false);
-                      }}
+                      onClick={() => { router.push("/perfil"); setMenuAberto(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       Meu perfil
                     </button>
                     <button
-                      onClick={() => {
-                        router.push("/trocar-empresa");
-                        setMenuAberto(false);
-                      }}
+                      onClick={() => { router.push("/trocar-empresa"); setMenuAberto(false); }}
                       className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       Alterar empresa

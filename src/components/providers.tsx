@@ -1,11 +1,22 @@
 "use client";
 
 import { TenantProvider } from "@/contexts/tenant-context";
-import { TENANT_ID_FIXO } from "@/lib/constants";
 
-export function Providers({ children }: { children: React.ReactNode }) {
+interface ProvidersProps {
+  children: React.ReactNode;
+  initialSession?: unknown;
+  initialTenant?: unknown;
+  initialMembro?: unknown;
+}
+
+export function Providers({ children, initialTenant, initialMembro }: ProvidersProps) {
   return (
-    <TenantProvider tenantId={TENANT_ID_FIXO}>
+    <TenantProvider
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      initialTenant={initialTenant as any}
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      initialMembro={initialMembro as any}
+    >
       {children}
     </TenantProvider>
   );
