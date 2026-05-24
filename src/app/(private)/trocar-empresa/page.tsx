@@ -1,7 +1,8 @@
 import { getServerSession } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
+import TrocarEmpresaClient from "./trocar-empresa-client";
 import { getActiveTenantId } from "@/lib/auth-server";
-import TrocarEmpresaClient from "@/app/(private)/trocar-empresa/trocar-empresa-client";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-dynamic";
 
@@ -12,17 +13,25 @@ export default async function TrocarEmpresaPage() {
     redirect("/login");
   }
 
-  const [tenantsRes, tenantAtualId] = await Promise.all([
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenants/meus-tenants`, {
+  const tenantAtualId = await getActiveTenantId();
+
+  const cookieStore = await cookies();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/tenants/meus-tenants`,
+    {
       headers: {
-        cookie: `better-auth.session_token=${session.session.token}`,
+        cookie: cookieStore.toString(),
       },
       cache: "no-store",
-    }),
-    getActiveTenantId(),
-  ]);
+    }
+  );
 
-  const tenants = await tenantsRes.json();
+  const tenantsData = await response.json();
+
+  const tenants = Array.isArray(tenantsData)
+    ? tenantsData
+    : tenantsData.data ?? tenantsData.tenants ?? [];
 
   return (
     <TrocarEmpresaClient

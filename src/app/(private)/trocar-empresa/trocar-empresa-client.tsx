@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { selecionarTenant } from "@/app/actions/tenant";
+import { motion } from "framer-motion";
 import { useTransition } from "react";
 
 interface Tenant {
