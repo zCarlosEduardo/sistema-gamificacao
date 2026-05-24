@@ -6,23 +6,15 @@ import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
 
-const menuItems = [
-  { label: "Dashboard", href: "/", permission: null },
-  { label: "Metas", href: "/metas", permission: "metas.ver" },
-  { label: "Mercado", href: "/mercado", permission: "mercado.ver" },
-  { label: "Meus Resgates", href: "/resgates/meus", permission: "resgates.ver" },
-  { label: "Resgates", href: "/resgates", permission: "resgates.aprovar" },
-  { label: "Equipe", href: "/equipe", permission: "equipe.ver" },
-  { label: "Usuários", href: "/usuarios", permission: "usuarios.ver" },
-  { label: "Pools", href: "/pools", permission: "pools.ver" },
-  { label: "Personalização", href: "/personalizacao", permission: "personalizacao.ver" },
-];
-
-interface Tenant {
+// Prefixo "Local" evita colisão com o tipo Tenant exportado pelo contexto
+interface TenantLocal {
   nome: string;
   logo: string | null;
   corPrimaria: string;
-  nomeMoeda: string;
+  nomePontos: string;
+  nomeEquipe: string;
+  nomeMetas: string;
+  nomeLoja: string;
 }
 
 interface Membro {
@@ -37,37 +29,95 @@ interface User {
 
 interface TopbarProps {
   initialUser: User;
-  initialTenant: Tenant | null;
+  initialTenant: TenantLocal | null;
   initialMembro: Membro | null;
 }
 
-function getInitials(name: string) {
-  return name.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();
+interface MenuItem {
+  label: (tenant: TenantLocal | null) => string;
+  href: string;
+  permission: string | null;
 }
 
-function hasPermissionStatic(membro: Membro | null, permission: string): boolean {
+// Labels são funções que resolvem o valor real do tenant
+const menuItems: MenuItem[] = [
+  { label: () => "Dashboard", href: "/", permission: null },
+  {
+    label: (t) => t?.nomeMetas ?? "Metas",
+    href: "/metas",
+    permission: "metas.ver",
+  },
+  {
+    label: (t) => t?.nomeLoja ?? "Mercado",
+    href: "/mercado",
+    permission: "mercado.ver",
+  },
+  {
+    label: () => "Meus Resgates",
+    href: "/resgates/meus",
+    permission: "resgates.ver",
+  },
+  {
+    label: () => "Resgates",
+    href: "/resgates",
+    permission: "resgates.aprovar",
+  },
+  {
+    label: (t) => t?.nomeEquipe ?? "Equipe",
+    href: "/equipe",
+    permission: "equipe.ver",
+  },
+  { label: () => "Usuários", href: "/usuarios", permission: "usuarios.ver" },
+  { label: () => "Pools", href: "/pools", permission: "pools.ver" },
+  {
+    label: () => "Personalização",
+    href: "/personalizacao",
+    permission: "personalizacao.ver",
+  },
+];
+
+function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .slice(0, 2)
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase();
+}
+
+function hasPermissionStatic(
+  membro: Membro | null,
+  permission: string,
+): boolean {
   if (!membro) return false;
   if (membro.role === "SUPER_ADMIN" || membro.role === "ADMIN") return true;
   return membro.permissoes.includes(permission);
 }
 
-export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProps) {
+export function Topbar({
+  initialUser,
+  initialTenant,
+  initialMembro,
+}: TopbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const { tenant: tenantCtx, membro: membroCtx, hasPermission } = useTenant();
+
   const [menuAberto, setMenuAberto] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const prevPathname = useRef(pathname);
 
-  // Usa props iniciais até o contexto hidratar
-  const tenant = tenantCtx ?? initialTenant;
+  // Cast para TenantLocal — evita colisão com o tipo Tenant do contexto
+  const tenant = (tenantCtx ?? initialTenant) as TenantLocal | null;
   const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
 
-  function checkPermission(permission: string) {
+  function checkPermission(permission: string): boolean {
     if (tenantCtx) return hasPermission(permission);
     return hasPermissionStatic(membro, permission);
   }
 
+  // Fecha menu ao clicar fora
   useEffect(() => {
     function handleClickFora(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -78,12 +128,19 @@ export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProp
     return () => document.removeEventListener("mousedown", handleClickFora);
   }, []);
 
+  // Fecha menu ao navegar — ref evita setState síncrono no body do effect
+  useEffect(() => {
+    if (prevPathname.current !== pathname) {
+      prevPathname.current = pathname;
+      setMenuAberto(false);
+    }
+  }, [pathname]);
+
   async function handleSignOut() {
     await signOut({
       fetchOptions: {
         onSuccess: () => {
-          router.replace("/login");
-          router.refresh();
+          window.location.href = "/login";
         },
       },
     });
@@ -98,22 +155,25 @@ export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProp
   return (
     <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
       <div className="flex items-center justify-between px-6 h-14">
+        {/* Esquerda: logo/nome do tenant + nav — layout idêntico ao original */}
         <div className="flex items-center gap-8">
           {tenant?.logo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={tenant.logo} alt={tenant.nome} className="h-7 w-auto" />
+            <img src={tenant.logo} alt={tenant.nome} className="h-12 w-auto" />
           ) : (
             <div
-              className="w-24 h-12 rounded-lg flex items-center justify-center text-white text-xs font-bold"
+              className="w-32 h-12 rounded-lg flex items-center justify-center text-white text-xs font-bold px-2"
               style={{ background: corPrimaria }}
             >
-              {tenant?.nome?.[0] ?? "Logo"}
+              {tenant?.nome ?? "Logo"}
             </div>
           )}
 
           <nav className="flex items-center gap-1">
             {itensVisiveis.map((item) => {
               const ativo = pathname === item.href;
+              const label = item.label(tenant);
+
               return (
                 <button
                   key={item.href}
@@ -124,12 +184,13 @@ export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProp
                       : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                   }`}
                 >
-                  {item.label}
+                  {label}
                   {ativo && (
                     <motion.div
                       layoutId="nav-indicator"
                       className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
                       style={{ background: corPrimaria }}
+                      suppressHydrationWarning
                     />
                   )}
                 </button>
@@ -138,17 +199,19 @@ export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProp
           </nav>
         </div>
 
+        {/* Direita: pontos + avatar — idêntico ao original */}
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5">
             <div className="flex flex-col text-xs font-medium text-zinc-900 dark:text-white text-center uppercase">
-              <span>total {tenant?.nomeMoeda ?? "Coins"}</span>
+              <span>total {tenant?.nomePontos ?? "Coins"}</span>
               <span className="text-amber-500">0</span>
             </div>
           </div>
 
           <div className="relative" ref={menuRef}>
             <button
-              onClick={() => setMenuAberto(!menuAberto)}
+              onClick={() => setMenuAberto((v) => !v)}
+              aria-label="Abrir menu do usuário"
               className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold transition-opacity hover:opacity-80 ring-2 ring-zinc-400 dark:ring-zinc-600"
               style={{ background: corPrimaria }}
             >
@@ -175,13 +238,13 @@ export function Topbar({ initialUser, initialTenant, initialMembro }: TopbarProp
 
                   <div className="py-1">
                     <button
-                      onClick={() => { router.push("/perfil"); setMenuAberto(false); }}
+                      onClick={() => router.push("/perfil")}
                       className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       Meu perfil
                     </button>
                     <button
-                      onClick={() => { router.push("/trocar-empresa"); setMenuAberto(false); }}
+                      onClick={() => router.push("/trocar-empresa")}
                       className="w-full text-left px-4 py-2 text-sm text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                     >
                       Alterar empresa

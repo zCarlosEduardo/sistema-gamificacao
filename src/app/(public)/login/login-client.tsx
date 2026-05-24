@@ -1,4 +1,4 @@
-    "use client";
+"use client";
 
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
@@ -20,7 +20,7 @@ export default function LoginClient() {
       { email, password },
       {
         onSuccess: () => {
-          router.replace("/");
+          window.location.href = "/";
         },
         onError: (ctx) => {
           setError(ctx.error.message ?? "E-mail ou senha incorretos.");
@@ -52,11 +52,16 @@ export default function LoginClient() {
               className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
               style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)" }}
             >
-              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-none stroke-white stroke-2">
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 fill-none stroke-white stroke-2"
+              >
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
               </svg>
             </div>
-            <p className="text-white font-bold text-xl tracking-tight">GameHQ</p>
+            <p className="text-white font-bold text-xl tracking-tight">
+              GameHQ
+            </p>
             <p className="text-[#6366f1] text-xs tracking-widest uppercase mt-0.5">
               Plataforma de Gamificação
             </p>
@@ -68,10 +73,13 @@ export default function LoginClient() {
               Engajamento real
             </p>
             <h1 className="text-white text-3xl font-bold leading-tight tracking-tight mb-3">
-              Transforme metas<br />em <span className="text-[#7c3aed]">conquistas</span>
+              Transforme metas
+              <br />
+              em <span className="text-[#7c3aed]">conquistas</span>
             </h1>
             <p className="text-[#6b7280] text-sm leading-relaxed">
-              Acompanhe desempenho, acumule pontos e troque por recompensas reais.
+              Acompanhe desempenho, acumule pontos e troque por recompensas
+              reais.
             </p>
           </div>
         </div>
@@ -132,7 +140,9 @@ export default function LoginClient() {
 
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-[#1e1e2e]" />
-            <span className="text-[#374151] text-xs tracking-widest">acesso restrito</span>
+            <span className="text-[#374151] text-xs tracking-widest">
+              acesso restrito
+            </span>
             <div className="flex-1 h-px bg-[#1e1e2e]" />
           </div>
 
