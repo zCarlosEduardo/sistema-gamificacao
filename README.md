@@ -36,6 +36,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 
+
 ```
 sistema-gamificacao
 ├─ eslint.config.mjs
@@ -52,13 +53,18 @@ sistema-gamificacao
 │  │  │  ├─ metas
 │  │  │  │  └─ page.tsx
 │  │  │  ├─ page.tsx
-│  │  │  └─ personalizacao
-│  │  │     └─ page.tsx
+│  │  │  ├─ personalizacao
+│  │  │  │  └─ page.tsx
+│  │  │  └─ trocar-empresa
+│  │  │     ├─ page.tsx
+│  │  │     └─ trocar-empresa-client.tsx
 │  │  ├─ (public)
 │  │  │  ├─ layout.tsx
 │  │  │  └─ login
 │  │  │     ├─ login-client.tsx
 │  │  │     └─ page.tsx
+│  │  ├─ actions
+│  │  │  └─ tenant.ts
 │  │  ├─ favicon.ico
 │  │  ├─ globals.css
 │  │  └─ layout.tsx
@@ -76,7 +82,8 @@ sistema-gamificacao
 │  ├─ lib
 │  │  ├─ auth-client.ts
 │  │  ├─ auth-server.ts
-│  │  └─ constants.ts
+│  │  ├─ constants.ts
+│  │  └─ tenant-cookie.ts
 │  └─ proxy.ts
 └─ tsconfig.json
 

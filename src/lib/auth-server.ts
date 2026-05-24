@@ -1,8 +1,8 @@
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 export async function getServerSession() {
   const headersList = await headers();
-  
+
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/auth/get-session`,
     {
@@ -10,7 +10,7 @@ export async function getServerSession() {
         cookie: headersList.get("cookie") ?? "",
       },
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) return null;
@@ -19,7 +19,10 @@ export async function getServerSession() {
   return data ?? null;
 }
 
-export async function getServerMembro(tenantId: string, session: { user: { id: string } }) {
+export async function getServerMembro(
+  tenantId: string,
+  session: { user: { id: string } },
+) {
   const headersList = await headers();
 
   const response = await fetch(
@@ -30,7 +33,7 @@ export async function getServerMembro(tenantId: string, session: { user: { id: s
         "x-tenant-id": tenantId,
       },
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) return null;
@@ -49,10 +52,22 @@ export async function getServerTenant(tenantId: string) {
         "x-tenant-id": tenantId,
       },
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) return null;
 
   return response.json();
+}
+
+export const TENANT_COOKIE = "tenant_id";
+
+export async function getTenantIdFromCookie(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get(TENANT_COOKIE)?.value ?? null;
+}
+
+export async function getActiveTenantId(): Promise<string | null> {
+  const cookieStore = await cookies();
+  return cookieStore.get("tenant_id")?.value ?? null;
 }
