@@ -8,7 +8,6 @@ import {
 } from "@/lib/auth-server";
 import {
   getTenantIdFromCookie,
-  setTenantIdCookie,
 } from "@/lib/tenant-cookie";
 import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
@@ -68,7 +67,7 @@ export default async function TenantLayout({
     if (tenants.length === 1) {
       tenantId = tenants[0].id;
 
-      await setTenantIdCookie(tenantId);
+      await getTenantIdFromCookie();
     }
 
     // Mais de 1 → escolher
@@ -101,7 +100,7 @@ export default async function TenantLayout({
 
   return (
     <Providers initialTenant={tenant} initialMembro={membro}>
-      <div className="min-h-screen bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white">
         <Topbar
           initialUser={session.user}
           initialTenant={tenant}

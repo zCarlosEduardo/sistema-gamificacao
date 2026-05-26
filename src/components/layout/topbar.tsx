@@ -70,9 +70,14 @@ const menuItems: MenuItem[] = [
   { label: () => "Usuários", href: "/usuarios", permission: "usuarios.ver" },
   { label: () => "Pools", href: "/pools", permission: "pools.ver" },
   {
-    label: () => "Personalização",
-    href: "/personalizacao",
-    permission: "personalizacao.ver",
+    label: () => "Meu Perfil",
+    href: "/perfil",
+    permission: null,
+  },
+  {
+    label: () => "Configuração",
+    href: "/configuracao",
+    permission: "configuracao.ver",
   },
 ];
 
@@ -153,7 +158,7 @@ export function Topbar({
   const initials = initialUser?.name ? getInitials(initialUser.name) : "??";
 
   return (
-    <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+    <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
       <div className="flex items-center justify-between px-6 h-14">
         {/* Esquerda: logo/nome do tenant + nav — layout idêntico ao original */}
         <div className="flex items-center gap-8">
@@ -202,9 +207,13 @@ export function Topbar({
         {/* Direita: pontos + avatar — idêntico ao original */}
         <div className="flex items-center gap-3">
           <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5">
-            <div className="flex flex-col text-xs font-medium text-zinc-900 dark:text-white text-center uppercase">
-              <span>total {tenant?.nomePontos ?? "Coins"}</span>
-              <span className="text-amber-500">0</span>
+            <div className="flex flex-col text-xs font-medium text-zinc-800 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors text-center">
+              <span className="uppercase ">
+                total {tenant?.nomePontos ?? "Coins"}
+              </span>
+              <span
+              // title={`${pontuacao} Pts`}
+               className="text-amber-500 text-base text-end">80.880.880,90 Pts</span>
             </div>
           </div>
 
