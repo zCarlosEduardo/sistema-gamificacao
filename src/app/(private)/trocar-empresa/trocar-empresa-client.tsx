@@ -97,7 +97,7 @@ export default function TrocarEmpresaClient({
 
               {/* Logo ou iniciais */}
               <div
-                className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-lg flex-shrink-0"
+                className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0"
                 style={{ background: tenant.corPrimaria }}
               >
                 {tenant.logo ? (

@@ -25,8 +25,8 @@ export default function NotFound() {
           </h1>
 
           <p className="mt-4 leading-relaxed text-zinc-500 dark:text-zinc-400">
-            A página que você tentou acessar não existe,
-            foi removida ou o link está incorreto.
+            A página que você tentou acessar não existe, foi removida ou o link
+            está incorreto.
           </p>
 
           <div className="mt-8 flex gap-4">

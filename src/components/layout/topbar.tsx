@@ -67,7 +67,7 @@ const menuItems: MenuItem[] = [
     href: "/equipe",
     permission: "equipe.ver",
   },
-  { label: () => "Usuários", href: "/usuarios", permission: "usuarios.ver" },
+  { label: () => "Funcionários", href: "/funcionarios", permission: "usuarios.ver" },
   { label: () => "Pools", href: "/pools", permission: "pools.ver" },
   { label: () => "Meu Perfil", href: "/perfil", permission: null },
   {
