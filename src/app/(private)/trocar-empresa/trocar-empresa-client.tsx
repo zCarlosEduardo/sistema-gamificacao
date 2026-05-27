@@ -7,7 +7,7 @@ import { useTransition } from "react";
 interface Tenant {
   id: string;
   nome: string;
-  slug: string;
+  cnpj?: string;
   logo: string | null;
   corPrimaria: string;
 }
@@ -32,6 +32,7 @@ export default function TrocarEmpresaClient({
   usuarioNome,
   tenantAtualId,
 }: TrocarEmpresaClientProps) {
+   console.log("tenants:", tenants);
   const [isPending, startTransition] = useTransition();
 
   function handleSelecionar(tenantId: string) {
@@ -77,7 +78,7 @@ export default function TrocarEmpresaClient({
               disabled={isPending}
               className={`relative group flex flex-col items-center gap-4 p-6 rounded-2xl border text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 ativo
-                  ? "border-[var(--cor)] bg-[var(--cor)]/5 dark:bg-[var(--cor)]/10"
+                  ? "border-(--cor) bg-(--cor)/5 dark:bg-(--cor)/10"
                   : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700"
               }`}
               style={{ "--cor": tenant.corPrimaria } as React.CSSProperties}
@@ -118,7 +119,7 @@ export default function TrocarEmpresaClient({
                   {tenant.nome}
                 </p>
                 <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5">
-                  {tenant.slug}
+                  {tenant.cnpj}
                 </p>
               </div>
 

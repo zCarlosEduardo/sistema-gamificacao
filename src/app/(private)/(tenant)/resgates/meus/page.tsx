@@ -1,4 +1,3 @@
 export default function MeusResgates() {
-    return (
-        <span>meus resgates</span>
-)};
+  throw new Error("Teste de erro");
+};

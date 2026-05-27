@@ -6,9 +6,7 @@ import {
   getServerSession,
   getServerTenant,
 } from "@/lib/auth-server";
-import {
-  getTenantIdFromCookie,
-} from "@/lib/tenant-cookie";
+import { getTenantIdFromCookie } from "@/lib/tenant-cookie";
 import { unstable_noStore as noStore } from "next/cache";
 import { cookies } from "next/headers";
 
@@ -49,14 +47,14 @@ export default async function TenantLayout({
           cookie: cookieStore.toString(),
         },
         cache: "no-store",
-      }
+      },
     );
 
     const tenantsData = await response.json();
 
     const tenants: Tenant[] = Array.isArray(tenantsData)
       ? tenantsData
-      : tenantsData.data ?? tenantsData.tenants ?? [];
+      : (tenantsData.data ?? tenantsData.tenants ?? []);
 
     // Nenhum tenant
     if (tenants.length === 0) {
@@ -82,8 +80,8 @@ export default async function TenantLayout({
   }
 
   const [tenant, membroRaw] = await Promise.all([
-    getServerTenant(tenantId),
-    getServerMembro(tenantId, session),
+    getServerTenant(tenantId).catch(() => null),
+    getServerMembro(tenantId, session).catch(() => null),
   ]);
 
   if (!tenant || !membroRaw || !membroRaw.ativo) {
@@ -93,9 +91,7 @@ export default async function TenantLayout({
   const membro = {
     role: membroRaw.grupo?.nome ?? "JOGADOR",
     permissoes:
-      membroRaw.grupo?.permissoes?.map(
-        (p: { chave: string }) => p.chave
-      ) ?? [],
+      membroRaw.grupo?.permissoes?.map((p: { chave: string }) => p.chave) ?? [],
   };
 
   return (
@@ -107,9 +103,7 @@ export default async function TenantLayout({
           initialMembro={membro}
         />
 
-        <main className="px-6 py-6">
-          {children}
-        </main>
+        <main className="px-6 py-6">{children}</main>
       </div>
     </Providers>
   );

@@ -37,6 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 
+
 ```
 sistema-gamificacao
 ├─ eslint.config.mjs
@@ -49,12 +50,39 @@ sistema-gamificacao
 ├─ src
 │  ├─ app
 │  │  ├─ (private)
+│  │  │  ├─ (tenant)
+│  │  │  │  ├─ configuracao
+│  │  │  │  │  ├─ categorias
+│  │  │  │  │  │  └─ page.tsx
+│  │  │  │  │  ├─ empresa
+│  │  │  │  │  │  ├─ empresa-client.tsx
+│  │  │  │  │  │  └─ page.tsx
+│  │  │  │  │  ├─ grupos-permissao
+│  │  │  │  │  │  └─ page.tsx
+│  │  │  │  │  ├─ layout.tsx
+│  │  │  │  │  ├─ page.tsx
+│  │  │  │  │  ├─ personalizacao
+│  │  │  │  │  │  └─ page.tsx
+│  │  │  │  │  └─ usuarios
+│  │  │  │  │     └─ page.tsx
+│  │  │  │  ├─ equipe
+│  │  │  │  │  └─ page.tsx
+│  │  │  │  ├─ error.tsx
+│  │  │  │  ├─ layout.tsx
+│  │  │  │  ├─ mercado
+│  │  │  │  │  └─ page.tsx
+│  │  │  │  ├─ metas
+│  │  │  │  │  └─ page.tsx
+│  │  │  │  ├─ page.tsx
+│  │  │  │  ├─ perfil
+│  │  │  │  │  └─ page.tsx
+│  │  │  │  ├─ pools
+│  │  │  │  │  └─ page.tsx
+│  │  │  │  └─ resgates
+│  │  │  │     ├─ meus
+│  │  │  │     │  └─ page.tsx
+│  │  │  │     └─ page.tsx
 │  │  │  ├─ layout.tsx
-│  │  │  ├─ metas
-│  │  │  │  └─ page.tsx
-│  │  │  ├─ page.tsx
-│  │  │  ├─ personalizacao
-│  │  │  │  └─ page.tsx
 │  │  │  └─ trocar-empresa
 │  │  │     ├─ page.tsx
 │  │  │     └─ trocar-empresa-client.tsx
@@ -82,7 +110,6 @@ sistema-gamificacao
 │  ├─ lib
 │  │  ├─ auth-client.ts
 │  │  ├─ auth-server.ts
-│  │  ├─ constants.ts
 │  │  └─ tenant-cookie.ts
 │  └─ proxy.ts
 └─ tsconfig.json

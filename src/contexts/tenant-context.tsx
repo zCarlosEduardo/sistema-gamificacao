@@ -5,7 +5,6 @@ import { createContext, useContext, useState } from "react";
 interface Tenant {
   id: string;
   nome: string;
-  slug: string;
   corPrimaria: string;
   corSecundaria: string;
   logo: string | null;
@@ -17,7 +16,7 @@ interface Tenant {
 }
 
 interface TenantMembro {
-  role: "SUPER_ADMIN" | "ADMIN" | "MEMBRO";
+  role: string;
   permissoes: string[];
 }
 
@@ -26,6 +25,7 @@ interface TenantContextType {
   membro: TenantMembro | null;
   loading: boolean;
   hasPermission: (permission: string) => boolean;
+  atualizarTenant: (dados: Partial<Tenant>) => void;
 }
 
 const TenantContext = createContext<TenantContextType>({
@@ -33,6 +33,7 @@ const TenantContext = createContext<TenantContextType>({
   membro: null,
   loading: false,
   hasPermission: () => false,
+  atualizarTenant: () => {},
 });
 
 export function TenantProvider({
@@ -44,7 +45,7 @@ export function TenantProvider({
   initialTenant: Tenant | null;
   initialMembro: TenantMembro | null;
 }) {
-  const [tenant] = useState<Tenant | null>(initialTenant);
+  const [tenant, setTenant] = useState<Tenant | null>(initialTenant);
   const [membro] = useState<TenantMembro | null>(initialMembro);
 
   function hasPermission(permission: string): boolean {
@@ -53,8 +54,12 @@ export function TenantProvider({
     return membro.permissoes.includes(permission);
   }
 
+  function atualizarTenant(dados: Partial<Tenant>) {
+    setTenant((prev) => prev ? { ...prev, ...dados } : prev);
+  }
+
   return (
-    <TenantContext.Provider value={{ tenant, membro, loading: false, hasPermission }}>
+    <TenantContext.Provider value={{ tenant, membro, loading: false, hasPermission, atualizarTenant }}>
       {children}
     </TenantContext.Provider>
   );
