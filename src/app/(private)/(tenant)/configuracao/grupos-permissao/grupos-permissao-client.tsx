@@ -3,7 +3,6 @@
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
-import { useRouter } from "next/navigation";
 import {
   Plus,
   Shield,
@@ -12,19 +11,17 @@ import {
   Pencil,
   Trash2,
   Lock,
-  LayoutDashboard,
   Target,
   ShoppingCart,
   PackageCheck,
   UserCog,
   Settings2,
   Paintbrush,
-  UserCircle,
+  Dices,
+  X,
 } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Tipos
-// ---------------------------------------------------------------------------
+// ── Tipos ──────────────────────────────────────────────────────
 
 export interface GrupoPermissaoItem {
   id: string;
@@ -42,124 +39,239 @@ export interface GrupoPermissao {
   _count: { membros: number };
 }
 
-interface GruposPermissaoClientProps {
+interface Props {
   tenantId: string;
   grupos: GrupoPermissao[];
 }
 
-// ---------------------------------------------------------------------------
-// Mapa de ícones/labels por recurso
-// ---------------------------------------------------------------------------
+// ── Permissões disponíveis ──────────────────────────────────────
+
+const TODAS_PERMISSOES: { chave: string; label: string; recurso: string }[] = [
+  { chave: "metas.ver", label: "Ver", recurso: "Metas" },
+  { chave: "metas.criar", label: "Criar", recurso: "Metas" },
+  { chave: "metas.editar", label: "Editar", recurso: "Metas" },
+  { chave: "metas.deletar", label: "Deletar", recurso: "Metas" },
+  { chave: "metas.aprovar", label: "Aprovar", recurso: "Metas" },
+  { chave: "mercado.ver", label: "Ver", recurso: "Mercado" },
+  { chave: "mercado.criar", label: "Criar", recurso: "Mercado" },
+  { chave: "mercado.editar", label: "Editar", recurso: "Mercado" },
+  { chave: "mercado.deletar", label: "Deletar", recurso: "Mercado" },
+  { chave: "resgates.ver", label: "Ver", recurso: "Resgates" },
+  { chave: "resgates.aprovar", label: "Aprovar", recurso: "Resgates" },
+  { chave: "equipe.ver", label: "Ver", recurso: "Equipe" },
+  { chave: "equipe.gerenciar", label: "Gerenciar", recurso: "Equipe" },
+  { chave: "usuarios.ver", label: "Ver", recurso: "Usuários" },
+  { chave: "usuarios.criar", label: "Criar", recurso: "Usuários" },
+  { chave: "usuarios.editar", label: "Editar", recurso: "Usuários" },
+  { chave: "usuarios.deletar", label: "Deletar", recurso: "Usuários" },
+  { chave: "pools.ver", label: "Ver", recurso: "Pools" },
+  { chave: "pools.configurar", label: "Configurar", recurso: "Pools" },
+  { chave: "personalizacao.ver", label: "Ver", recurso: "Personalização" },
+  {
+    chave: "personalizacao.editar",
+    label: "Editar",
+    recurso: "Personalização",
+  },
+  { chave: "roleta.jogar", label: "Jogar", recurso: "Roleta" },
+];
+
+const RECURSOS = [...new Set(TODAS_PERMISSOES.map((p) => p.recurso))];
 
 const ICONE_POR_RECURSO: Record<string, React.ElementType> = {
-  dashboard:      LayoutDashboard,
-  metas:          Target,
-  loja:           ShoppingCart,
-  resgates:       PackageCheck,
-  meus_resgates:  PackageCheck,
-  equipes:        Users,
-  usuarios:       UserCog,
-  pools:          Settings2,
-  personalizacao: Paintbrush,
-  perfil:         UserCircle,
+  Metas: Target,
+  Mercado: ShoppingCart,
+  Resgates: PackageCheck,
+  Equipe: Users,
+  Usuários: UserCog,
+  Pools: Settings2,
+  Personalização: Paintbrush,
+  Roleta: Dices,
 };
 
-const LABEL_POR_RECURSO: Record<string, string> = {
-  dashboard:      "Dashboard",
-  metas:          "Metas",
-  loja:           "Loja",
-  resgates:       "Resgates",
-  meus_resgates:  "Resgates",
-  equipes:        "Equipes",
-  usuarios:       "Usuários",
-  pools:          "Pools",
-  personalizacao: "Personalização",
-  perfil:         "Perfil",
-};
+// ── Helpers ─────────────────────────────────────────────────────
 
 function getRecursosUnicos(permissoes: GrupoPermissaoItem[]) {
-  const vistos = new Set<string>();
-  return permissoes
-    .map((p) => p.chave.split(".")[0])
-    .filter((r) => { if (vistos.has(r)) return false; vistos.add(r); return true; });
+  return [
+    ...new Set(
+      permissoes.map((p) => {
+        const recurso = p.chave.split(".")[0];
+        return recurso.charAt(0).toUpperCase() + recurso.slice(1);
+      }),
+    ),
+  ];
 }
 
-// ---------------------------------------------------------------------------
-// Modal de confirmação de delete
-// ---------------------------------------------------------------------------
+const inputCls =
+  "w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors placeholder-zinc-400 dark:placeholder-zinc-600";
 
-function ModalConfirmarDelete({
-  grupo, corAtual, onConfirmar, onCancelar, isPending,
+// ── Modal wrapper ───────────────────────────────────────────────
+
+function Modal({
+  titulo,
+  subtitulo,
+  onClose,
+  children,
 }: {
-  grupo: GrupoPermissao;
-  corAtual: string;
-  onConfirmar: () => void;
-  onCancelar: () => void;
-  isPending: boolean;
+  titulo: string;
+  subtitulo?: string;
+  onClose: () => void;
+  children: React.ReactNode;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        transition={{ duration: 0.15 }}
-        className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-6 w-full max-w-sm shadow-2xl"
+        initial={{ opacity: 0, scale: 0.95, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 12 }}
+        className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/40 flex items-center justify-center flex-shrink-0">
-            <Trash2 size={18} className="text-red-500" />
-          </div>
+        <div className="flex items-start justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-800">
           <div>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-white">Excluir grupo</p>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Esta ação não pode ser desfeita</p>
+            <h2 className="text-base font-bold text-zinc-900 dark:text-white">
+              {titulo}
+            </h2>
+            {subtitulo && (
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                {subtitulo}
+              </p>
+            )}
           </div>
-        </div>
-
-        <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-5">
-          Tem certeza que deseja excluir o grupo{" "}
-          <span className="font-medium text-zinc-900 dark:text-white">{grupo.nome}</span>?{" "}
-          {(grupo._count?.membros ?? 0) > 0 && (
-            <span className="text-red-500">
-              {grupo._count.membros} usuário{grupo._count.membros > 1 ? "s" : ""} perderão este grupo.
-            </span>
-          )}
-        </p>
-
-        <div className="flex items-center gap-2 justify-end">
           <button
-            type="button"
-            onClick={onCancelar}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-zinc-600 dark:text-zinc-400
-              hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            onClick={onClose}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors mt-0.5"
           >
-            Cancelar
+            <X size={16} />
           </button>
-          <motion.button
-            onClick={onConfirmar}
-            disabled={isPending}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-4 py-2 rounded-lg text-sm font-medium text-white bg-red-500
-              hover:bg-red-600 disabled:opacity-50 transition-colors"
-          >
-            {isPending ? "Excluindo..." : "Excluir"}
-          </motion.button>
         </div>
+        <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
       </motion.div>
     </motion.div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Card individual de grupo
-// ---------------------------------------------------------------------------
+// ── Seletor de permissões ───────────────────────────────────────
+
+function SeletorPermissoes({
+  selecionadas,
+  onChange,
+  cor,
+  readOnly,
+}: {
+  selecionadas: string[];
+  onChange: (chaves: string[]) => void;
+  cor: string;
+  readOnly?: boolean;
+}) {
+  function toggleChave(chave: string) {
+    if (readOnly) return;
+    onChange(
+      selecionadas.includes(chave)
+        ? selecionadas.filter((c) => c !== chave)
+        : [...selecionadas, chave],
+    );
+  }
+
+  function toggleRecurso(recurso: string) {
+    if (readOnly) return;
+    const chaves = TODAS_PERMISSOES.filter((p) => p.recurso === recurso).map(
+      (p) => p.chave,
+    );
+    const todasSelecionadas = chaves.every((c) => selecionadas.includes(c));
+    if (todasSelecionadas) {
+      onChange(selecionadas.filter((c) => !chaves.includes(c)));
+    } else {
+      onChange([...new Set([...selecionadas, ...chaves])]);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      {RECURSOS.map((recurso) => {
+        const Icon = ICONE_POR_RECURSO[recurso] ?? Shield;
+        const permissoesDoRecurso = TODAS_PERMISSOES.filter(
+          (p) => p.recurso === recurso,
+        );
+        const todasSel = permissoesDoRecurso.every((p) =>
+          selecionadas.includes(p.chave),
+        );
+        const algunsSel = permissoesDoRecurso.some((p) =>
+          selecionadas.includes(p.chave),
+        );
+
+        return (
+          <div
+            key={recurso}
+            className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Icon size={14} className="text-zinc-500 dark:text-zinc-400" />
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  {recurso}
+                </span>
+                {algunsSel && !todasSel && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400">
+                    parcial
+                  </span>
+                )}
+              </div>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => toggleRecurso(recurso)}
+                  className={`text-xs font-medium px-2.5 py-1 rounded-lg transition-colors border ${
+                    todasSel
+                      ? "text-white border-transparent"
+                      : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-zinc-400"
+                  }`}
+                  style={todasSel ? { background: cor } : {}}
+                >
+                  {todasSel ? "Desmarcar tudo" : "Marcar tudo"}
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {permissoesDoRecurso.map((p) => {
+                const sel = selecionadas.includes(p.chave);
+                return (
+                  <button
+                    key={p.chave}
+                    type="button"
+                    onClick={() => toggleChave(p.chave)}
+                    disabled={readOnly}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
+                      sel
+                        ? "text-white border-transparent"
+                        : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 hover:border-zinc-400 disabled:cursor-default"
+                    }`}
+                    style={sel ? { background: cor } : {}}
+                  >
+                    {p.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Card de grupo ───────────────────────────────────────────────
 
 function GrupoCard({
-  grupo, corAtual, onEditar, onDeletar,
+  grupo,
+  corAtual,
+  onEditar,
+  onDeletar,
 }: {
   grupo: GrupoPermissao;
   corAtual: string;
@@ -176,21 +288,19 @@ function GrupoCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800
-        rounded-xl p-5 flex flex-col gap-4 hover:border-zinc-300 dark:hover:border-zinc-700
-        transition-colors"
+      className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
     >
-      {/* Topo */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
             style={{ background: `${corAtual}18` }}
           >
-            {grupo.nativo
-              ? <ShieldCheck size={17} style={{ color: corAtual }} />
-              : <Shield size={17} style={{ color: corAtual }} />
-            }
+            {grupo.nativo ? (
+              <ShieldCheck size={17} style={{ color: corAtual }} />
+            ) : (
+              <Shield size={17} style={{ color: corAtual }} />
+            )}
           </div>
           <div>
             <div className="flex items-center gap-2">
@@ -198,11 +308,8 @@ function GrupoCard({
                 {grupo.nome}
               </p>
               {grupo.nativo && (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded
-                  text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800
-                  text-zinc-500 dark:text-zinc-400">
-                  <Lock size={9} />
-                  nativo
+                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
+                  <Lock size={9} /> nativo
                 </span>
               )}
             </div>
@@ -213,15 +320,11 @@ function GrupoCard({
             )}
           </div>
         </div>
-
         <div className="flex items-center gap-1 flex-shrink-0">
           <button
             type="button"
             onClick={onEditar}
-            title={grupo.nativo ? "Visualizar" : "Editar"}
-            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400
-              hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100
-              dark:hover:bg-zinc-800 transition-colors"
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
           >
             <Pencil size={14} />
           </button>
@@ -229,9 +332,7 @@ function GrupoCard({
             <button
               type="button"
               onClick={onDeletar}
-              title="Excluir"
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400
-                hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
             >
               <Trash2 size={14} />
             </button>
@@ -241,7 +342,6 @@ function GrupoCard({
 
       <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
 
-      {/* Stats */}
       <div className="grid grid-cols-2 gap-3">
         {[
           { label: "Usuários", value: grupo._count?.membros ?? 0, icon: Users },
@@ -251,10 +351,11 @@ function GrupoCard({
           return (
             <div
               key={s.label}
-              className="bg-white dark:bg-zinc-950 border border-zinc-200
-                dark:border-zinc-800 rounded-lg px-3 py-2.5"
+              className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5"
             >
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">{s.label}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
+                {s.label}
+              </p>
               <div className="flex items-center gap-1.5">
                 <Icon size={13} className="text-zinc-400" />
                 <span className="text-sm font-semibold text-zinc-900 dark:text-white">
@@ -266,7 +367,6 @@ function GrupoCard({
         })}
       </div>
 
-      {/* Badges de recursos */}
       {recursos.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
           {badgesVisiveis.map((recurso) => {
@@ -274,19 +374,14 @@ function GrupoCard({
             return (
               <span
                 key={recurso}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px]
-                  font-medium bg-white dark:bg-zinc-950 border border-zinc-200
-                  dark:border-zinc-800 text-zinc-600 dark:text-zinc-400"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400"
               >
-                <Icon size={10} />
-                {LABEL_POR_RECURSO[recurso] ?? recurso}
+                <Icon size={10} /> {recurso}
               </span>
             );
           })}
           {extras > 0 && (
-            <span className="inline-flex items-center px-2 py-1 rounded-md text-[11px]
-              font-medium bg-white dark:bg-zinc-950 border border-zinc-200
-              dark:border-zinc-800 text-zinc-400">
+            <span className="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-400">
               +{extras} mais
             </span>
           )}
@@ -296,64 +391,397 @@ function GrupoCard({
   );
 }
 
-// ---------------------------------------------------------------------------
-// Componente principal
-// ---------------------------------------------------------------------------
+// ── Componente principal ────────────────────────────────────────
 
 export default function GruposPermissaoClient({
   tenantId,
   grupos: gruposIniciais,
-}: GruposPermissaoClientProps) {
-  const router = useRouter();
+}: Props) {
   const { tenant: tenantCtx } = useTenant();
   const corAtual = tenantCtx?.corPrimaria ?? "#7C3AED";
 
   const [grupos, setGrupos] = useState(gruposIniciais);
-  const [deletando, setDeletando] = useState<GrupoPermissao | null>(null);
-  const [erro, setErro] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [erro, setErro] = useState("");
+
+  // Modal criar
+  const [modalCriar, setModalCriar] = useState(false);
+  const [criarNome, setCriarNome] = useState("");
+  const [criarDescricao, setCriarDescricao] = useState("");
+  const [criarPermissoes, setCriarPermissoes] = useState<string[]>([]);
+  const [erroCriar, setErroCriar] = useState("");
+
+  // Modal editar/visualizar
+  const [grupoEditando, setGrupoEditando] = useState<GrupoPermissao | null>(
+    null,
+  );
+  const [editNome, setEditNome] = useState("");
+  const [editDescricao, setEditDescricao] = useState("");
+  const [editPermissoes, setEditPermissoes] = useState<string[]>([]);
+  const [erroEditar, setErroEditar] = useState("");
+
+  // Modal deletar
+  const [grupoDeletando, setGrupoDeletando] = useState<GrupoPermissao | null>(
+    null,
+  );
 
   const gruposNativos = grupos.filter((g) => g.nativo);
   const gruposCustom = grupos.filter((g) => !g.nativo);
-  const totalUsuarios = grupos.reduce((a, g) => a + (g._count?.membros ?? 0), 0);
+  const totalUsuarios = grupos.reduce(
+    (a, g) => a + (g._count?.membros ?? 0),
+    0,
+  );
 
-  function handleDeletar() {
-    if (!deletando) return;
+  function abrirEditar(grupo: GrupoPermissao) {
+    setGrupoEditando(grupo);
+    setEditNome(grupo.nome);
+    setEditDescricao(grupo.descricao ?? "");
+    setEditPermissoes(grupo.permissoes.map((p) => p.chave));
+    setErroEditar("");
+  }
+
+  function resetCriar() {
+    setCriarNome("");
+    setCriarDescricao("");
+    setCriarPermissoes([]);
+    setErroCriar("");
+  }
+
+  function handleCriar() {
+    setErroCriar("");
     startTransition(async () => {
-      setErro("");
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/grupos`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-tenant-id": tenantId,
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            nome: criarNome,
+            descricao: criarDescricao || null,
+            permissoes: criarPermissoes,
+            tenantId,
+          }),
+        });
+        if (!res.ok) throw new Error("Erro ao criar grupo");
+        const novo = await res.json();
+        setGrupos((prev) => [...prev, { ...novo, _count: { membros: 0 } }]);
+        setModalCriar(false);
+        resetCriar();
+      } catch (e: unknown) {
+        setErroCriar(e instanceof Error ? e.message : "Erro ao criar grupo");
+      }
+    });
+  }
+
+  function handleEditar() {
+    if (!grupoEditando) return;
+    setErroEditar("");
+    startTransition(async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/grupos/${deletando.id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/grupos/${grupoEditando.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "x-tenant-id": tenantId,
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              nome: editNome,
+              descricao: editDescricao || null,
+              permissoes: editPermissoes,
+            }),
+          },
+        );
+        if (!res.ok) throw new Error("Erro ao atualizar grupo");
+        const atualizado = await res.json();
+        setGrupos((prev) =>
+          prev.map((g) =>
+            g.id === grupoEditando.id ? { ...atualizado, _count: g._count } : g,
+          ),
+        );
+        setGrupoEditando(null);
+      } catch (e: unknown) {
+        setErroEditar(
+          e instanceof Error ? e.message : "Erro ao atualizar grupo",
+        );
+      }
+    });
+  }
+
+  function handleDeletar() {
+    if (!grupoDeletando) return;
+    startTransition(async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/grupos/${grupoDeletando.id}`,
           {
             method: "DELETE",
             headers: { "x-tenant-id": tenantId },
             credentials: "include",
-          }
+          },
         );
         if (!res.ok) throw new Error();
-        setGrupos((prev) => prev.filter((g) => g.id !== deletando.id));
-        setDeletando(null);
+        setGrupos((prev) => prev.filter((g) => g.id !== grupoDeletando.id));
+        setGrupoDeletando(null);
       } catch {
         setErro("Erro ao excluir. Tente novamente.");
-        setDeletando(null);
+        setGrupoDeletando(null);
       }
     });
   }
 
   return (
     <>
+      {/* ── Modal Criar ── */}
       <AnimatePresence>
-        {deletando && (
-          <ModalConfirmarDelete
-            grupo={deletando}
-            corAtual={corAtual}
-            onConfirmar={handleDeletar}
-            onCancelar={() => setDeletando(null)}
-            isPending={isPending}
-          />
+        {modalCriar && (
+          <Modal
+            titulo="Novo Grupo de Acesso"
+            subtitulo="Defina o nome e as permissões do grupo"
+            onClose={() => {
+              setModalCriar(false);
+              resetCriar();
+            }}
+          >
+            <div className="flex flex-col gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
+                    Nome <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={criarNome}
+                    onChange={(e) => setCriarNome(e.target.value)}
+                    placeholder="Ex: Vendedor, Gestor..."
+                    className={inputCls}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
+                    Descrição
+                  </label>
+                  <input
+                    type="text"
+                    value={criarDescricao}
+                    onChange={(e) => setCriarDescricao(e.target.value)}
+                    placeholder="Opcional"
+                    className={inputCls}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-3">
+                  Permissões{" "}
+                  <span className="text-zinc-400 font-normal normal-case">
+                    ({criarPermissoes.length} selecionadas)
+                  </span>
+                </label>
+                <SeletorPermissoes
+                  selecionadas={criarPermissoes}
+                  onChange={setCriarPermissoes}
+                  cor={corAtual}
+                />
+              </div>
+
+              {erroCriar && (
+                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
+                  {erroCriar}
+                </p>
+              )}
+
+              <div className="flex gap-3 pt-1">
+                <button
+                  onClick={() => {
+                    setModalCriar(false);
+                    resetCriar();
+                  }}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleCriar}
+                  disabled={isPending || !criarNome}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-colors"
+                  style={{ background: corAtual }}
+                >
+                  {isPending ? "Criando..." : "Criar grupo"}
+                </button>
+              </div>
+            </div>
+          </Modal>
         )}
       </AnimatePresence>
 
+      {/* ── Modal Editar/Visualizar ── */}
+      <AnimatePresence>
+        {grupoEditando && (
+          <Modal
+            titulo={
+              grupoEditando.nativo
+                ? `Visualizar — ${grupoEditando.nome}`
+                : `Editar — ${grupoEditando.nome}`
+            }
+            subtitulo={
+              grupoEditando.nativo
+                ? "Grupo nativo — permissões não podem ser alteradas"
+                : `${grupoEditando._count?.membros ?? 0} usuário(s) neste grupo`
+            }
+            onClose={() => setGrupoEditando(null)}
+          >
+            <div className="flex flex-col gap-5">
+              {!grupoEditando.nativo && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
+                      Nome <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={editNome}
+                      onChange={(e) => setEditNome(e.target.value)}
+                      className={inputCls}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
+                      Descrição
+                    </label>
+                    <input
+                      type="text"
+                      value={editDescricao}
+                      onChange={(e) => setEditDescricao(e.target.value)}
+                      placeholder="Opcional"
+                      className={inputCls}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-3">
+                  Permissões{" "}
+                  <span className="text-zinc-400 font-normal normal-case">
+                    ({editPermissoes.length} selecionadas)
+                  </span>
+                </label>
+                <SeletorPermissoes
+                  selecionadas={editPermissoes}
+                  onChange={setEditPermissoes}
+                  cor={corAtual}
+                  readOnly={grupoEditando.nativo}
+                />
+              </div>
+
+              {erroEditar && (
+                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
+                  {erroEditar}
+                </p>
+              )}
+
+              {!grupoEditando.nativo && (
+                <div className="flex gap-3 pt-1">
+                  <button
+                    onClick={() => setGrupoEditando(null)}
+                    className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    onClick={handleEditar}
+                    disabled={isPending || !editNome}
+                    className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-colors"
+                    style={{ background: corAtual }}
+                  >
+                    {isPending ? "Salvando..." : "Salvar alterações"}
+                  </button>
+                </div>
+              )}
+
+              {grupoEditando.nativo && (
+                <button
+                  onClick={() => setGrupoEditando(null)}
+                  className="w-full py-2.5 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Fechar
+                </button>
+              )}
+            </div>
+          </Modal>
+        )}
+      </AnimatePresence>
+
+      {/* ── Modal Deletar ── */}
+      <AnimatePresence>
+        {grupoDeletando && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setGrupoDeletando(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/40 flex items-center justify-center flex-shrink-0">
+                  <Trash2 size={18} className="text-red-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-white">
+                    Excluir grupo
+                  </p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    Esta ação não pode ser desfeita
+                  </p>
+                </div>
+              </div>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-5">
+                Tem certeza que deseja excluir o grupo{" "}
+                <span className="font-medium text-zinc-900 dark:text-white">
+                  {grupoDeletando.nome}
+                </span>
+                ?{" "}
+                {(grupoDeletando._count?.membros ?? 0) > 0 && (
+                  <span className="text-red-500">
+                    {grupoDeletando._count.membros} usuário(s) perderão este
+                    grupo.
+                  </span>
+                )}
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setGrupoDeletando(null)}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleDeletar}
+                  disabled={isPending}
+                  className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 transition-colors"
+                >
+                  {isPending ? "Excluindo..." : "Excluir"}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Página ── */}
       <div className="max-w-full mx-auto">
         {/* Header */}
         <div className="mb-8 flex items-start justify-between gap-4">
@@ -362,60 +790,65 @@ export default function GruposPermissaoClient({
               Grupos de Acesso
             </h1>
             <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Gerencie os grupos e as permissões de cada perfil do sistema
+              Gerencie os grupos e as permissões de cada perfil
             </p>
           </div>
-
-          <motion.button
-            onClick={() => router.push("grupos-permissao/novo")}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm
-              font-medium text-white flex-shrink-0"
+          <button
+            onClick={() => {
+              resetCriar();
+              setModalCriar(true);
+            }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white flex-shrink-0"
             style={{ background: corAtual }}
           >
-            <Plus size={15} />
-            Novo grupo
-          </motion.button>
+            <Plus size={15} /> Novo grupo
+          </button>
+        </div>
+
+        {/* Cards totais */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+          {[
+            { label: "Total de grupos", value: grupos.length, icon: Shield },
+            {
+              label: "Nativos",
+              value: gruposNativos.length,
+              icon: ShieldCheck,
+            },
+            {
+              label: "Customizados",
+              value: gruposCustom.length,
+              icon: Settings2,
+            },
+            { label: "Usuários vinculados", value: totalUsuarios, icon: Users },
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <div
+                key={s.label}
+                className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3.5"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon size={13} className="text-zinc-400" />
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {s.label}
+                  </p>
+                </div>
+                <p className="text-2xl font-bold text-zinc-900 dark:text-white">
+                  {s.value}
+                </p>
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex flex-col gap-8">
-
-          {/* Visão geral */}
-          <section>
-            <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 rounded-full" style={{ background: corAtual }} />
-              Visão Geral
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: "Total de grupos",     value: grupos.length,         icon: Shield      },
-                { label: "Nativos",             value: gruposNativos.length,  icon: ShieldCheck },
-                { label: "Customizados",        value: gruposCustom.length,   icon: Settings2   },
-                { label: "Usuários vinculados", value: totalUsuarios,         icon: Users       },
-              ].map((s) => {
-                const Icon = s.icon;
-                return (
-                  <div
-                    key={s.label}
-                    className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200
-                      dark:border-zinc-800 rounded-xl px-4 py-3.5"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <Icon size={13} className="text-zinc-400" />
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">{s.label}</p>
-                    </div>
-                    <p className="text-2xl font-bold text-zinc-900 dark:text-white">{s.value}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
           {/* Grupos nativos */}
           <section>
             <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 rounded-full" style={{ background: corAtual }} />
+              <span
+                className="w-1 h-4 rounded-full"
+                style={{ background: corAtual }}
+              />
               Grupos Nativos
               <span className="text-xs font-normal text-zinc-400 dark:text-zinc-600 ml-1">
                 — não podem ser excluídos
@@ -428,8 +861,8 @@ export default function GruposPermissaoClient({
                     key={grupo.id}
                     grupo={grupo}
                     corAtual={corAtual}
-                    onEditar={() => router.push(`grupos-permissao/${grupo.id}`)}
-                    onDeletar={() => setDeletando(grupo)}
+                    onEditar={() => abrirEditar(grupo)}
+                    onDeletar={() => setGrupoDeletando(grupo)}
                   />
                 ))}
               </AnimatePresence>
@@ -439,14 +872,14 @@ export default function GruposPermissaoClient({
           {/* Grupos customizados */}
           <section>
             <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-              <span className="w-1 h-4 rounded-full" style={{ background: corAtual }} />
+              <span
+                className="w-1 h-4 rounded-full"
+                style={{ background: corAtual }}
+              />
               Grupos Customizados
             </h2>
-
             {gruposCustom.length === 0 ? (
-              <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200
-                dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center
-                justify-center gap-3 text-center">
+              <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center justify-center gap-3 text-center">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
                   style={{ background: `${corAtual}18` }}
@@ -461,17 +894,16 @@ export default function GruposPermissaoClient({
                     Crie grupos com permissões personalizadas para o seu time
                   </p>
                 </div>
-                <motion.button
-                  onClick={() => router.push("grupos-permissao/novo")}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="mt-1 flex items-center gap-2 px-4 py-2 rounded-lg text-sm
-                    font-medium text-white"
+                <button
+                  onClick={() => {
+                    resetCriar();
+                    setModalCriar(true);
+                  }}
+                  className="mt-1 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
                   style={{ background: corAtual }}
                 >
-                  <Plus size={14} />
-                  Criar grupo
-                </motion.button>
+                  <Plus size={14} /> Criar grupo
+                </button>
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -481,8 +913,8 @@ export default function GruposPermissaoClient({
                       key={grupo.id}
                       grupo={grupo}
                       corAtual={corAtual}
-                      onEditar={() => router.push(`grupos-permissao/${grupo.id}`)}
-                      onDeletar={() => setDeletando(grupo)}
+                      onEditar={() => abrirEditar(grupo)}
+                      onDeletar={() => setGrupoDeletando(grupo)}
                     />
                   ))}
                 </AnimatePresence>
@@ -502,7 +934,6 @@ export default function GruposPermissaoClient({
               </motion.p>
             )}
           </AnimatePresence>
-
         </div>
       </div>
     </>

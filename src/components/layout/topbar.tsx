@@ -67,7 +67,11 @@ const menuItems: MenuItem[] = [
     href: "/equipe",
     permission: "equipe.ver",
   },
-  { label: () => "Funcionários", href: "/funcionarios", permission: "usuarios.ver" },
+  {
+    label: () => "Funcionários",
+    href: "/funcionarios",
+    permission: "usuarios.ver",
+  },
   { label: () => "Pools", href: "/pools", permission: "pools.ver" },
   { label: () => "Meu Perfil", href: "/perfil", permission: null },
   {
@@ -76,6 +80,25 @@ const menuItems: MenuItem[] = [
     permission: "configuracao.ver",
   },
 ];
+
+function isAtivo(
+  item: MenuItem,
+  pathname: string,
+  allItems: MenuItem[],
+): boolean {
+  if (item.href === "/") return pathname === "/";
+  if (!pathname.startsWith(item.href)) return false;
+
+  // Verifica se existe outro item mais específico que também bate
+  const temFilhoMaisEspecifico = allItems.some(
+    (outro) =>
+      outro.href !== item.href &&
+      outro.href.startsWith(item.href) &&
+      pathname.startsWith(outro.href),
+  );
+
+  return !temFilhoMaisEspecifico;
+}
 
 function getInitials(name: string): string {
   return name
@@ -234,10 +257,7 @@ function MobileDrawer({
             {/* Nav links */}
             <nav className="flex-1 overflow-y-auto py-2 px-2">
               {itensVisiveis.map((item, i) => {
-                const ativo =
-                  item.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(item.href);
+                const ativo = isAtivo(item, pathname, itensVisiveis);
                 const label = item.label(tenant);
 
                 return (
@@ -423,10 +443,7 @@ export function Topbar({
             <nav className="flex items-center gap-1">
               {itensVisiveis.map((item) => {
                 // FIX 1: pathname.startsWith para subrotas
-                const ativo =
-                  item.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(item.href);
+                const ativo = isAtivo(item, pathname, itensVisiveis);
                 const label = item.label(tenant);
 
                 return (
