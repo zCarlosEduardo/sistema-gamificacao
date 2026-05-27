@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
+import { Coins, Target, Star, Users, ShoppingCart } from "lucide-react";
 
 interface Tenant {
   id: string;
@@ -23,46 +24,48 @@ const CAMPOS: {
   label: string;
   descricao: string;
   placeholder: string;
-  emoji: string;
+  icon: React.ElementType;
 }[] = [
   {
     key: "nomeMoeda",
     label: "Moeda",
     descricao: "Nome da moeda virtual usada no sistema",
     placeholder: "Ex: Coins, Fichas, Créditos...",
-    emoji: "🪙",
+    icon: Coins,
   },
   {
     key: "nomeMeta",
     label: "Meta",
     descricao: "Como as metas são chamadas no sistema",
     placeholder: "Ex: Meta, Desafio, Missão...",
-    emoji: "🎯",
+    icon: Target,
   },
   {
     key: "nomePontos",
     label: "Pontos",
     descricao: "Nome da unidade de pontuação",
     placeholder: "Ex: Pontos, XP, Stars...",
-    emoji: "⭐",
+    icon: Star,
   },
   {
     key: "nomeEquipe",
     label: "Equipe",
     descricao: "Como os grupos de usuários são chamados",
     placeholder: "Ex: Equipe, Time, Squad...",
-    emoji: "👥",
+    icon: Users,
   },
   {
     key: "nomeLoja",
     label: "Loja",
     descricao: "Nome do espaço de resgates",
     placeholder: "Ex: Loja, Mercado, Vitrine...",
-    emoji: "🛒",
+    icon: ShoppingCart,
   },
 ];
 
-export default function PersonalizacaoClient({ tenant }: PersonalizacaoClientProps) {
+export default function PersonalizacaoClient({
+  tenant,
+}: PersonalizacaoClientProps) {
   const { tenant: tenantCtx, atualizarTenant } = useTenant();
   const corAtual = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
 
@@ -98,7 +101,7 @@ export default function PersonalizacaoClient({ tenant }: PersonalizacaoClientPro
             },
             credentials: "include",
             body: JSON.stringify(valores),
-          }
+          },
         );
 
         if (!res.ok) throw new Error("Erro ao salvar");
@@ -133,25 +136,32 @@ export default function PersonalizacaoClient({ tenant }: PersonalizacaoClientPro
             />
             Elementos do Sistema
           </h2>
+
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
-            {CAMPOS.map((campo) => (
-              <div key={campo.key}>
-                <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
-                  <span className="mr-1.5">{campo.emoji}</span>
-                  {campo.label}
-                </label>
-                <input
-                  type="text"
-                  value={valores[campo.key]}
-                  onChange={(e) => handleChange(campo.key, e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
-                  placeholder={campo.placeholder}
-                />
-                <p className="text-xs text-zinc-400 dark:text-zinc-600 mt-1">
-                  {campo.descricao}
-                </p>
-              </div>
-            ))}
+            {CAMPOS.map((campo) => {
+              const Icon = campo.icon;
+
+              return (
+                <div key={campo.key}>
+                  <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider flex items-center gap-2 mb-1.5">
+                    <Icon size={14} />
+                    {campo.label}
+                  </label>
+
+                  <input
+                    type="text"
+                    value={valores[campo.key]}
+                    onChange={(e) => handleChange(campo.key, e.target.value)}
+                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+                    placeholder={campo.placeholder}
+                  />
+
+                  <p className="text-xs text-zinc-400 dark:text-zinc-600 mt-1">
+                    {campo.descricao}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -164,18 +174,25 @@ export default function PersonalizacaoClient({ tenant }: PersonalizacaoClientPro
             />
             Preview
           </h2>
+
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
             <div className="flex flex-wrap gap-2">
-              {CAMPOS.map((campo) => (
-                <span
-                  key={campo.key}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white"
-                  style={{ background: corAtual }}
-                >
-                  {campo.emoji} {valores[campo.key] || campo.label}
-                </span>
-              ))}
+              {CAMPOS.map((campo) => {
+                const Icon = campo.icon;
+
+                return (
+                  <span
+                    key={campo.key}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white"
+                    style={{ background: corAtual }}
+                  >
+                    <Icon size={12} />
+                    {valores[campo.key] || campo.label}
+                  </span>
+                );
+              })}
             </div>
+
             <p className="text-xs text-zinc-400 dark:text-zinc-600 mt-3">
               Assim os elementos aparecerão para os usuários.
             </p>
@@ -194,6 +211,7 @@ export default function PersonalizacaoClient({ tenant }: PersonalizacaoClientPro
                 ✓ Salvo com sucesso
               </motion.p>
             )}
+
             {erro && (
               <motion.p
                 initial={{ opacity: 0, x: -8 }}
@@ -204,6 +222,7 @@ export default function PersonalizacaoClient({ tenant }: PersonalizacaoClientPro
               </motion.p>
             )}
           </div>
+
           <motion.button
             onClick={handleSalvar}
             disabled={isPending}

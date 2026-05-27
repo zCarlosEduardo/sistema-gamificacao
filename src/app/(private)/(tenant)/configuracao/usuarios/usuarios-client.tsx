@@ -3,6 +3,16 @@
 import { useState, useTransition, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
+import {
+  Users,
+  CheckCircle2,
+  PauseCircle,
+  Plus,
+  X,
+  Pencil,
+  Search,
+  UserCheck,
+} from "lucide-react";
 
 interface Usuario {
   id: string;
@@ -205,16 +215,16 @@ function Modal({
           <button
             onClick={onClose}
             className="
-              w-10 h-10 flex items-center justify-center
-              rounded-xl
-              text-zinc-400 hover:text-zinc-700
-              dark:hover:text-zinc-200
-              hover:bg-zinc-100 dark:hover:bg-zinc-800
-              transition-colors
-              flex-shrink-0
-            "
+    w-10 h-10 flex items-center justify-center
+    rounded-xl
+    text-zinc-400 hover:text-zinc-700
+    dark:hover:text-zinc-200
+    hover:bg-zinc-100 dark:hover:bg-zinc-800
+    transition-colors
+    flex-shrink-0
+  "
           >
-            ✕
+            <X size={18} />
           </button>
         </div>
 
@@ -454,44 +464,72 @@ export default function UsuariosClient({
           className="px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors flex-shrink-0 flex items-center gap-2"
           style={{ background: corAtual }}
         >
-          <span className="text-lg leading-none">+</span> Novo usuário
+          <Plus size={16} />
+          Novo usuário
         </button>
       </div>
 
       {/* Cards totais */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total", valor: membros.length, icon: "👥" },
-          { label: "Ativos", valor: ativos, icon: "✅" },
-          { label: "Inativos", valor: inativos, icon: "⏸️" },
-        ].map((c) => (
-          <div
-            key={c.label}
-            className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3"
-          >
-            <span className="text-2xl">{c.icon}</span>
-            <div>
-              <p className="text-2xl font-bold text-zinc-900 dark:text-white leading-none">
-                {c.valor}
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {c.label}
-              </p>
+          {
+            label: "Total",
+            valor: membros.length,
+            icon: Users,
+          },
+          {
+            label: "Ativos",
+            valor: ativos,
+            icon: CheckCircle2,
+          },
+          {
+            label: "Inativos",
+            valor: inativos,
+            icon: PauseCircle,
+          },
+        ].map((c) => {
+          const Icon = c.icon;
+
+          return (
+            <div
+              key={c.label}
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3"
+            >
+              <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                <Icon size={20} className="text-zinc-700 dark:text-zinc-300" />
+              </div>
+
+              <div>
+                <p className="text-2xl font-bold text-zinc-900 dark:text-white leading-none">
+                  {c.valor}
+                </p>
+
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  {c.label}
+                </p>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Filtros */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 mb-4">
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            type="text"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por nome, e-mail ou CPF..."
-            className="flex-1 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
-          />
+          <div className="relative flex-1">
+            <Search
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
+            />
+
+            <input
+              type="text"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por nome, e-mail ou CPF..."
+              className="w-full pl-10 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+            />
+          </div>
           <select
             value={filtroGrupo}
             onChange={(e) => setFiltroGrupo(e.target.value)}
@@ -658,8 +696,9 @@ export default function UsuariosClient({
                   <td className="px-4 py-3">
                     <button
                       onClick={() => abrirEditar(membro)}
-                      className="text-xs font-medium text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors px-2 py-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                      className="text-xs font-medium text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors px-2 py-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 flex items-center gap-1"
                     >
+                      <Pencil size={13} />
                       Editar
                     </button>
                   </td>
@@ -703,8 +742,9 @@ export default function UsuariosClient({
                     </span>
                   )}
                   {cpfEncontrado && !cpfBuscando && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-emerald-500">
-                      ✓ Encontrado
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-emerald-500 flex items-center gap-1">
+                      <UserCheck size={14} />
+                      Encontrado
                     </span>
                   )}
                 </div>
