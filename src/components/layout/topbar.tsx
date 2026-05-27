@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
+import { ThemeToggle } from "../ui/theme/theme-toggle";
 
 interface TenantLocal {
   nome: string;
@@ -224,10 +225,7 @@ function MobileDrawer({
               <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium mb-0.5">
                 Total {tenant?.nomePontos ?? "Coins"}
               </p>
-              <p className="text-xl font-semibold text-amber-500">
-                80.880.880,90{" "}
-                <span className="text-sm font-normal text-zinc-400">Pts</span>
-              </p>
+              <p className="text-xl font-semibold text-amber-500">880,90</p>
             </div>
 
             {/* Nav links */}
@@ -292,7 +290,9 @@ function MobileDrawer({
                   <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
                     {user?.name}
                   </p>
-                  <p className="text-xs text-zinc-400 truncate">{user?.email}</p>
+                  <p className="text-xs text-zinc-400 truncate">
+                    {user?.email}
+                  </p>
                 </div>
               </div>
             </div>
@@ -315,7 +315,7 @@ export function Topbar({
   const pathname = usePathname();
   const { tenant: tenantCtx, membro: membroCtx, hasPermission } = useTenant();
 
-  const [menuAberto, setMenuAberto] = useState(false);     // dropdown desktop
+  const [menuAberto, setMenuAberto] = useState(false); // dropdown desktop
   const [drawerAberto, setDrawerAberto] = useState(false); // drawer mobile
   const menuRef = useRef<HTMLDivElement>(null);
   const prevPathname = useRef(pathname);
@@ -386,11 +386,7 @@ export function Topbar({
 
             {tenant?.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={tenant.logo}
-                alt={tenant.nome}
-                className="h-8 w-auto"
-              />
+              <img src={tenant.logo} alt={tenant.nome} className="h-8 w-auto" />
             ) : (
               <div
                 className="h-8 px-3 rounded-lg flex items-center justify-center text-white text-xs font-bold"
@@ -462,7 +458,7 @@ export function Topbar({
                   total {tenant?.nomePontos ?? "Coins"}
                 </span>
                 <span className="text-amber-500 text-base text-end">
-                  80.880.880,90 Pts
+                  880,90
                 </span>
               </div>
             </div>
@@ -509,6 +505,10 @@ export function Topbar({
                       >
                         Alterar empresa
                       </button>
+                      <div className="flex justify-center">
+                        <ThemeToggle />
+                      </div>
+
                       <div className="border-t border-zinc-100 dark:border-zinc-800 mt-1 pt-1">
                         <button
                           onClick={handleSignOut}

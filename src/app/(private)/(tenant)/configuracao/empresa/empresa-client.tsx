@@ -118,7 +118,7 @@ export default function EmpresaClient({ tenant }: EmpresaClientProps) {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-4xl">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-bold text-zinc-900 dark:text-white">

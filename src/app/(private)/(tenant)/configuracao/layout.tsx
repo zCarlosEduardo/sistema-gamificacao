@@ -60,13 +60,6 @@ const menuItems = [
     descricao: "Nome e identidade",
   },
   {
-    label: "Personalização",
-    href: "/configuracao/personalizacao",
-    permission: "personalizacao.ver",
-    Icon: Paintbrush,
-    descricao: "Nomenclaturas",
-  },
-  {
     label: "Grupos de Acesso",
     href: "/configuracao/grupos-permissao",
     permission: "usuarios.ver",
@@ -78,14 +71,21 @@ const menuItems = [
     href: "/configuracao/usuarios",
     permission: "usuarios.ver",
     Icon: Users,
-    descricao: "Membros do tenant",
+    descricao: "Usuários do sistema",
   },
   {
     label: "Categorias",
     href: "/configuracao/categorias",
     permission: "mercado.ver",
     Icon: Tag,
-    descricao: "Categorias de produtos",
+    descricao: "Categorias em geral",
+  },
+  {
+    label: "Personalização",
+    href: "/configuracao/personalizacao",
+    permission: "personalizacao.ver",
+    Icon: Paintbrush,
+    descricao: "Nomenclaturas",
   },
 ];
 
@@ -167,9 +167,7 @@ function ConfigNav({
                   </p>
                   <p
                     className={`text-xs mt-0.5 transition-colors ${
-                      ativo
-                        ? "opacity-70 "
-                        : "text-zinc-400 dark:text-zinc-500"
+                      ativo ? "opacity-70 " : "text-zinc-400 dark:text-zinc-500"
                     }`}
                   >
                     {item.descricao}
@@ -243,17 +241,10 @@ function MobileConfigDrawer({
             className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl"
           >
             {/* Header colorido com a cor do tenant */}
-            <div
-              className="flex items-center justify-between px-4 h-14 shrink-0"
-            >
+            <div className="flex items-center justify-between px-4 h-14 shrink-0">
               <div className="flex items-center gap-2 text-zinc-800 dark:text-zinc-300">
-                <Settings2
-                  size={15}
-                  strokeWidth={2}
-                />
-                <p
-                  className="text-xs font-semibold uppercase tracking-widest"
-                >
+                <Settings2 size={15} strokeWidth={2} />
+                <p className="text-xs font-semibold uppercase tracking-widest">
                   Configurações
                 </p>
               </div>
@@ -262,7 +253,9 @@ function MobileConfigDrawer({
                 aria-label="Fechar menu"
                 className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors"
                 style={{
-                  background: dark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)",
+                  background: dark
+                    ? "rgba(255,255,255,0.1)"
+                    : "rgba(0,0,0,0.08)",
                 }}
               >
                 <X size={16} strokeWidth={2} />
@@ -333,26 +326,37 @@ export default function ConfiguracoesLayout({
           <AlignLeft
             size={15}
             strokeWidth={2}
-            style={{ color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)", flexShrink: 0 }}
+            style={{
+              color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)",
+              flexShrink: 0,
+            }}
           />
 
           {/* Breadcrumb */}
           <span
             className="text-xs uppercase tracking-widest font-semibold shrink-0"
-            style={{ color: dark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.5)" }}
+            style={{
+              color: dark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.5)",
+            }}
           >
             Configurações
           </span>
 
           <ChevronRight
             size={13}
-            style={{ color: dark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)", flexShrink: 0 }}
+            style={{
+              color: dark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
+              flexShrink: 0,
+            }}
           />
 
           <ActiveIcon
             size={13}
             strokeWidth={2}
-            style={{ color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.6)", flexShrink: 0 }}
+            style={{
+              color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.6)",
+              flexShrink: 0,
+            }}
           />
 
           <span
@@ -369,9 +373,7 @@ export default function ConfiguracoesLayout({
         {/* Sidebar — só desktop */}
         <aside className="hidden lg:flex flex-col w-56 flex-shrink-0">
           {/* Cabeçalho da sidebar com cor do tenant */}
-          <div
-            className="sticky top-0 rounded-b-xl overflow-hidden"
-          >
+          <div className="sticky top-0 rounded-b-xl overflow-hidden">
             <div
               className="px-4 py-3 flex items-center gap-2"
               // style={{ background: corPrimaria }}
@@ -379,11 +381,15 @@ export default function ConfiguracoesLayout({
               <Settings2
                 size={14}
                 strokeWidth={2}
-                style={{ color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)" }}
+                style={{
+                  color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)",
+                }}
               />
               <p
                 className="text-xs font-semibold uppercase tracking-widest"
-                style={{ color: dark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.65)" }}
+                style={{
+                  color: dark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.65)",
+                }}
               >
                 Configurações
               </p>
