@@ -30,7 +30,5 @@ export default async function EmpresaPage() {
 
   const tenant = await response.json();
 
-  console.log('tenant:', JSON.stringify(tenant));
-
   return <EmpresaClient tenant={tenant} />;
 }

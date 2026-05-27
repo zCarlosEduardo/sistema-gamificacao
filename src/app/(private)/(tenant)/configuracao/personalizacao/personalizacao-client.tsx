@@ -116,7 +116,7 @@ export default function PersonalizacaoClient({
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-full items-center mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
@@ -184,7 +184,7 @@ export default function PersonalizacaoClient({
                   <span
                     key={campo.key}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white"
-                    style={{ background: corAtual }}
+                    style={{ background: corAtual, opacity: 0.7 }}
                   >
                     <Icon size={12} />
                     {valores[campo.key] || campo.label}

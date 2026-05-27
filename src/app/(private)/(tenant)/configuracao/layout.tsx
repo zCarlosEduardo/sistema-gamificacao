@@ -13,6 +13,7 @@ import {
   AlignLeft,
   ChevronRight,
   Settings2,
+  Package,
 } from "lucide-react";
 import { CanAccess } from "@/components/can-access";
 import { useTenant } from "@/contexts/tenant-context";
@@ -74,6 +75,13 @@ const menuItems = [
     descricao: "Usuários do sistema",
   },
   {
+    label: "Produtos",
+    href: "/configuracao/produtos",
+    permission: "mercado.ver",
+    Icon: Package,
+    descricao: "Produtos em geral",
+  },
+  {
     label: "Categorias",
     href: "/configuracao/categorias",
     permission: "mercado.ver",
@@ -107,7 +115,6 @@ function ConfigNav({
   corPrimaria: string;
   stagger?: boolean;
 }) {
-  const dark = isColorDark(corPrimaria);
 
   return (
     <nav className="flex flex-col gap-0.5">

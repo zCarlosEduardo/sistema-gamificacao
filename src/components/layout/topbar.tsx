@@ -11,6 +11,7 @@ interface TenantLocal {
   nome: string;
   logo: string | null;
   corPrimaria: string;
+  corSecundaria: string;
   nomePontos: string;
   nomeEquipe: string;
   nomeMetas: string;
@@ -99,7 +100,7 @@ function hasPermissionStatic(
 // ──────────────────────────────────────────────────────────────
 function HamburgerIcon({ open }: { open: boolean }) {
   return (
-    <div className="w-5 h-5 relative flex flex-col justify-center gap-[5px]">
+    <div className="w-5 h-5 relative flex flex-col justify-center gap-1.25">
       <motion.span
         animate={open ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
         transition={{ duration: 0.2 }}
@@ -128,6 +129,7 @@ interface MobileDrawerProps {
   itensVisiveis: MenuItem[];
   tenant: TenantLocal | null;
   corPrimaria: string;
+  corSecundaria: string;
   pathname: string;
   user: User;
   onNavigate: (href: string) => void;
@@ -140,6 +142,7 @@ function MobileDrawer({
   itensVisiveis,
   tenant,
   corPrimaria,
+  corSecundaria,
   pathname,
   user,
   onNavigate,
@@ -222,7 +225,7 @@ function MobileDrawer({
 
             {/* Pontos */}
             <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-              <p className="text-[10px] uppercase tracking-wider text-zinc-400 font-medium mb-0.5">
+              <p className="text-[10px] uppercase tracking-widest text-zinc-400 font-regular mb-0.5">
                 Total {tenant?.nomePontos ?? "Coins"}
               </p>
               <p className="text-xl font-semibold text-amber-500">880,90</p>
@@ -282,7 +285,9 @@ function MobileDrawer({
               <div className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg bg-zinc-50 dark:bg-zinc-800/60">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                  style={{ background: corPrimaria }}
+                  style={{
+                    background: `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`,
+                  }}
                 >
                   {user?.name ? getInitials(user.name) : "??"}
                 </div>
@@ -323,7 +328,7 @@ export function Topbar({
   const tenant = (tenantCtx ?? initialTenant) as TenantLocal | null;
   const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
-
+  const corSecundaria = tenant?.corSecundaria ?? "#9333EA";
   function checkPermission(permission: string): boolean {
     if (tenantCtx) return hasPermission(permission);
     return hasPermissionStatic(membro, permission);
@@ -454,7 +459,7 @@ export function Topbar({
             {/* Pontos — oculto em mobile (aparece no drawer) */}
             <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5">
               <div className="flex flex-col text-xs font-medium text-zinc-800 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors text-center">
-                <span className="uppercase">
+                <span className="uppercase tracking-widest text-zinc-400 font-regular mb-0.5">
                   total {tenant?.nomePontos ?? "Coins"}
                 </span>
                 <span className="text-amber-500 text-base text-end">
@@ -469,7 +474,9 @@ export function Topbar({
                 onClick={() => setMenuAberto((v) => !v)}
                 aria-label="Abrir menu do usuário"
                 className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold transition-opacity hover:opacity-80 ring-2 ring-zinc-400 dark:ring-zinc-600"
-                style={{ background: corPrimaria }}
+                style={{
+                  background: `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`,
+                }}
               >
                 {initials}
               </button>
@@ -537,6 +544,7 @@ export function Topbar({
         user={initialUser}
         onNavigate={handleNavigate}
         onSignOut={handleSignOut}
+        corSecundaria={""}
       />
     </>
   );

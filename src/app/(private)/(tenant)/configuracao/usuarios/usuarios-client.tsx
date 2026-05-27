@@ -493,7 +493,7 @@ export default function UsuariosClient({
           return (
             <div
               key={c.label}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3 hover:shadow-md transition-all hover:transition-transform hover:-translate-y-1 duration-300"
             >
               <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
                 <Icon size={20} className="text-zinc-700 dark:text-zinc-300" />

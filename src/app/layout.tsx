@@ -2,7 +2,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme/theme-provider";
 
 export const metadata = {
-  title: "Sistema de Gamificação",
+  title: "Ascend",
 };
 
 export default function RootLayout({

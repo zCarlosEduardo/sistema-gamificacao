@@ -32,7 +32,6 @@ export default function TrocarEmpresaClient({
   usuarioNome,
   tenantAtualId,
 }: TrocarEmpresaClientProps) {
-   console.log("tenants:", tenants);
   const [isPending, startTransition] = useTransition();
 
   function handleSelecionar(tenantId: string) {

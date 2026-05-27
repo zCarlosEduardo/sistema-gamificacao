@@ -35,8 +35,16 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
+Identidade visual
 
+https://looka.com/editor/235165857
 
+#226b80
+#faffb8
+#2d8da8
+#174958
+#feffeb
+#f6ff85
 
 ```
 sistema-gamificacao
@@ -45,10 +53,13 @@ sistema-gamificacao
 ├─ package-lock.json
 ├─ package.json
 ├─ postcss.config.mjs
-├─ public
+├─ prisma
+│  └─ schema.prisma
+├─ prisma.config.ts
 ├─ README.md
 ├─ src
 │  ├─ app
+│  │  ├─ (errors)
 │  │  ├─ (private)
 │  │  │  ├─ (tenant)
 │  │  │  │  ├─ configuracao
@@ -62,12 +73,16 @@ sistema-gamificacao
 │  │  │  │  │  ├─ layout.tsx
 │  │  │  │  │  ├─ page.tsx
 │  │  │  │  │  ├─ personalizacao
-│  │  │  │  │  │  └─ page.tsx
+│  │  │  │  │  │  ├─ page.tsx
+│  │  │  │  │  │  └─ personalizacao-client.tsx
 │  │  │  │  │  └─ usuarios
-│  │  │  │  │     └─ page.tsx
+│  │  │  │  │     ├─ page.tsx
+│  │  │  │  │     └─ usuarios-client.tsx
 │  │  │  │  ├─ equipe
 │  │  │  │  │  └─ page.tsx
 │  │  │  │  ├─ error.tsx
+│  │  │  │  ├─ forbidden.tsx
+│  │  │  │  ├─ global-error.tsx
 │  │  │  │  ├─ layout.tsx
 │  │  │  │  ├─ mercado
 │  │  │  │  │  └─ page.tsx
@@ -78,10 +93,11 @@ sistema-gamificacao
 │  │  │  │  │  └─ page.tsx
 │  │  │  │  ├─ pools
 │  │  │  │  │  └─ page.tsx
-│  │  │  │  └─ resgates
-│  │  │  │     ├─ meus
-│  │  │  │     │  └─ page.tsx
-│  │  │  │     └─ page.tsx
+│  │  │  │  ├─ resgates
+│  │  │  │  │  ├─ meus
+│  │  │  │  │  │  └─ page.tsx
+│  │  │  │  │  └─ page.tsx
+│  │  │  │  └─ unauthorized.tsx
 │  │  │  ├─ layout.tsx
 │  │  │  └─ trocar-empresa
 │  │  │     ├─ page.tsx
@@ -95,7 +111,8 @@ sistema-gamificacao
 │  │  │  └─ tenant.ts
 │  │  ├─ favicon.ico
 │  │  ├─ globals.css
-│  │  └─ layout.tsx
+│  │  ├─ layout.tsx
+│  │  └─ not-found.tsx
 │  ├─ components
 │  │  ├─ can-access.tsx
 │  │  ├─ layout

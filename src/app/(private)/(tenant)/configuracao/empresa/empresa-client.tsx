@@ -65,7 +65,6 @@ function ColorPicker({
 
 export default function EmpresaClient({ tenant }: EmpresaClientProps) {
   const { tenant: tenantCtx } = useTenant();
-  console.log('tenant:', JSON.stringify(tenant));
   const corAtual = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
 
   const [nome, setNome] = useState(tenant.nome);
@@ -118,7 +117,7 @@ export default function EmpresaClient({ tenant }: EmpresaClientProps) {
   }
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-full items-center mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
@@ -165,7 +164,7 @@ export default function EmpresaClient({ tenant }: EmpresaClientProps) {
         </section>
 
         {/* Dados personalizáveis */}
-        <section>
+        <section className="max-w-2xl">
           <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
             <span
               className="w-1 h-4 rounded-full"
@@ -174,7 +173,7 @@ export default function EmpresaClient({ tenant }: EmpresaClientProps) {
             Identificação
           </h2>
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
                   Nome de Exibição
@@ -203,8 +202,21 @@ export default function EmpresaClient({ tenant }: EmpresaClientProps) {
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
             <div className="flex items-center gap-4">
               <div
-                className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-xl flex-shrink-0 overflow-hidden border border-zinc-200 dark:border-zinc-700"
-                style={{ background: corPrimaria }}
+                className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0 overflow-hidden border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 bg-zinc-100"
+              >
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={logo}
+                    alt="Logo"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  (nome?.[0]?.toUpperCase() ?? "?")
+                )}
+              </div>
+              <div
+                className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0 overflow-hidden border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-100 bg-zinc-950"
               >
                 {logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -243,16 +255,19 @@ export default function EmpresaClient({ tenant }: EmpresaClientProps) {
             Cores
           </h2>
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
+            <div className="flex gap-6 w-full sm:flex-row flex-col">
+
             <ColorPicker
               label="Cor Primária"
               value={corPrimaria}
               onChange={setCorPrimaria}
-            />
+              />
             <ColorPicker
               label="Cor Secundária"
               value={corSecundaria}
               onChange={setCorSecundaria}
-            />
+              />
+              </div>
             <div
               className="h-10 rounded-lg w-full"
               style={{
