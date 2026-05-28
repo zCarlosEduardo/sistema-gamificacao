@@ -18,8 +18,16 @@ import {
   Settings2,
   Paintbrush,
   Dices,
-  X,
 } from "lucide-react";
+// REMOVE o import de X (lucide) se não usar mais em outro lugar
+import {
+  Modal,
+  ModalConfirmar,
+  PageHeader,
+  StatCard,
+  SectionTitle,
+  inputCls,
+} from "@/components/ui";
 
 // ── Tipos ──────────────────────────────────────────────────────
 
@@ -99,61 +107,6 @@ function getRecursosUnicos(permissoes: GrupoPermissaoItem[]) {
       }),
     ),
   ];
-}
-
-const inputCls =
-  "w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors placeholder-zinc-400 dark:placeholder-zinc-600";
-
-// ── Modal wrapper ───────────────────────────────────────────────
-
-function Modal({
-  titulo,
-  subtitulo,
-  onClose,
-  children,
-}: {
-  titulo: string;
-  subtitulo?: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95, y: 12 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.95, y: 12 }}
-        className="w-full max-w-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-start justify-between px-6 py-5 border-b border-zinc-100 dark:border-zinc-800">
-          <div>
-            <h2 className="text-base font-bold text-zinc-900 dark:text-white">
-              {titulo}
-            </h2>
-            {subtitulo && (
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                {subtitulo}
-              </p>
-            )}
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors mt-0.5"
-          >
-            <X size={16} />
-          </button>
-        </div>
-        <div className="p-6 max-h-[80vh] overflow-y-auto">{children}</div>
-      </motion.div>
-    </motion.div>
-  );
 }
 
 // ── Seletor de permissões ───────────────────────────────────────
@@ -721,34 +674,10 @@ export default function GruposPermissaoClient({
       {/* ── Modal Deletar ── */}
       <AnimatePresence>
         {grupoDeletando && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={() => setGrupoDeletando(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="w-full max-w-sm bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-6 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-950/40 flex items-center justify-center flex-shrink-0">
-                  <Trash2 size={18} className="text-red-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-zinc-900 dark:text-white">
-                    Excluir grupo
-                  </p>
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                    Esta ação não pode ser desfeita
-                  </p>
-                </div>
-              </div>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400 mb-5">
+          <ModalConfirmar
+            titulo="Excluir grupo"
+            descricao={
+              <>
                 Tem certeza que deseja excluir o grupo{" "}
                 <span className="font-medium text-zinc-900 dark:text-white">
                   {grupoDeletando.nome}
@@ -760,100 +689,69 @@ export default function GruposPermissaoClient({
                     grupo.
                   </span>
                 )}
-              </p>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setGrupoDeletando(null)}
-                  className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  onClick={handleDeletar}
-                  disabled={isPending}
-                  className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white bg-red-500 hover:bg-red-600 disabled:opacity-50 transition-colors"
-                >
-                  {isPending ? "Excluindo..." : "Excluir"}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
+              </>
+            }
+            onConfirmar={handleDeletar}
+            onCancelar={() => setGrupoDeletando(null)}
+            isPending={isPending}
+          />
         )}
       </AnimatePresence>
 
       {/* ── Página ── */}
       <div className="max-w-full mx-auto">
         {/* Header */}
-        <div className="mb-8 flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
-              Grupos de Acesso
-            </h1>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-              Gerencie os grupos e as permissões de cada perfil
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              resetCriar();
-              setModalCriar(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white flex-shrink-0"
-            style={{ background: corAtual }}
-          >
-            <Plus size={15} /> Novo grupo
-          </button>
-        </div>
+        <PageHeader
+          titulo="Grupos de Acesso"
+          descricao="Gerencie os grupos e as permissões de cada perfil"
+          action={
+            <button
+              onClick={() => {
+                resetCriar();
+                setModalCriar(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white"
+              style={{ background: corAtual }}
+            >
+              <Plus size={15} /> Novo grupo
+            </button>
+          }
+        />
 
         {/* Cards totais */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
           {[
-            { label: "Total de grupos", value: grupos.length, icon: Shield },
+            { label: "Total de grupos", valor: grupos.length, icon: Shield },
             {
               label: "Nativos",
-              value: gruposNativos.length,
+              valor: gruposNativos.length,
               icon: ShieldCheck,
             },
             {
               label: "Customizados",
-              value: gruposCustom.length,
+              valor: gruposCustom.length,
               icon: Settings2,
             },
-            { label: "Usuários vinculados", value: totalUsuarios, icon: Users },
-          ].map((s) => {
-            const Icon = s.icon;
-            return (
-              <div
-                key={s.label}
-                className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3.5"
-              >
-                <div className="flex items-center gap-2 mb-2">
-                  <Icon size={13} className="text-zinc-400" />
-                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {s.label}
-                  </p>
-                </div>
-                <p className="text-2xl font-bold text-zinc-900 dark:text-white">
-                  {s.value}
-                </p>
-              </div>
-            );
-          })}
+            { label: "Usuários vinculados", valor: totalUsuarios, icon: Users },
+          ].map((s) => (
+            <StatCard
+              key={s.label}
+              label={s.label}
+              valor={s.valor}
+              icon={s.icon}
+            />
+          ))}
         </div>
 
         <div className="flex flex-col gap-8">
           {/* Grupos nativos */}
           <section>
-            <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-              <span
-                className="w-1 h-4 rounded-full"
-                style={{ background: corAtual }}
-              />
-              Grupos Nativos
-              <span className="text-xs font-normal text-zinc-400 dark:text-zinc-600 ml-1">
-                — não podem ser excluídos
-              </span>
-            </h2>
+            <SectionTitle
+              titulo="Grupos Nativos"
+              subtitulo="— não podem ser excluídos"
+              cor={corAtual}
+            />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <AnimatePresence>
                 {gruposNativos.map((grupo) => (
@@ -871,13 +769,7 @@ export default function GruposPermissaoClient({
 
           {/* Grupos customizados */}
           <section>
-            <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-              <span
-                className="w-1 h-4 rounded-full"
-                style={{ background: corAtual }}
-              />
-              Grupos Customizados
-            </h2>
+            <SectionTitle titulo="Grupos Customizados" cor={corAtual} />
             {gruposCustom.length === 0 ? (
               <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center justify-center gap-3 text-center">
                 <div

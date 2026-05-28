@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
 import { Coins, Target, Star, Users, ShoppingCart } from "lucide-react";
+import { PageHeader, SectionTitle } from "@/components/ui";
 
 interface Tenant {
   id: string;
@@ -67,7 +68,7 @@ export default function PersonalizacaoClient({
   tenant,
 }: PersonalizacaoClientProps) {
   const { tenant: tenantCtx, atualizarTenant } = useTenant();
-  const corAtual = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
+  const corPrimaria = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
 
   const [valores, setValores] = useState({
     nomeMoeda: tenant.nomeMoeda,
@@ -118,24 +119,14 @@ export default function PersonalizacaoClient({
   return (
     <div className="max-w-full items-center mx-auto">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
-          Nomenclaturas
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-          Personalize como cada elemento é chamado dentro do sistema
-        </p>
-      </div>
+      <PageHeader
+        titulo="Nomenclaturas"
+        descricao="Personalize como cada elemento é chamado dentro do sistema"
+      />
 
       <div className="flex flex-col gap-8">
         <section>
-          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-            <span
-              className="w-1 h-4 rounded-full"
-              style={{ background: corAtual }}
-            />
-            Elementos do Sistema
-          </h2>
+          <SectionTitle titulo="Elementos do Sistema" cor={corPrimaria} />
 
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
             {CAMPOS.map((campo) => {
@@ -167,13 +158,7 @@ export default function PersonalizacaoClient({
 
         {/* Preview */}
         <section>
-          <h2 className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 mb-4 flex items-center gap-2">
-            <span
-              className="w-1 h-4 rounded-full"
-              style={{ background: corAtual }}
-            />
-            Preview
-          </h2>
+          <SectionTitle titulo="Preview" cor={corPrimaria} />
 
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
             <div className="flex flex-wrap gap-2">
@@ -184,7 +169,7 @@ export default function PersonalizacaoClient({
                   <span
                     key={campo.key}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium text-white"
-                    style={{ background: corAtual, opacity: 0.7 }}
+                    style={{ background: corPrimaria, opacity: 0.7 }}
                   >
                     <Icon size={12} />
                     {valores[campo.key] || campo.label}
@@ -229,7 +214,7 @@ export default function PersonalizacaoClient({
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="px-6 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-colors"
-            style={{ background: corAtual }}
+            style={{ background: corPrimaria }}
           >
             {isPending ? "Salvando..." : "Salvar alterações"}
           </motion.button>

@@ -1,18 +1,27 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
 import {
   Users,
   CheckCircle2,
   PauseCircle,
   Plus,
-  X,
   Pencil,
   Search,
   UserCheck,
 } from "lucide-react";
+import {
+  Modal,
+  Campo,
+  MultiSelect,
+  Avatar,
+  inputCls,
+  PageHeader,
+  StatCard,
+  StatusBadge,
+} from "@/components/ui";
 
 interface Usuario {
   id: string;
@@ -58,15 +67,6 @@ const EQUIPES_MOCK: Equipe[] = [
   { id: "eq5", nome: "Operações" },
 ];
 
-function getIniciais(nome: string) {
-  return nome
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
-}
-
 function formatCpf(v: string) {
   return v
     .replace(/\D/g, "")
@@ -84,164 +84,13 @@ function formatDate(d: string) {
   });
 }
 
-const inputCls =
-  "w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors placeholder-zinc-400 dark:placeholder-zinc-600";
-
-function Campo({
-  label,
-  required,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
-        {label}
-        {required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-function MultiSelect({
-  label,
-  opcoes,
-  selecionados,
-  onChange,
-  cor,
-}: {
-  label: string;
-  opcoes: { id: string; nome: string }[];
-  selecionados: string[];
-  onChange: (ids: string[]) => void;
-  cor: string;
-}) {
-  function toggle(id: string) {
-    onChange(
-      selecionados.includes(id)
-        ? selecionados.filter((s) => s !== id)
-        : [...selecionados, id],
-    );
-  }
-  return (
-    <div>
-      <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
-        {label}
-      </label>
-      <div className="flex flex-wrap gap-2">
-        {opcoes.map((op) => {
-          const sel = selecionados.includes(op.id);
-          return (
-            <button
-              key={op.id}
-              type="button"
-              onClick={() => toggle(op.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
-                sel
-                  ? "text-white border-transparent"
-                  : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 hover:border-zinc-400"
-              }`}
-              style={sel ? { background: cor, borderColor: cor } : {}}
-            >
-              {op.nome}
-            </button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function Modal({
-  titulo,
-  subtitulo,
-  onClose,
-  children,
-}: {
-  titulo: string;
-  subtitulo?: string;
-  onClose: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="
-    fixed inset-0 z-50
-    flex items-center justify-center
-    p-4
-    bg-black/60 backdrop-blur-sm
-  "
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: 20, scale: 0.98 }}
-        transition={{ duration: 0.2 }}
-        onClick={(e) => e.stopPropagation()}
-        className="
-            w-full
-            max-w-2xl
-            max-h-[92vh]
-            bg-white dark:bg-zinc-900
-            border border-zinc-200 dark:border-zinc-800
-            rounded-3xl
-            shadow-2xl
-            overflow-hidden
-            flex flex-col
-             "
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between px-8 py-6 border-b border-zinc-100 dark:border-zinc-800">
-          <div className="min-w-0">
-            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
-              {titulo}
-            </h2>
-
-            {subtitulo && (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 truncate">
-                {subtitulo}
-              </p>
-            )}
-          </div>
-
-          <button
-            onClick={onClose}
-            className="
-    w-10 h-10 flex items-center justify-center
-    rounded-xl
-    text-zinc-400 hover:text-zinc-700
-    dark:hover:text-zinc-200
-    hover:bg-zinc-100 dark:hover:bg-zinc-800
-    transition-colors
-    flex-shrink-0
-  "
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        {/* Conteúdo */}
-        <div className="flex-1 overflow-y-auto px-8 py-6">{children}</div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function UsuariosClient({
   membros: membrosIniciais,
   grupos,
   tenantId,
 }: UsuariosClientProps) {
   const { tenant } = useTenant();
-  const corAtual = tenant?.corPrimaria ?? "#7C3AED";
+  const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
   const nomeEquipe = tenant?.nomeEquipe ?? "Equipes";
 
   const [membros, setMembros] = useState<Membro[]>(membrosIniciais);
@@ -447,70 +296,37 @@ export default function UsuariosClient({
   return (
     <div className="max-w-full">
       {/* Header */}
-      <div className="mb-6 flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
-            Usuários
-          </h1>
-          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-            Gerencie os membros e seus acessos dentro do sistema
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            resetModalCriar();
-            setModalCriar(true);
-          }}
-          className="px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors flex-shrink-0 flex items-center gap-2"
-          style={{ background: corAtual }}
-        >
-          <Plus size={16} />
-          Novo usuário
-        </button>
-      </div>
-
+      <PageHeader
+        titulo="Usuários"
+        descricao="Gerencie os membros e seus acessos dentro do sistema"
+        action={
+          <button
+            onClick={() => {
+              resetModalCriar();
+              setModalCriar(true);
+            }}
+            className="px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors flex items-center gap-2"
+            style={{ background: corPrimaria }}
+          >
+            <Plus size={16} />
+            Novo usuário
+          </button>
+        }
+      />
       {/* Cards totais */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         {[
-          {
-            label: "Total",
-            valor: membros.length,
-            icon: Users,
-          },
-          {
-            label: "Ativos",
-            valor: ativos,
-            icon: CheckCircle2,
-          },
-          {
-            label: "Inativos",
-            valor: inativos,
-            icon: PauseCircle,
-          },
-        ].map((c) => {
-          const Icon = c.icon;
-
-          return (
-            <div
-              key={c.label}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3 hover:shadow-md transition-all hover:transition-transform hover:-translate-y-1 duration-300"
-            >
-              <div className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                <Icon size={20} className="text-zinc-700 dark:text-zinc-300" />
-              </div>
-
-              <div>
-                <p className="text-2xl font-bold text-zinc-900 dark:text-white leading-none">
-                  {c.valor}
-                </p>
-
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  {c.label}
-                </p>
-              </div>
-            </div>
-          );
-        })}
+          { label: "Total", valor: membros.length, icon: Users },
+          { label: "Ativos", valor: ativos, icon: CheckCircle2 },
+          { label: "Inativos", valor: inativos, icon: PauseCircle },
+        ].map((c) => (
+          <StatCard
+            key={c.label}
+            label={c.label}
+            valor={c.valor}
+            icon={c.icon}
+          />
+        ))}
       </div>
 
       {/* Filtros */}
@@ -552,7 +368,7 @@ export default function UsuariosClient({
                     ? "text-white"
                     : "text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
-                style={filtroAtivo === f ? { background: corAtual } : {}}
+                style={filtroAtivo === f ? { background: corPrimaria } : {}}
               >
                 {f}
               </button>
@@ -607,20 +423,13 @@ export default function UsuariosClient({
                   {/* Usuário */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0 overflow-hidden"
-                        style={{ background: corAtual }}
-                      >
-                        {membro.usuario.image ? (
-                          <img
-                            src={membro.usuario.image}
-                            alt={membro.usuario.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          getIniciais(membro.usuario.name)
-                        )}
-                      </div>
+                      <Avatar
+                        nome={membro.usuario.name}
+                        imagem={membro.usuario.image}
+                        cor={corPrimaria}
+                        size="sm"
+                      />
+
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
                           {membro.usuario.name}
@@ -642,7 +451,7 @@ export default function UsuariosClient({
                     {membro.grupo ? (
                       <span
                         className="text-xs font-medium px-2.5 py-1 rounded-full text-white"
-                        style={{ background: `${corAtual}cc` }}
+                        style={{ background: `${corPrimaria}cc` }}
                       >
                         {membro.grupo.nome}
                       </span>
@@ -679,18 +488,7 @@ export default function UsuariosClient({
                   </td>
                   {/* Status */}
                   <td className="px-4 py-3">
-                    <span
-                      className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${
-                        membro.ativo
-                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"
-                          : "bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-                      }`}
-                    >
-                      <span
-                        className={`w-1.5 h-1.5 rounded-full ${membro.ativo ? "bg-emerald-500" : "bg-zinc-400"}`}
-                      />
-                      {membro.ativo ? "Ativo" : "Inativo"}
-                    </span>
+                    <StatusBadge ativo={membro.ativo} />
                   </td>
                   {/* Ação */}
                   <td className="px-4 py-3">
@@ -819,7 +617,7 @@ export default function UsuariosClient({
                 opcoes={EQUIPES_MOCK}
                 selecionados={equipeIds}
                 onChange={setEquipeIds}
-                cor={corAtual}
+                cor={corPrimaria}
               />
 
               {erroCriar && (
@@ -842,7 +640,7 @@ export default function UsuariosClient({
                   onClick={handleCriar}
                   disabled={isPending || !nome || !email || senha.length < 8}
                   className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-colors"
-                  style={{ background: corAtual }}
+                  style={{ background: corPrimaria }}
                 >
                   {isPending ? "Criando..." : "Criar usuário"}
                 </button>
@@ -916,7 +714,7 @@ export default function UsuariosClient({
                 opcoes={EQUIPES_MOCK}
                 selecionados={editEquipeIds}
                 onChange={setEditEquipeIds}
-                cor={corAtual}
+                cor={corPrimaria}
               />
 
               <Campo label="Status">
@@ -947,7 +745,7 @@ export default function UsuariosClient({
                   onClick={handleEditar}
                   disabled={isPending}
                   className="flex-1 py-2.5 rounded-lg text-sm font-medium text-white disabled:opacity-50 transition-colors"
-                  style={{ background: corAtual }}
+                  style={{ background: corPrimaria }}
                 >
                   {isPending ? "Salvando..." : "Salvar alterações"}
                 </button>

@@ -45,7 +45,6 @@ https://looka.com/editor/235165857
 #174958
 #feffeb
 #f6ff85
-
 ```
 sistema-gamificacao
 ├─ eslint.config.mjs
@@ -53,13 +52,12 @@ sistema-gamificacao
 ├─ package-lock.json
 ├─ package.json
 ├─ postcss.config.mjs
-├─ prisma
-│  └─ schema.prisma
-├─ prisma.config.ts
+├─ public
+│  └─ assets
+│     └─ not-found.svg
 ├─ README.md
 ├─ src
 │  ├─ app
-│  │  ├─ (errors)
 │  │  ├─ (private)
 │  │  │  ├─ (tenant)
 │  │  │  │  ├─ configuracao
@@ -69,12 +67,16 @@ sistema-gamificacao
 │  │  │  │  │  │  ├─ empresa-client.tsx
 │  │  │  │  │  │  └─ page.tsx
 │  │  │  │  │  ├─ grupos-permissao
+│  │  │  │  │  │  ├─ grupos-permissao-client.tsx
 │  │  │  │  │  │  └─ page.tsx
 │  │  │  │  │  ├─ layout.tsx
 │  │  │  │  │  ├─ page.tsx
 │  │  │  │  │  ├─ personalizacao
 │  │  │  │  │  │  ├─ page.tsx
 │  │  │  │  │  │  └─ personalizacao-client.tsx
+│  │  │  │  │  ├─ produtos
+│  │  │  │  │  │  ├─ page.tsx
+│  │  │  │  │  │  └─ produtos-client.tsx
 │  │  │  │  │  └─ usuarios
 │  │  │  │  │     ├─ page.tsx
 │  │  │  │  │     └─ usuarios-client.tsx
@@ -82,7 +84,6 @@ sistema-gamificacao
 │  │  │  │  │  └─ page.tsx
 │  │  │  │  ├─ error.tsx
 │  │  │  │  ├─ forbidden.tsx
-│  │  │  │  ├─ global-error.tsx
 │  │  │  │  ├─ layout.tsx
 │  │  │  │  ├─ mercado
 │  │  │  │  │  └─ page.tsx
@@ -110,15 +111,29 @@ sistema-gamificacao
 │  │  ├─ actions
 │  │  │  └─ tenant.ts
 │  │  ├─ favicon.ico
+│  │  ├─ global-error.tsx
 │  │  ├─ globals.css
 │  │  ├─ layout.tsx
 │  │  └─ not-found.tsx
+│  ├─ assets
+│  │  └─ astro_404.svg
 │  ├─ components
 │  │  ├─ can-access.tsx
 │  │  ├─ layout
 │  │  │  └─ topbar.tsx
 │  │  ├─ providers.tsx
 │  │  └─ ui
+│  │     ├─ avatar.tsx
+│  │     ├─ form
+│  │     │  ├─ campo.tsx
+│  │     │  └─ color-picker.tsx
+│  │     ├─ index.ts
+│  │     ├─ modal.tsx
+│  │     ├─ multi-select.tsx
+│  │     ├─ page-header.tsx
+│  │     ├─ section-title.tsx
+│  │     ├─ stat-card.tsx
+│  │     ├─ status-badge.tsx
 │  │     └─ theme
 │  │        ├─ theme-provider.tsx
 │  │        └─ theme-toggle.tsx

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
 import { ThemeToggle } from "../ui/theme/theme-toggle";
+import { Avatar } from "@/components/ui";
 
 interface TenantLocal {
   nome: string;
@@ -98,15 +99,6 @@ function isAtivo(
   );
 
   return !temFilhoMaisEspecifico;
-}
-
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase();
 }
 
 function hasPermissionStatic(
@@ -303,14 +295,12 @@ function MobileDrawer({
 
               {/* Identidade do usuário */}
               <div className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg bg-zinc-50 dark:bg-zinc-800/60">
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                  style={{
-                    background: `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`,
-                  }}
-                >
-                  {user?.name ? getInitials(user.name) : "??"}
-                </div>
+                <Avatar
+                  nome={user?.name ?? ""}
+                  cor={corPrimaria}
+                  corSecundaria={corSecundaria}
+                  size="sm"
+                />
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
                     {user?.name}
@@ -392,8 +382,6 @@ export function Topbar({
   const itensVisiveis = menuItems.filter(
     (item) => item.permission === null || checkPermission(item.permission),
   );
-
-  const initials = initialUser?.name ? getInitials(initialUser.name) : "??";
 
   return (
     <>
@@ -490,12 +478,14 @@ export function Topbar({
               <button
                 onClick={() => setMenuAberto((v) => !v)}
                 aria-label="Abrir menu do usuário"
-                className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold transition-opacity hover:opacity-80 ring-2 ring-zinc-400 dark:ring-zinc-600"
-                style={{
-                  background: `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`,
-                }}
+                className="rounded-full transition-opacity hover:opacity-80 ring-2 ring-zinc-400 dark:ring-zinc-600"
               >
-                {initials}
+                <Avatar
+                  nome={initialUser?.name ?? ""}
+                  cor={corPrimaria}
+                  corSecundaria={corSecundaria}
+                  size="sm"
+                />
               </button>
 
               <AnimatePresence>
@@ -561,7 +551,7 @@ export function Topbar({
         user={initialUser}
         onNavigate={handleNavigate}
         onSignOut={handleSignOut}
-        corSecundaria={""}
+        corSecundaria={corSecundaria}
       />
     </>
   );

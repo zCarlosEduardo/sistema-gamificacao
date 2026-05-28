@@ -1,27 +1,41 @@
 "use client";
 
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
+import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function LoginClient() {
+  const [showPassword, setShowPassword] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
     e.preventDefault();
+
     setLoading(true);
     setError("");
 
     await signIn.email(
-      { email, password },
+      {
+        email,
+        password,
+      },
       {
         onSuccess: () => {
           window.location.href = "/";
         },
+
         onError: (ctx) => {
           setError(ctx.error.message ?? "E-mail ou senha incorretos.");
+
           setLoading(false);
         },
       },
@@ -29,129 +43,150 @@ export default function LoginClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl grid grid-cols-1 lg:grid-cols-2 border border-[#1e1e2e] rounded-xl overflow-hidden">
-        <div className="relative bg-[#0f0f1a] p-10 flex flex-col justify-start gap-12 border-b lg:border-b-0 lg:border-r border-[#1e1e2e] overflow-hidden">
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              backgroundImage:
-                "linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px)",
-              backgroundSize: "32px 32px",
-            }}
-          />
-          <div
-            className="absolute -top-10 -left-10 w-48 h-48 rounded-full pointer-events-none"
-            style={{ background: "rgba(124,58,237,.15)", filter: "blur(60px)" }}
-          />
+    <main className="relative min-h-screen overflow-hidden bg-zinc-950">
+      {/* Ambient */}
+      <div className="pointer-events-none absolute -top-20 -left-20 h-100 w-100 rounded-full bg-indigo-700/8 blur-[100px]" />
+      <div className="md:absolute w-full p-6 md:p-12 flex justify-center md:justify-start items-center">
+        <Image
+          src="/assets/logo-ascend.svg"
+          alt="Página não encontrada"
+          width={220}
+          height={220}
+          priority
+        />
+      </div>
 
-          <div className="relative z-10">
-            <div
-              className="w-11 h-11 rounded-xl flex items-center justify-center mb-4"
-              style={{ background: "linear-gradient(135deg,#7c3aed,#a78bfa)" }}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                className="w-5 h-5 fill-none stroke-white stroke-2"
-              >
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-            </div>
-            <p className="text-white font-bold text-xl tracking-tight">
-              GameHQ
-            </p>
-            <p className="text-[#6366f1] text-xs tracking-widest uppercase mt-0.5">
-              Plataforma de Gamificação
-            </p>
-          </div>
+      <div className="pointer-events-none absolute bottom-0 right-0 h-87.5 w-87.5 rounded-full bg-purple-700/8 blur-[100px]" />
 
-          <div className="relative z-10">
-            <p className="text-[#7c3aed] text-xs tracking-widest uppercase flex items-center gap-2 mb-3">
-              <span className="w-5 h-px bg-[#7c3aed]" />
-              Engajamento real
-            </p>
-            <h1 className="text-white text-3xl font-bold leading-tight tracking-tight mb-3">
-              Transforme metas
-              <br />
-              em <span className="text-[#7c3aed]">conquistas</span>
-            </h1>
-            <p className="text-[#6b7280] text-sm leading-relaxed">
-              Acompanhe desempenho, acumule pontos e troque por recompensas
-              reais.
-            </p>
-          </div>
-        </div>
+      {/* Grid */}
+      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(99,102,241,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(99,102,241,0.03)_1px,transparent_1px)] bg-size-[40px_40px]" />
 
-        <div className="bg-[#0d0d17] p-10 flex flex-col justify-center">
-          <h2 className="text-white text-2xl font-bold tracking-tight mb-1">
-            Bem-vindo de volta
-          </h2>
-          <p className="text-[#6b7280] text-sm mb-8">
-            Entre com suas credenciais para acessar o painel
+      <div className="relative mx-auto grid min-h-screen max-w-7xl grid-cols-1 items-center gap-12 px-6 py-10 lg:grid-cols-3">
+        {/* Left */}
+        <section className="z-10 text-center lg:pl-4 lg:text-left">
+          <h1 className="mt-6 text-4xl text-zinc-50 leading-tight tracking-widest sm:text-5xl">
+            Bem-vindo ao Ascend
+          </h1>
+
+          <p className="mt-6 max-w-sm text-md leading-relaxed text-slate-400 max-lg:mx-auto">
+            Seus desafios, metas e conquistas estão esperando por você.
           </p>
+        </section>
 
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-lg mb-5">
-              {error}
-            </div>
-          )}
+        {/* Center */}
+        <section className="relative flex items-center justify-center">
+          <div className="absolute h-64 w-64 rounded-full bg-indigo-400/20 blur-3xl" />
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Transformamos o componente em um motion do Framer Motion */}
+          <motion.div
+            animate={{
+              y: [0, 24, 0], 
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut", 
+            }}
+          >
+            <Image
+              src="/assets/caindo.svg"
+              alt="Página não encontrada"
+              width={320}
+              height={320}
+              priority
+            />
+          </motion.div>
+        </section>
+
+        {/* Right */}
+        <section className="z-10 w-full lg:pr-4">
+          <form
+            onSubmit={handleSubmit}
+            className="mx-auto w-full max-w-sm space-y-5 rounded-3xl border border-zinc-800/60 bg-zinc-900/70 p-6 shadow-2xl shadow-zinc-500/10 backdrop-blur-2xl sm:p-8"
+          >
             <div>
-              <label className="block text-[#9ca3af] text-xs uppercase tracking-widest mb-2">
-                E-mail
-              </label>
-              <input
-                type="email"
-                placeholder="seu@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                disabled={loading}
-                className="w-full bg-[#0a0a14] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-sm text-white placeholder-[#374151] focus:outline-none focus:border-[#7c3aed] transition-colors"
-              />
+              <h2 className="text-2xl text-zinc-50 ">Entre na sua conta</h2>
             </div>
 
+            {error && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-500">
+                {error}
+              </div>
+            )}
+
+            {/* Email */}
             <div>
-              <label className="block text-[#9ca3af] text-xs uppercase tracking-widest mb-2">
-                Senha
-              </label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                disabled={loading}
-                className="w-full bg-[#0a0a14] border border-[#1e1e2e] rounded-lg px-4 py-2.5 text-sm text-white placeholder-[#374151] focus:outline-none focus:border-[#7c3aed] transition-colors"
-              />
+              <label className="mb-2 block text-sm font-medium  text-zinc-50">E-mail</label>
+
+              <div className="relative">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Digite seu e-mail"
+                  autoComplete="email"
+                  required
+                  disabled={loading}
+                  className="w-full rounded-xl border border-slate-700 bg-zinc-500/10 px-5 py-4 text-sm text-slate-200 placeholder:text-slate-400 outline-none transition focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+                />
+              </div>
             </div>
 
+            {/* Password */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-zinc-50">Senha</label>
+
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Digite sua senha"
+                  autoComplete="current-password"
+                  required
+                  disabled={loading}
+                  className="w-full rounded-xl border border-slate-700 bg-zinc-500/10 px-5 py-4 text-sm text-slate-200 placeholder:text-slate-400 outline-none transition focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-60"
+                />
+
+                <button
+                  type="button"
+                  onMouseDown={() => setShowPassword(true)}
+                  onMouseUp={() => setShowPassword(false)}
+                  onMouseLeave={() => setShowPassword(false)}
+                  onTouchStart={() => setShowPassword(true)}
+                  onTouchEnd={() => setShowPassword(false)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-200 transition hover:text-slate-300"
+                  aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+
+              <div className="mt-2 text-right">
+                <a
+                  href="#"
+                  className="text-xs text-slate-400 transition hover:text-slate-600"
+                >
+                  Recuperar senha?
+                </a>
+              </div>
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#7c3aed] hover:bg-[#6d28d9] text-white text-sm font-medium rounded-lg py-3 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="w-full rounded-xl text-zinc-50 bg-cyan-700 py-4 text-sm font-semibold shadow-lg shadow-indigo-900/20 transition hover:bg-cyan-500 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {loading ? "Entrando..." : "Entrar no sistema →"}
+              {loading ? "Entrando..." : "Entrar"}
             </button>
           </form>
-
-          <div className="flex items-center gap-3 my-6">
-            <div className="flex-1 h-px bg-[#1e1e2e]" />
-            <span className="text-[#374151] text-xs tracking-widest">
-              acesso restrito
-            </span>
-            <div className="flex-1 h-px bg-[#1e1e2e]" />
-          </div>
-
-          <p className="text-[#374151] text-xs text-center">
-            Não consegue acessar? Fale com o{" "}
-            <a href="#" className="text-[#6366f1] hover:underline">
-              administrador do sistema
-            </a>
-          </p>
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
