@@ -89,9 +89,9 @@ export default function LoginClient() {
             }}
           >
             <Image
-              src="/assets/caindo.svg"
+              src="/assets/avatar-login.svg"
               alt="Página não encontrada"
-              width={320}
+              width={420}
               height={320}
               priority
             />
