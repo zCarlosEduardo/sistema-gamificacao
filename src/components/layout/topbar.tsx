@@ -17,6 +17,7 @@ interface TenantLocal {
   nomeEquipe: string;
   nomeMetas: string;
   nomeLoja: string;
+  nomeUsuario: string;
 }
 
 interface Membro {
@@ -64,14 +65,9 @@ const menuItems: MenuItem[] = [
     permission: "resgates.aprovar",
   },
   {
-    label: (t) => t?.nomeEquipe ?? "Equipe",
-    href: "/equipe",
-    permission: "equipe.ver",
-  },
-  {
-    label: () => "Funcionários",
-    href: "/funcionarios",
-    permission: "usuarios.ver",
+    label: (t) => t?.nomeUsuario ?? "Usuários",
+    href: "/usuario",
+    permission: "usuario.ver",
   },
   { label: () => "Pools", href: "/pools", permission: "pools.ver" },
   { label: () => "Meu Perfil", href: "/perfil", permission: null },

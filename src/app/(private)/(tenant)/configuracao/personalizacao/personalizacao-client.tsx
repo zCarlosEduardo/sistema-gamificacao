@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
-import { Coins, Target, Star, Users, ShoppingCart } from "lucide-react";
+import { Coins, Target, Star, Users, ShoppingCart, User } from "lucide-react";
 import { PageHeader, SectionTitle } from "@/components/ui";
 
 interface Tenant {
@@ -13,6 +13,7 @@ interface Tenant {
   nomePontos: string;
   nomeEquipe: string;
   nomeLoja: string;
+  nomeUsuario: string;
   corPrimaria: string;
 }
 
@@ -49,18 +50,25 @@ const CAMPOS: {
     icon: Star,
   },
   {
-    key: "nomeEquipe",
-    label: "Equipe",
-    descricao: "Como os grupos de usuários são chamados",
-    placeholder: "Ex: Equipe, Time, Squad...",
-    icon: Users,
-  },
-  {
     key: "nomeLoja",
     label: "Loja",
     descricao: "Nome do espaço de resgates",
     placeholder: "Ex: Loja, Mercado, Vitrine...",
     icon: ShoppingCart,
+  },
+  {
+    key: "nomeUsuario",
+    label: "Usuários",
+    descricao: "Nome dos funcionários",
+    placeholder: "Ex: usuários, Colaboradores, Funcionários...",
+    icon: User,
+  },
+  {
+    key: "nomeEquipe",
+    label: "Equipe",
+    descricao: "Como os grupos de usuários são chamados",
+    placeholder: "Ex: Equipe, Time, Squad...",
+    icon: Users,
   },
 ];
 
@@ -76,6 +84,7 @@ export default function PersonalizacaoClient({
     nomePontos: tenant.nomePontos,
     nomeEquipe: tenant.nomeEquipe,
     nomeLoja: tenant.nomeLoja,
+    nomeUsuario: tenant.nomeUsuario
   });
 
   const [sucesso, setSucesso] = useState(false);
