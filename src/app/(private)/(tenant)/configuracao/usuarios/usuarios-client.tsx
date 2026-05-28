@@ -50,22 +50,15 @@ interface Membro {
   criadoEm: string;
   usuario: Usuario;
   grupo: Grupo | null;
-  equipes?: Equipe[];
+  equipe: Equipe | null;
 }
 
 interface UsuariosClientProps {
   membros: Membro[];
   grupos: Grupo[];
+  equipes: Equipe[];
   tenantId: string;
 }
-
-const EQUIPES_MOCK: Equipe[] = [
-  { id: "eq1", nome: "Vendas" },
-  { id: "eq2", nome: "TI" },
-  { id: "eq3", nome: "RH" },
-  { id: "eq4", nome: "Financeiro" },
-  { id: "eq5", nome: "Operações" },
-];
 
 function formatCpf(v: string) {
   return v
@@ -87,6 +80,7 @@ function formatDate(d: string) {
 export default function UsuariosClient({
   membros: membrosIniciais,
   grupos,
+  equipes,
   tenantId,
 }: UsuariosClientProps) {
   const { tenant } = useTenant();
@@ -109,7 +103,7 @@ export default function UsuariosClient({
   const [senha, setSenha] = useState("");
   const [telefone, setTelefone] = useState("");
   const [grupoId, setGrupoId] = useState("");
-  const [equipeIds, setEquipeIds] = useState<string[]>([]);
+  const [equipeId, setEquipeId] = useState("");
   const [cpfBuscando, setCpfBuscando] = useState(false);
   const [cpfEncontrado, setCpfEncontrado] = useState(false);
   const [erroCriar, setErroCriar] = useState("");
@@ -121,7 +115,7 @@ export default function UsuariosClient({
   const [editEmail, setEditEmail] = useState("");
   const [editTelefone, setEditTelefone] = useState("");
   const [editGrupoId, setEditGrupoId] = useState("");
-  const [editEquipeIds, setEditEquipeIds] = useState<string[]>([]);
+  const [editEquipeId, setEditEquipeId] = useState("");
   const [editAtivo, setEditAtivo] = useState(true);
   const [erroEditar, setErroEditar] = useState("");
   const [editCpf, setEditCpf] = useState("");
@@ -181,7 +175,7 @@ export default function UsuariosClient({
     setSenha("");
     setTelefone("");
     setGrupoId("");
-    setEquipeIds([]);
+    setEquipeId("");
     setCpfEncontrado(false);
     setErroCriar("");
   }
@@ -193,7 +187,7 @@ export default function UsuariosClient({
     setEditCpf(membro.usuario.cpf ?? "");
     setEditTelefone(membro.usuario.telefone ?? "");
     setEditGrupoId(membro.grupo?.id ?? "");
-    setEditEquipeIds(membro.equipes?.map((e) => e.id) ?? []);
+    setEditEquipeId(membro.equipe?.id ?? "");
     setEditAtivo(membro.ativo);
     setErroEditar("");
   }
@@ -224,6 +218,7 @@ export default function UsuariosClient({
             body: JSON.stringify({
               usuarioId: user.id,
               grupoId: grupoId || undefined,
+              categoriaId: equipeId || undefined,
             }),
           },
         );
@@ -234,7 +229,7 @@ export default function UsuariosClient({
             ...novoMembro,
             usuario: { ...user, cpf, telefone },
             grupo: grupos.find((g) => g.id === grupoId) ?? null,
-            equipes: EQUIPES_MOCK.filter((e) => equipeIds.includes(e.id)),
+            equipe: equipes.find((e) => e.id === equipeId) ?? null,
           },
           ...prev,
         ]);
@@ -262,6 +257,7 @@ export default function UsuariosClient({
             credentials: "include",
             body: JSON.stringify({
               grupoId: editGrupoId || null,
+              categoriaId: editEquipeId || null,
               ativo: editAtivo,
             }),
           },
@@ -274,9 +270,7 @@ export default function UsuariosClient({
                   ...m,
                   ativo: editAtivo,
                   grupo: grupos.find((g) => g.id === editGrupoId) ?? null,
-                  equipes: EQUIPES_MOCK.filter((e) =>
-                    editEquipeIds.includes(e.id),
-                  ),
+                  equipe: equipes.find((e) => e.id === editEquipeId) ?? null,
                   usuario: {
                     ...m.usuario,
                     name: editNome,
@@ -463,22 +457,15 @@ export default function UsuariosClient({
                   </td>
                   {/* Equipes */}
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    <div className="flex gap-1 flex-wrap">
-                      {membro.equipes && membro.equipes.length > 0 ? (
-                        membro.equipes.map((e) => (
-                          <span
-                            key={e.id}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-                          >
-                            {e.nome}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-zinc-400 dark:text-zinc-600">
-                          —
-                        </span>
-                      )}
-                    </div>
+                    {membro.equipe ? (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
+                        {membro.equipe.nome}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-zinc-400 dark:text-zinc-600">
+                        —
+                      </span>
+                    )}
                   </td>
                   {/* Cadastro */}
                   <td className="px-4 py-3 hidden lg:table-cell">
@@ -612,13 +599,20 @@ export default function UsuariosClient({
                 </Campo>
               </div>
 
-              <MultiSelect
-                label={nomeEquipe}
-                opcoes={EQUIPES_MOCK}
-                selecionados={equipeIds}
-                onChange={setEquipeIds}
-                cor={corPrimaria}
-              />
+              <Campo label={nomeEquipe}>
+                <select
+                  value={equipeId}
+                  onChange={(e) => setEquipeId(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="">Sem equipe</option>
+                  {equipes.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nome}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
 
               {erroCriar && (
                 <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
@@ -709,13 +703,20 @@ export default function UsuariosClient({
                 </Campo>
               </div>
 
-              <MultiSelect
-                label={nomeEquipe}
-                opcoes={EQUIPES_MOCK}
-                selecionados={editEquipeIds}
-                onChange={setEditEquipeIds}
-                cor={corPrimaria}
-              />
+              <Campo label={nomeEquipe}>
+                <select
+                  value={editEquipeId}
+                  onChange={(e) => setEditEquipeId(e.target.value)}
+                  className={inputCls}
+                >
+                  <option value="">Sem equipe</option>
+                  {equipes.map((e) => (
+                    <option key={e.id} value={e.id}>
+                      {e.nome}
+                    </option>
+                  ))}
+                </select>
+              </Campo>
 
               <Campo label="Status">
                 <select

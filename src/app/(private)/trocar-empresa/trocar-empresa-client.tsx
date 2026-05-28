@@ -70,7 +70,7 @@ export default function TrocarEmpresaClient({
               key={tenant.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: i * 0.08 }}
+              transition={{ duration: 0.3, delay: i * 0.00 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => handleSelecionar(tenant.id)}
@@ -97,8 +97,7 @@ export default function TrocarEmpresaClient({
 
               {/* Logo ou iniciais */}
               <div
-                className="w-14 h-14 rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0"
-                style={{ background: tenant.corPrimaria }}
+                className="w-22 h-22 rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0 bg-zinc-200 dark:bg-zinc-800/20"
               >
                 {tenant.logo ? (
                   // eslint-disable-next-line @next/next/no-img-element

@@ -15,7 +15,7 @@ export default async function UsuariosPage() {
   const headersList = await headers();
   const cookie = headersList.get("cookie") ?? "";
 
-  const [membrosRes, gruposRes] = await Promise.all([
+  const [membrosRes, gruposRes, equipeRes] = await Promise.all([
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros`, {
       headers: { cookie, "x-tenant-id": tenantId },
       cache: "no-store",
@@ -24,15 +24,21 @@ export default async function UsuariosPage() {
       headers: { cookie, "x-tenant-id": tenantId },
       cache: "no-store",
     }),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias?tipo=EQUIPE`, {
+      headers: { cookie, "x-tenant-id": tenantId },
+      cache: "no-store",
+    }),
   ]);
 
   const membros = membrosRes.ok ? await membrosRes.json() : [];
   const grupos = gruposRes.ok ? await gruposRes.json() : [];
-
+  const equipes = equipeRes.ok ? await equipeRes.json() : [];
+  
   return (
     <UsuariosClient
       membros={membros}
       grupos={grupos}
+      equipes={equipes}
       tenantId={tenantId}
     />
   );
