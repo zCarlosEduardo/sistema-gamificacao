@@ -1,11 +1,11 @@
-import { getServerSession, getActiveTenantId } from "@/lib/auth-server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import GruposPermissaoClient, { type GrupoPermissao } from "./grupos-permissao-client";
+import { getServerSession, getActiveTenantId } from "@/lib/auth-server";
+import GruposPermissaoClient from "./grupos-permissao-client";
 
 export const dynamic = "force-dynamic";
 
-export default async function GruposPermissaoPage() {
+export default async function GruposPage() {
   const session = await getServerSession();
   if (!session?.user) redirect("/login");
 
@@ -15,7 +15,7 @@ export default async function GruposPermissaoPage() {
   const headersList = await headers();
   const cookie = headersList.get("cookie") ?? "";
 
-  const response = await fetch(
+  const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/grupos`,
     {
       headers: {
@@ -26,9 +26,9 @@ export default async function GruposPermissaoPage() {
     }
   );
 
-  if (!response.ok) redirect("/trocar-empresa");
+  if (!res.ok) redirect("/configuracoes");
 
-  const grupos: GrupoPermissao[] = await response.json();
+  const grupos = await res.json();
 
   return <GruposPermissaoClient tenantId={tenantId} grupos={grupos} />;
 }
