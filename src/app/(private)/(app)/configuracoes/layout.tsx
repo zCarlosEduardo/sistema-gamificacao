@@ -15,7 +15,7 @@ import {
   Settings2,
   Package,
 } from "lucide-react";
-import { CanAccess } from "@/components/can-access";
+import { CanAccess } from "@/components/ui/can-access";
 import { useTenant } from "@/contexts/tenant-context";
 
 // ──────────────────────────────────────────────────────────────
@@ -55,42 +55,42 @@ function hexToRgba(hex: string, alpha: number): string {
 const menuItems = [
   {
     label: "Empresa",
-    href: "/configuracao/empresa",
+    href: "/configuracoes/empresa",
     permission: "personalizacao.ver",
     Icon: Building2,
     descricao: "Nome e identidade",
   },
   {
     label: "Grupos de Acesso",
-    href: "/configuracao/grupos-permissao",
+    href: "/configuracoes/grupos-permissao",
     permission: "usuarios.ver",
     Icon: ShieldCheck,
     descricao: "Permissões e grupos",
   },
   {
     label: "Usuários",
-    href: "/configuracao/usuarios",
+    href: "/configuracoes/usuarios",
     permission: "usuarios.ver",
     Icon: Users,
     descricao: "Usuários do sistema",
   },
   {
     label: "Produtos",
-    href: "/configuracao/produtos",
+    href: "/configuracoes/produtos",
     permission: "mercado.ver",
     Icon: Package,
     descricao: "Produtos em geral",
   },
   {
     label: "Categorias",
-    href: "/configuracao/categorias",
+    href: "/configuracoes/categorias",
     permission: "mercado.ver",
     Icon: Tag,
     descricao: "Categorias em geral",
   },
   {
     label: "Personalização",
-    href: "/configuracao/personalizacao",
+    href: "/configuracoes/personalizacao",
     permission: "personalizacao.ver",
     Icon: Paintbrush,
     descricao: "Nomenclaturas",

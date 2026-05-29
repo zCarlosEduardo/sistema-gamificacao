@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
-import { Produto } from "../types";
+import { Produto } from "../../types";
 
 interface Props {
   produto: Produto;

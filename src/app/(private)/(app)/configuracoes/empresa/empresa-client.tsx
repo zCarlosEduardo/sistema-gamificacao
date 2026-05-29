@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
 import { PageHeader, SectionTitle, ColorPicker } from "@/components";
-import type { Props } from "@/components/types";
+import type { Props } from "@/types";
 
 
 

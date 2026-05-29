@@ -3,7 +3,7 @@
 import { selecionarTenant } from "@/app/actions/tenant";
 import { motion } from "framer-motion";
 import { useTransition } from "react";
-import type { TrocarEmpresaClientProps } from "@/components/types";
+import type { TrocarEmpresaClientProps } from "@/types";
 
 
 function getIniciais(nome: string) {

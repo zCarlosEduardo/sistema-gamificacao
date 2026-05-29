@@ -7,7 +7,7 @@ import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
 import { ThemeToggle } from "../ui/theme/theme-toggle";
 import { Avatar } from "@/components";
-import { Tenant } from "@/components/types"
+import { Tenant } from "@/types"
 
 interface Membro {
   role: string;
@@ -62,7 +62,7 @@ const menuItems: MenuItem[] = [
   { label: () => "Meu Perfil", href: "/perfil", permission: null },
   {
     label: () => "Configuração",
-    href: "/configuracao",
+    href: "/configuracoes",
     permission: "configuracao.ver",
   },
 ];

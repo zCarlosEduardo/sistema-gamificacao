@@ -1,6 +1,6 @@
 "use client";
 
-import { AvatarProps } from "@/components/types"
+import { AvatarProps } from "@/types"
 
 function getIniciais(nome: string) {
   return nome.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();

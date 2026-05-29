@@ -11,7 +11,7 @@ import {
   PageHeader,
   ProdutoCard,
 } from "@/components";
-import type { CategoriaRef, Produto, Resgate } from "@/components/types";
+import type { CategoriaRef, Produto, Resgate } from "@/types";
 
 interface Props {
   tenantId: string;

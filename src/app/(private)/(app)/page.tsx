@@ -1,7 +1,7 @@
 "use client";
 
 import { ThemeToggle } from "@/components/ui/theme/theme-toggle";
-import { CanAccess } from "@/components/can-access";
+import { CanAccess } from "@/components/ui/can-access";
 
 
 export default function Home() {

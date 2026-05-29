@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { Topbar } from "@/components/layout/topbar";
-import { Providers } from "@/components/providers";
+import { Topbar } from "@/components/shell/topbar";
+import { Providers } from "@/providers";
 import {
   getServerMembro,
   getServerSession,

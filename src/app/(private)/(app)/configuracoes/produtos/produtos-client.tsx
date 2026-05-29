@@ -3,41 +3,21 @@
 
 import { useState, useTransition } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Plus,
-  Package,
-  Pencil,
-  Trash2,
-  ToggleLeft,
-  ToggleRight,
-  Star,
-} from "lucide-react";
+import { Plus, Package, Pencil, Trash2, Tag, CircleOff, CircleCheck } from "lucide-react";
 import {
   Modal,
   ModalConfirmar,
   PageHeader,
   StatCard,
-  StatusBadge,
   Campo,
   BotoesModal,
   inputCls,
 } from "@/components";
 import { useTenant } from "@/contexts/tenant-context";
-import type { Produto, CategoriaRef } from "@/components/types";
+import type { Produto, CategoriaRef, Props } from "@/types";
 
 const EMOJIS = [
-  "🎁",
-  "🍽️",
-  "☕",
-  "🛒",
-  "💳",
-  "🎮",
-  "📱",
-  "👕",
-  "🏆",
-  "⭐",
-  "💰",
-  "🎯",
+  "🎁", "🍽️", "☕", "🛒", "💳", "🎮", "📱", "👕", "🏆", "⭐", "💰", "🎯",
 ];
 
 type ProdutoForm = {
@@ -60,7 +40,81 @@ const emptyForm: ProdutoForm = {
   categoriaId: "",
 };
 
-// ── FormProduto fora do componente pai para não recriar a cada render ──
+// ── Toggle ──────────────────────────────────────────────────────────────────
+function Toggle({
+  checked,
+  onChange,
+  cor,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  cor: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className="flex items-center gap-2 group"
+    >
+      <span
+        className="relative inline-flex w-8 h-[18px] rounded-full transition-colors duration-200 shrink-0"
+        style={{ background: checked ? cor : undefined }}
+        data-unchecked={!checked || undefined}
+      >
+        <span
+          className={`absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white transition-all duration-200 ${
+            checked ? "left-[18px]" : "left-0.5"
+          }`}
+        />
+        {!checked && (
+          <span className="absolute inset-0 rounded-full border border-zinc-300 dark:border-zinc-600" />
+        )}
+      </span>
+      <span className="text-xs text-zinc-500 dark:text-zinc-400 group-hover:text-zinc-700 dark:group-hover:text-zinc-200 transition-colors">
+        {checked ? "Ativo" : "Inativo"}
+      </span>
+    </button>
+  );
+}
+
+// ── Thumbnail ────────────────────────────────────────────────────────────────
+function Thumbnail({ imagem, emoji, nome }: { imagem?: string | null; emoji?: string | null; nome: string }) {
+  if (imagem) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={imagem}
+        alt={nome}
+        className="w-12 h-12 rounded-xl object-cover border border-zinc-200 dark:border-zinc-800 shrink-0"
+      />
+    );
+  }
+  return (
+    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shrink-0">
+      {emoji ?? "🎁"}
+    </div>
+  );
+}
+
+// ── StatusBadge ──────────────────────────────────────────────────────────────
+function StatusBadge({ ativo }: { ativo: boolean }) {
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full shrink-0 ${
+        ativo
+          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+          : "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400"
+      }`}
+    >
+      <span className={`w-1.5 h-1.5 rounded-full ${ativo ? "bg-emerald-500" : "bg-zinc-400"}`} />
+      {ativo ? "Ativo" : "Inativo"}
+    </span>
+  );
+}
+
+// ── FormProduto ──────────────────────────────────────────────────────────────
 function FormProduto({
   values,
   onChange,
@@ -89,9 +143,7 @@ function FormProduto({
         <Campo label="Categoria">
           <select
             value={values.categoriaId}
-            onChange={(e) =>
-              onChange({ ...values, categoriaId: e.target.value })
-            }
+            onChange={(e) => onChange({ ...values, categoriaId: e.target.value })}
             className={inputCls}
           >
             <option value="">Sem categoria</option>
@@ -103,6 +155,7 @@ function FormProduto({
           </select>
         </Campo>
       </div>
+
       <Campo label="Descrição">
         <input
           type="text"
@@ -112,15 +165,14 @@ function FormProduto({
           className={inputCls}
         />
       </Campo>
+
       <div className="grid grid-cols-2 gap-4">
         <Campo label={`Valor em ${nomePonto}`}>
           <input
             type="number"
             min={1}
             value={values.valorPontos}
-            onChange={(e) =>
-              onChange({ ...values, valorPontos: e.target.value })
-            }
+            onChange={(e) => onChange({ ...values, valorPontos: e.target.value })}
             placeholder="500"
             className={inputCls}
           />
@@ -131,14 +183,13 @@ function FormProduto({
             min={0}
             step={0.01}
             value={values.valorEstimado}
-            onChange={(e) =>
-              onChange({ ...values, valorEstimado: e.target.value })
-            }
+            onChange={(e) => onChange({ ...values, valorEstimado: e.target.value })}
             placeholder="50.00"
             className={inputCls}
           />
         </Campo>
       </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Campo label="Emoji">
           <div className="flex flex-wrap gap-2">
@@ -181,14 +232,7 @@ function FormProduto({
   );
 }
 
-// ── Props ──
-interface Props {
-  tenantId: string;
-  produtos: Produto[];
-  categorias: CategoriaRef[];
-}
-
-// ── Componente principal ──
+// ── Componente principal ─────────────────────────────────────────────────────
 export default function ProdutosClient({
   tenantId,
   produtos: inicial,
@@ -239,18 +283,13 @@ export default function ProdutosClient({
       try {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/produtos`, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "x-tenant-id": tenantId,
-          },
+          headers: { "Content-Type": "application/json", "x-tenant-id": tenantId },
           credentials: "include",
           body: JSON.stringify({
             nome: form.nome,
             descricao: form.descricao || null,
             valorPontos: Number(form.valorPontos),
-            valorEstimado: form.valorEstimado
-              ? Number(form.valorEstimado)
-              : null,
+            valorEstimado: form.valorEstimado ? Number(form.valorEstimado) : null,
             emoji: form.emoji || null,
             imagem: form.imagem || null,
             categoriaId: form.categoriaId || null,
@@ -276,18 +315,13 @@ export default function ProdutosClient({
           `${process.env.NEXT_PUBLIC_API_URL}/produtos/${editando.id}`,
           {
             method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              "x-tenant-id": tenantId,
-            },
+            headers: { "Content-Type": "application/json", "x-tenant-id": tenantId },
             credentials: "include",
             body: JSON.stringify({
               nome: editForm.nome,
               descricao: editForm.descricao || null,
               valorPontos: Number(editForm.valorPontos),
-              valorEstimado: editForm.valorEstimado
-                ? Number(editForm.valorEstimado)
-                : null,
+              valorEstimado: editForm.valorEstimado ? Number(editForm.valorEstimado) : null,
               emoji: editForm.emoji || null,
               imagem: editForm.imagem || null,
               categoriaId: editForm.categoriaId || null,
@@ -350,6 +384,7 @@ export default function ProdutosClient({
 
   return (
     <>
+      {/* ── Modal criar ── */}
       <AnimatePresence>
         {modalCriar && (
           <Modal
@@ -375,10 +410,7 @@ export default function ProdutosClient({
                 </p>
               )}
               <BotoesModal
-                onCancelar={() => {
-                  setModalCriar(false);
-                  setForm(emptyForm);
-                }}
+                onCancelar={() => { setModalCriar(false); setForm(emptyForm); }}
                 onConfirmar={handleCriar}
                 isPending={isPending}
                 labelConfirmar="Criar produto"
@@ -390,6 +422,7 @@ export default function ProdutosClient({
         )}
       </AnimatePresence>
 
+      {/* ── Modal editar ── */}
       <AnimatePresence>
         {editando && (
           <Modal
@@ -423,6 +456,7 @@ export default function ProdutosClient({
         )}
       </AnimatePresence>
 
+      {/* ── Modal deletar ── */}
       <AnimatePresence>
         {deletando && (
           <ModalConfirmar
@@ -443,16 +477,14 @@ export default function ProdutosClient({
         )}
       </AnimatePresence>
 
+      {/* ── Página ── */}
       <div className="max-w-full">
         <PageHeader
           titulo="Produtos"
           descricao="Gerencie os produtos disponíveis para resgate"
           action={
             <button
-              onClick={() => {
-                setForm(emptyForm);
-                setModalCriar(true);
-              }}
+              onClick={() => { setForm(emptyForm); setModalCriar(true); }}
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium text-white"
               style={{ background: corAtual }}
             >
@@ -461,22 +493,15 @@ export default function ProdutosClient({
           }
         />
 
+        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: "Total", valor: produtos.length, icon: Package },
-            { label: "Ativos", valor: ativos, icon: Star },
-            { label: "Inativos", valor: inativos, icon: Package },
-            { label: "Categorias", valor: categorias.length, icon: Package },
-          ].map((s) => (
-            <StatCard
-              key={s.label}
-              label={s.label}
-              valor={s.valor}
-              icon={s.icon}
-            />
-          ))}
+          <StatCard label="Total" valor={produtos.length} icon={Package} cor={corAtual} />
+          <StatCard label="Ativos" valor={ativos} icon={CircleCheck} cor="#10b981" />
+          <StatCard label="Inativos" valor={inativos} icon={CircleOff} cor="#a1a1aa" />
+          <StatCard label="Categorias" valor={categorias.length} icon={Tag} cor="#8b5cf6" />
         </div>
 
+        {/* Lista vazia */}
         {produtos.length === 0 ? (
           <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-14 flex flex-col items-center gap-3 text-center">
             <div
@@ -494,10 +519,7 @@ export default function ProdutosClient({
               </p>
             </div>
             <button
-              onClick={() => {
-                setForm(emptyForm);
-                setModalCriar(true);
-              }}
+              onClick={() => { setForm(emptyForm); setModalCriar(true); }}
               className="mt-1 flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-white"
               style={{ background: corAtual }}
             >
@@ -514,28 +536,18 @@ export default function ProdutosClient({
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                  className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
                 >
+                  {/* Header */}
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shrink-0 overflow-hidden">
-                        {p.imagem ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={p.imagem}
-                            alt={p.nome}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          (p.emoji ?? "🎁")
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-zinc-900 dark:text-white leading-tight">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Thumbnail imagem={p.imagem} emoji={p.emoji} nome={p.nome} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-white leading-tight truncate">
                           {p.nome}
                         </p>
                         {p.categoria && (
-                          <p className="text-xs text-zinc-400 mt-0.5">
+                          <p className="text-xs text-zinc-400 mt-0.5 truncate">
                             {p.categoria.nome}
                           </p>
                         )}
@@ -544,58 +556,59 @@ export default function ProdutosClient({
                     <StatusBadge ativo={p.ativo} />
                   </div>
 
+                  {/* Descrição */}
                   {p.descricao && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-2">
                       {p.descricao}
                     </p>
                   )}
 
-                  <div className="h-px bg-zinc-200 dark:bg-zinc-800" />
+                  {/* Divider */}
+                  <div className="h-px bg-zinc-100 dark:bg-zinc-800" />
 
+                  {/* Valores */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2">
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        {nomePonto}
-                      </p>
-                      <p className="text-sm font-bold text-zinc-900 dark:text-white">
+                    <div className="bg-zinc-50 dark:bg-zinc-950 rounded-lg px-3 py-2">
+                      <p className="text-[11px] text-zinc-400 mb-0.5">{nomePonto}</p>
+                      <p className="text-sm font-semibold text-zinc-900 dark:text-white">
                         {p.valorPontos.toLocaleString("pt-BR")}
                       </p>
                     </div>
-                    {p.valorEstimado && (
-                      <div className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2">
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                          Estimado
-                        </p>
-                        <p className="text-sm font-bold text-zinc-900 dark:text-white">
+                    {p.valorEstimado ? (
+                      <div className="bg-zinc-50 dark:bg-zinc-950 rounded-lg px-3 py-2">
+                        <p className="text-[11px] text-zinc-400 mb-0.5">Estimado</p>
+                        <p className="text-sm font-semibold text-zinc-900 dark:text-white">
                           R$ {p.valorEstimado.toFixed(2)}
                         </p>
                       </div>
+                    ) : (
+                      <div />
                     )}
                   </div>
 
-                  <div className="flex items-center gap-1 justify-end">
-                    <button
-                      onClick={() => handleToggle(p.id)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      {p.ativo ? (
-                        <ToggleRight size={16} />
-                      ) : (
-                        <ToggleLeft size={16} />
-                      )}
-                    </button>
-                    <button
-                      onClick={() => abrirEditar(p)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                    >
-                      <Pencil size={14} />
-                    </button>
-                    <button
-                      onClick={() => setDeletando(p)}
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                  {/* Footer */}
+                  <div className="flex items-center justify-between pt-0.5">
+                    <Toggle
+                      checked={p.ativo}
+                      onChange={() => handleToggle(p.id)}
+                      cor={corAtual}
+                    />
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => abrirEditar(p)}
+                        aria-label="Editar produto"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+                      >
+                        <Pencil size={14} />
+                      </button>
+                      <button
+                        onClick={() => setDeletando(p)}
+                        aria-label="Excluir produto"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -603,7 +616,11 @@ export default function ProdutosClient({
           </div>
         )}
 
-        {erro && <p className="text-sm text-red-500 mt-4">{erro}</p>}
+        {erro && (
+          <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg mt-4">
+            {erro}
+          </p>
+        )}
       </div>
     </>
   );

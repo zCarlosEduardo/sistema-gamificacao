@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
 import { Coins, Target, Star, Users, ShoppingCart, User } from "lucide-react";
 import { PageHeader, SectionTitle } from "@/components";
-import type { Props, TenantNomenclaturas} from "@/components/types";
+import type { Props, TenantNomenclaturas} from "@/types";
 
 const CAMPOS: {
   key: keyof TenantNomenclaturas;

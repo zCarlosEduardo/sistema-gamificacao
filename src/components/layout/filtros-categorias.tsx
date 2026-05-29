@@ -1,7 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
-import type { CategoriaRef } from "../types";
+import type { CategoriaRef } from "../../types";
 
 interface Props {
   categorias: CategoriaRef[];

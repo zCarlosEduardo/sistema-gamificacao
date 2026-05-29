@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckCircle, Lock } from "lucide-react";
-import type { AvisoBannerProps } from "@/components/types";
+import type { AvisoBannerProps } from "@/types";
 
 function hexToRgba(hex: string, opacity: number) {
   const r = parseInt(hex.slice(1, 3), 16);

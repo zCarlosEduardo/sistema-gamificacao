@@ -29,7 +29,7 @@ import {
   inputCls,
 } from "@/components";
 
-import type { Props } from "@/components/types";
+import type { Props } from "@/types";
 
 // ── Tipos ──────────────────────────────────────────────────────
 

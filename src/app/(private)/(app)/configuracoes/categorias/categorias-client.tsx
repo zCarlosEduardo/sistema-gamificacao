@@ -9,8 +9,7 @@ import {
   Users,
   Pencil,
   Trash2,
-  ToggleLeft,
-  ToggleRight,
+  CircleCheck,
 } from "lucide-react";
 import {
   Modal,
@@ -39,6 +38,41 @@ interface Props {
   categorias: Categoria[];
 }
 
+// ── Toggle ──────────────────────────────────────────────────────────────────
+function Toggle({
+  checked,
+  onChange,
+  cor,
+}: {
+  checked: boolean;
+  onChange: () => void;
+  cor: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onChange}
+      className="flex items-center gap-2 group"
+    >
+      <span
+        className="relative inline-flex w-8 h-[18px] rounded-full transition-colors duration-200 shrink-0"
+        style={{ background: checked ? cor : undefined }}
+      >
+        <span
+          className={`absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white transition-all duration-200 ${
+            checked ? "left-[18px]" : "left-0.5"
+          }`}
+        />
+        {!checked && (
+          <span className="absolute inset-0 rounded-full border border-zinc-300 dark:border-zinc-600" />
+        )}
+      </span>
+    </button>
+  );
+}
+
 export default function CategoriasClient({
   tenantId,
   categorias: inicial,
@@ -52,20 +86,17 @@ export default function CategoriasClient({
   const [isPending, startTransition] = useTransition();
   const [erro, setErro] = useState("");
 
-  // Modal criar
   const [modalCriar, setModalCriar] = useState(false);
   const [criarNome, setCriarNome] = useState("");
   const [criarDescricao, setCriarDescricao] = useState("");
   const [criarTipo, setCriarTipo] = useState<"PRODUTO" | "EQUIPE">("PRODUTO");
   const [erroCriar, setErroCriar] = useState("");
 
-  // Modal editar
   const [editando, setEditando] = useState<Categoria | null>(null);
   const [editNome, setEditNome] = useState("");
   const [editDescricao, setEditDescricao] = useState("");
   const [erroEditar, setErroEditar] = useState("");
 
-  // Modal deletar
   const [deletando, setDeletando] = useState<Categoria | null>(null);
 
   const categoriasProduto = categorias.filter((c) => c.tipo === "PRODUTO");
@@ -210,7 +241,7 @@ export default function CategoriasClient({
         <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center gap-3 text-center">
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ background: `${corAtual}18` }}
+            style={{ background: `color-mix(in srgb, ${corAtual} 15%, transparent)` }}
           >
             <Icon size={18} style={{ color: corAtual }} />
           </div>
@@ -247,46 +278,43 @@ export default function CategoriasClient({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ background: `${corAtual}18` }}
+                  style={{ background: `color-mix(in srgb, ${corAtual} 15%, transparent)` }}
                 >
                   <Icon size={15} style={{ color: corAtual }} />
                 </div>
-                <div>
-                  <p className="text-sm font-medium text-zinc-900 dark:text-white">
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
                     {c.nome}
                   </p>
                   {c.descricao && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 truncate">
                       {c.descricao}
                     </p>
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <StatusBadge ativo={c.ativo} />
-                <button
-                  onClick={() => handleToggle(c.id)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                >
-                  {c.ativo ? (
-                    <ToggleRight size={16} />
-                  ) : (
-                    <ToggleLeft size={16} />
-                  )}
-                </button>
+                <Toggle
+                  checked={c.ativo}
+                  onChange={() => handleToggle(c.id)}
+                  cor={corAtual}
+                />
                 <button
                   onClick={() => abrirEditar(c)}
+                  aria-label="Editar categoria"
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
                 >
                   <Pencil size={14} />
                 </button>
                 <button
                   onClick={() => setDeletando(c)}
+                  aria-label="Excluir categoria"
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
                 >
                   <Trash2 size={14} />
@@ -318,7 +346,11 @@ export default function CategoriasClient({
                   <button
                     key={t}
                     onClick={() => setCriarTipo(t)}
-                    className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${criarTipo === t ? "text-white border-transparent" : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400"}`}
+                    className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                      criarTipo === t
+                        ? "text-white border-transparent"
+                        : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400"
+                    }`}
                     style={criarTipo === t ? { background: corAtual } : {}}
                   >
                     {t === "PRODUTO" ? <Tag size={14} /> : <Users size={14} />}
@@ -448,28 +480,12 @@ export default function CategoriasClient({
           }
         />
 
+        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {[
-            { label: "Total", valor: categorias.length, icon: Tag },
-            { label: "Ativas", valor: totalAtivas, icon: Tag },
-            {
-              label: `De ${nomeLoja}`,
-              valor: categoriasProduto.length,
-              icon: Tag,
-            },
-            {
-              label: `De ${nomeEquipe}`,
-              valor: categoriasEquipe.length,
-              icon: Users,
-            },
-          ].map((s) => (
-            <StatCard
-              key={s.label}
-              label={s.label}
-              valor={s.valor}
-              icon={s.icon}
-            />
-          ))}
+          <StatCard label="Total" valor={categorias.length} icon={Tag} cor={corAtual} />
+          <StatCard label="Ativas" valor={totalAtivas} icon={CircleCheck} cor="#10b981" />
+          <StatCard label={`De ${nomeLoja}`} valor={categoriasProduto.length} icon={Tag} cor="#8b5cf6" />
+          <StatCard label={`De ${nomeEquipe}`} valor={categoriasEquipe.length} icon={Users} cor="#f59e0b" />
         </div>
 
         <div className="flex flex-col gap-8">
@@ -478,15 +494,16 @@ export default function CategoriasClient({
             <CategoriaLista lista={categoriasProduto} tipo="PRODUTO" />
           </section>
           <section>
-            <SectionTitle
-              titulo={`Categorias de ${nomeEquipe}`}
-              cor={corAtual}
-            />
+            <SectionTitle titulo={`Categorias de ${nomeEquipe}`} cor={corAtual} />
             <CategoriaLista lista={categoriasEquipe} tipo="EQUIPE" />
           </section>
         </div>
 
-        {erro && <p className="text-sm text-red-500 mt-4">{erro}</p>}
+        {erro && (
+          <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg mt-4">
+            {erro}
+          </p>
+        )}
       </div>
     </>
   );
