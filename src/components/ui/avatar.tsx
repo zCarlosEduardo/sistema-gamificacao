@@ -1,12 +1,6 @@
 "use client";
 
-interface AvatarProps {
-  nome: string;
-  imagem?: string | null;
-  cor: string;
-  corSecundaria?: string;
-  size?: "sm" | "md" | "lg";
-}
+import { AvatarProps } from "@/components/types"
 
 function getIniciais(nome: string) {
   return nome.split(" ").slice(0, 2).map((n) => n[0]).join("").toUpperCase();

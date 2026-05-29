@@ -3,28 +3,13 @@
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
-import { PageHeader, SectionTitle, ColorPicker } from "@/components/ui";
+import { PageHeader, SectionTitle, ColorPicker } from "@/components";
+import type { Props } from "@/components/types";
 
-interface Tenant {
-  id: string;
-  nome: string;
-  razaoSocial?: string;
-  cnpj?: string;
-  logo: string | null;
-  corPrimaria: string;
-  corSecundaria: string;
-  nomeMoeda: string;
-  nomeMeta: string;
-  nomePontos: string;
-  nomeEquipe: string;
-  nomeLoja: string;
-}
 
-interface EmpresaClientProps {
-  tenant: Tenant;
-}
 
-export default function EmpresaClient({ tenant }: EmpresaClientProps) {
+
+export default function EmpresaClient({ tenant }: Props) {
   const { tenant: tenantCtx } = useTenant();
   const corAtual = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
 

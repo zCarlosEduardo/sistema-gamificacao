@@ -22,7 +22,7 @@ import {
   Campo,
   BotoesModal,
   inputCls,
-} from "@/components/ui";
+} from "@/components";
 import { useTenant } from "@/contexts/tenant-context";
 
 interface Categoria {

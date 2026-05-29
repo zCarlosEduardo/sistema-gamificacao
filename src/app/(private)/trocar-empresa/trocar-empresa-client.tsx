@@ -3,20 +3,8 @@
 import { selecionarTenant } from "@/app/actions/tenant";
 import { motion } from "framer-motion";
 import { useTransition } from "react";
+import type { TrocarEmpresaClientProps } from "@/components/types";
 
-interface Tenant {
-  id: string;
-  nome: string;
-  cnpj?: string;
-  logo: string | null;
-  corPrimaria: string;
-}
-
-interface TrocarEmpresaClientProps {
-  tenants: Tenant[];
-  usuarioNome: string;
-  tenantAtualId?: string;
-}
 
 function getIniciais(nome: string) {
   return nome

@@ -48,7 +48,7 @@ export default function LoginClient() {
       <div className="pointer-events-none absolute -top-20 -left-20 h-100 w-100 rounded-full bg-indigo-700/8 blur-[100px]" />
       <div className="md:absolute w-full p-6 md:p-12 flex justify-center md:justify-start items-center">
         <Image
-          src="/assets/logo-ascend.svg"
+          src="/assets/purpel-await.svg"
           alt="Página não encontrada"
           width={220}
           height={220}

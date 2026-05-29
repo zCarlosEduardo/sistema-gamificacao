@@ -27,7 +27,9 @@ import {
   StatCard,
   SectionTitle,
   inputCls,
-} from "@/components/ui";
+} from "@/components";
+
+import type { Props } from "@/components/types";
 
 // ── Tipos ──────────────────────────────────────────────────────
 
@@ -45,11 +47,6 @@ export interface GrupoPermissao {
   criadoEm: string;
   permissoes: GrupoPermissaoItem[];
   _count: { membros: number };
-}
-
-interface Props {
-  tenantId: string;
-  grupos: GrupoPermissao[];
 }
 
 // ── Permissões disponíveis ──────────────────────────────────────

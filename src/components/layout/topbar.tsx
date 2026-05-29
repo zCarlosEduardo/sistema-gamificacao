@@ -6,19 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
 import { ThemeToggle } from "../ui/theme/theme-toggle";
-import { Avatar } from "@/components/ui";
-
-interface TenantLocal {
-  nome: string;
-  logo: string | null;
-  corPrimaria: string;
-  corSecundaria: string;
-  nomePontos: string;
-  nomeEquipe: string;
-  nomeMetas: string;
-  nomeLoja: string;
-  nomeUsuario: string;
-}
+import { Avatar } from "@/components";
+import { Tenant } from "@/components/types"
 
 interface Membro {
   role: string;
@@ -32,12 +21,12 @@ interface User {
 
 interface TopbarProps {
   initialUser: User;
-  initialTenant: TenantLocal | null;
+  initialTenant: Tenant | null;
   initialMembro: Membro | null;
 }
 
 interface MenuItem {
-  label: (tenant: TenantLocal | null) => string;
+  label: (tenant: Tenant | null) => string;
   href: string;
   permission: string | null;
 }
@@ -45,7 +34,7 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { label: () => "Dashboard", href: "/", permission: null },
   {
-    label: (t) => t?.nomeMetas ?? "Metas",
+    label: (t) => t?.nomeMeta ?? "Metas",
     href: "/metas",
     permission: "metas.ver",
   },
@@ -138,7 +127,7 @@ interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
   itensVisiveis: MenuItem[];
-  tenant: TenantLocal | null;
+  tenant: Tenant | null;
   corPrimaria: string;
   corSecundaria: string;
   pathname: string;
@@ -331,7 +320,7 @@ export function Topbar({
   const menuRef = useRef<HTMLDivElement>(null);
   const prevPathname = useRef(pathname);
 
-  const tenant = (tenantCtx ?? initialTenant) as TenantLocal | null;
+  const tenant = (tenantCtx ?? initialTenant) as Tenant | null;
   const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
   const corSecundaria = tenant?.corSecundaria ?? "#9333EA";

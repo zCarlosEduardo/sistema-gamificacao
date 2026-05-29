@@ -4,25 +4,11 @@ import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
 import { Coins, Target, Star, Users, ShoppingCart, User } from "lucide-react";
-import { PageHeader, SectionTitle } from "@/components/ui";
-
-interface Tenant {
-  id: string;
-  nomeMoeda: string;
-  nomeMeta: string;
-  nomePontos: string;
-  nomeEquipe: string;
-  nomeLoja: string;
-  nomeUsuario: string;
-  corPrimaria: string;
-}
-
-interface PersonalizacaoClientProps {
-  tenant: Tenant;
-}
+import { PageHeader, SectionTitle } from "@/components";
+import type { Props, TenantNomenclaturas} from "@/components/types";
 
 const CAMPOS: {
-  key: keyof Omit<Tenant, "id" | "corPrimaria">;
+  key: keyof TenantNomenclaturas;
   label: string;
   descricao: string;
   placeholder: string;
@@ -74,7 +60,7 @@ const CAMPOS: {
 
 export default function PersonalizacaoClient({
   tenant,
-}: PersonalizacaoClientProps) {
+}: Props) {
   const { tenant: tenantCtx, atualizarTenant } = useTenant();
   const corPrimaria = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
 

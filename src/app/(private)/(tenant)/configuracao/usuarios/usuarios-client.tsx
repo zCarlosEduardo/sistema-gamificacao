@@ -10,7 +10,6 @@ import {
   Plus,
   Pencil,
   Search,
-  UserCheck,
 } from "lucide-react";
 import {
   Modal,
@@ -21,7 +20,7 @@ import {
   PageHeader,
   StatCard,
   StatusBadge,
-} from "@/components/ui";
+} from "@/components";
 
 interface Usuario {
   id: string;
@@ -42,6 +41,8 @@ interface Grupo {
 interface Equipe {
   id: string;
   nome: string;
+  descricao?: string | null;
+  ativo?: boolean;
 }
 
 interface Membro {
@@ -50,7 +51,7 @@ interface Membro {
   criadoEm: string;
   usuario: Usuario;
   grupo: Grupo | null;
-  equipe: Equipe | null;
+  equipes: { equipe: Equipe }[];
 }
 
 interface UsuariosClientProps {
@@ -103,11 +104,8 @@ export default function UsuariosClient({
   const [senha, setSenha] = useState("");
   const [telefone, setTelefone] = useState("");
   const [grupoId, setGrupoId] = useState("");
-  const [equipeId, setEquipeId] = useState("");
-  const [cpfBuscando, setCpfBuscando] = useState(false);
-  const [cpfEncontrado, setCpfEncontrado] = useState(false);
+  const [equipeIds, setEquipeIds] = useState<string[]>([]);
   const [erroCriar, setErroCriar] = useState("");
-  const cpfTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Modal editar
   const [membroEditando, setMembroEditando] = useState<Membro | null>(null);
@@ -115,7 +113,7 @@ export default function UsuariosClient({
   const [editEmail, setEditEmail] = useState("");
   const [editTelefone, setEditTelefone] = useState("");
   const [editGrupoId, setEditGrupoId] = useState("");
-  const [editEquipeId, setEditEquipeId] = useState("");
+  const [editEquipeIds, setEditEquipeIds] = useState<string[]>([]);
   const [editAtivo, setEditAtivo] = useState(true);
   const [erroEditar, setErroEditar] = useState("");
   const [editCpf, setEditCpf] = useState("");
@@ -139,33 +137,7 @@ export default function UsuariosClient({
   function handleCpfChange(v: string) {
     const formatted = formatCpf(v);
     setCpf(formatted);
-    setCpfEncontrado(false);
     setNome("");
-    const raw = formatted.replace(/\D/g, "");
-    if (raw.length === 11) {
-      setCpfBuscando(true);
-      if (cpfTimer.current) clearTimeout(cpfTimer.current);
-      cpfTimer.current = setTimeout(async () => {
-        try {
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/usuarios?cpf=${raw}`,
-            { credentials: "include" },
-          );
-          if (res.ok) {
-            const data = await res.json();
-            const usuario = Array.isArray(data) ? data[0] : data;
-            if (usuario?.name) {
-              setNome(usuario.name);
-              setCpfEncontrado(true);
-            }
-          }
-        } catch {
-          /* silencioso */
-        } finally {
-          setCpfBuscando(false);
-        }
-      }, 500);
-    }
   }
 
   function resetModalCriar() {
@@ -175,8 +147,6 @@ export default function UsuariosClient({
     setSenha("");
     setTelefone("");
     setGrupoId("");
-    setEquipeId("");
-    setCpfEncontrado(false);
     setErroCriar("");
   }
 
@@ -187,49 +157,102 @@ export default function UsuariosClient({
     setEditCpf(membro.usuario.cpf ?? "");
     setEditTelefone(membro.usuario.telefone ?? "");
     setEditGrupoId(membro.grupo?.id ?? "");
-    setEditEquipeId(membro.equipe?.id ?? "");
+    setEditEquipeIds(membro.equipes?.map((e) => e.equipe.id) ?? []);
     setEditAtivo(membro.ativo);
     setErroEditar("");
   }
 
-  function handleCriar() {
+  async function handleCriar() {
     setErroCriar("");
     startTransition(async () => {
       try {
-        const signupRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/sign-up/email`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: nome, email, password: senha }),
-          },
-        );
-        if (!signupRes.ok) {
-          const err = await signupRes.json().catch(() => ({}));
-          throw new Error(err?.message ?? "Erro ao criar usuário");
+        // Busca usuário por CPF antes de criar
+        const cpfRaw = cpf.replace(/\D/g, "");
+        let usuarioId: string | null = null;
+
+        if (cpfRaw.length === 11) {
+          const cpfRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/tenants/buscar-cpf/${cpfRaw}`,
+            { credentials: "include" },
+          );
+          if (cpfRes.ok) {
+            const encontrado = await cpfRes.json();
+            if (encontrado?.id) {
+              usuarioId = encontrado.id;
+            }
+          }
         }
-        const { user } = await signupRes.json();
+
+        // Se não encontrou por CPF, cria novo usuário
+        if (!usuarioId) {
+          const signupRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/sign-up/email`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: nome, email, password: senha }),
+            },
+          );
+          if (!signupRes.ok) {
+            const err = await signupRes.json().catch(() => ({}));
+            throw new Error(err?.message ?? "Erro ao criar usuário");
+          }
+          const { user } = await signupRes.json();
+          usuarioId = user.id;
+        }
+
+        // Vincula ao tenant
         const membroRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "x-tenant-id": tenantId,
+            },
             credentials: "include",
             body: JSON.stringify({
-              usuarioId: user.id,
+              usuarioId,
               grupoId: grupoId || undefined,
-              categoriaId: equipeId || undefined,
             }),
           },
         );
         if (!membroRes.ok) throw new Error("Erro ao vincular ao tenant");
         const novoMembro = await membroRes.json();
+
+        // Vincula equipes se selecionadas
+        if (equipeIds.length > 0) {
+          await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros/${usuarioId}`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json",
+                "x-tenant-id": tenantId,
+              },
+              credentials: "include",
+              body: JSON.stringify({ equipeIds }),
+            },
+          );
+        }
+
         setMembros((prev) => [
           {
             ...novoMembro,
-            usuario: { ...user, cpf, telefone },
+            usuario: {
+              id: usuarioId,
+              name: nome,
+              email,
+              cpf: cpfRaw || null,
+              telefone,
+              image: null,
+              role: "MEMBRO",
+              createdAt: new Date().toISOString(),
+            },
             grupo: grupos.find((g) => g.id === grupoId) ?? null,
-            equipe: equipes.find((e) => e.id === equipeId) ?? null,
+            equipes: equipeIds.map((id) => ({
+              equipe: equipes.find((e) => e.id === id)!,
+            })),
           },
           ...prev,
         ]);
@@ -257,27 +280,16 @@ export default function UsuariosClient({
             credentials: "include",
             body: JSON.stringify({
               grupoId: editGrupoId || null,
-              categoriaId: editEquipeId || null,
+              equipeIds: editEquipeIds,
               ativo: editAtivo,
             }),
           },
         );
         if (!res.ok) throw new Error("Erro ao atualizar");
+        const atualizado = await res.json();
         setMembros((prev) =>
           prev.map((m) =>
-            m.usuario.id === membroEditando.usuario.id
-              ? {
-                  ...m,
-                  ativo: editAtivo,
-                  grupo: grupos.find((g) => g.id === editGrupoId) ?? null,
-                  equipe: equipes.find((e) => e.id === editEquipeId) ?? null,
-                  usuario: {
-                    ...m.usuario,
-                    name: editNome,
-                    telefone: editTelefone,
-                  },
-                }
-              : m,
+            m.usuario.id === membroEditando.usuario.id ? atualizado : m,
           ),
         );
         setMembroEditando(null);
@@ -457,10 +469,17 @@ export default function UsuariosClient({
                   </td>
                   {/* Equipes */}
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    {membro.equipe ? (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
-                        {membro.equipe.nome}
-                      </span>
+                    {membro.equipes && membro.equipes.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {membro.equipes.map((e) => (
+                          <span
+                            key={e.equipe.id}
+                            className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
+                          >
+                            {e.equipe.nome}
+                          </span>
+                        ))}
+                      </div>
                     ) : (
                       <span className="text-xs text-zinc-400 dark:text-zinc-600">
                         —
@@ -521,24 +540,7 @@ export default function UsuariosClient({
                     placeholder="000.000.000-00"
                     className={inputCls}
                   />
-                  {cpfBuscando && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400">
-                      Buscando...
-                    </span>
-                  )}
-                  {cpfEncontrado && !cpfBuscando && (
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-emerald-500 flex items-center gap-1">
-                      <UserCheck size={14} />
-                      Encontrado
-                    </span>
-                  )}
                 </div>
-                {cpfEncontrado && (
-                  <p className="text-xs text-emerald-500 mt-1">
-                    Nome preenchido automaticamente. Você pode editar se
-                    necessário.
-                  </p>
-                )}
               </Campo>
 
               {/* 2 colunas — dados pessoais */}
@@ -600,18 +602,13 @@ export default function UsuariosClient({
               </div>
 
               <Campo label={nomeEquipe}>
-                <select
-                  value={equipeId}
-                  onChange={(e) => setEquipeId(e.target.value)}
-                  className={inputCls}
-                >
-                  <option value="">Sem equipe</option>
-                  {equipes.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.nome}
-                    </option>
-                  ))}
-                </select>
+                <MultiSelect
+                  label={nomeEquipe}
+                  opcoes={equipes.map((e) => ({ id: e.id, nome: e.nome }))}
+                  selecionados={equipeIds}
+                  onChange={setEquipeIds}
+                  cor={corPrimaria}
+                />
               </Campo>
 
               {erroCriar && (
@@ -704,18 +701,13 @@ export default function UsuariosClient({
               </div>
 
               <Campo label={nomeEquipe}>
-                <select
-                  value={editEquipeId}
-                  onChange={(e) => setEditEquipeId(e.target.value)}
-                  className={inputCls}
-                >
-                  <option value="">Sem equipe</option>
-                  {equipes.map((e) => (
-                    <option key={e.id} value={e.id}>
-                      {e.nome}
-                    </option>
-                  ))}
-                </select>
+                <MultiSelect
+                  label={nomeEquipe}
+                  opcoes={equipes.map((e) => ({ id: e.id, nome: e.nome }))}
+                  selecionados={editEquipeIds}
+                  onChange={setEditEquipeIds}
+                  cor={corPrimaria}
+                />
               </Campo>
 
               <Campo label="Status">

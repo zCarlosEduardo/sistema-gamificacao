@@ -21,32 +21,9 @@ import {
   Campo,
   BotoesModal,
   inputCls,
-} from "@/components/ui";
+} from "@/components";
 import { useTenant } from "@/contexts/tenant-context";
-
-interface Categoria {
-  id: string;
-  nome: string;
-}
-
-interface Produto {
-  id: string;
-  nome: string;
-  descricao: string | null;
-  valorPontos: number;
-  valorEstimado: number | null;
-  imagem: string | null;
-  emoji: string | null;
-  ativo: boolean;
-  criadoEm: string;
-  categoria: Categoria | null;
-}
-
-interface Props {
-  tenantId: string;
-  produtos: Produto[];
-  categorias: Categoria[];
-}
+import type { Produto, CategoriaRef } from "@/components/types";
 
 const EMOJIS = [
   "🎁",
@@ -63,6 +40,155 @@ const EMOJIS = [
   "🎯",
 ];
 
+type ProdutoForm = {
+  nome: string;
+  descricao: string;
+  valorPontos: string;
+  valorEstimado: string;
+  emoji: string;
+  imagem: string;
+  categoriaId: string;
+};
+
+const emptyForm: ProdutoForm = {
+  nome: "",
+  descricao: "",
+  valorPontos: "",
+  valorEstimado: "",
+  emoji: "🎁",
+  imagem: "",
+  categoriaId: "",
+};
+
+// ── FormProduto fora do componente pai para não recriar a cada render ──
+function FormProduto({
+  values,
+  onChange,
+  categorias,
+  nomePonto,
+  corAtual,
+}: {
+  values: ProdutoForm;
+  onChange: (v: ProdutoForm) => void;
+  categorias: CategoriaRef[];
+  nomePonto: string;
+  corAtual: string;
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Campo label="Nome">
+          <input
+            type="text"
+            value={values.nome}
+            onChange={(e) => onChange({ ...values, nome: e.target.value })}
+            placeholder="Ex: Vale Refeição R$50"
+            className={inputCls}
+          />
+        </Campo>
+        <Campo label="Categoria">
+          <select
+            value={values.categoriaId}
+            onChange={(e) =>
+              onChange({ ...values, categoriaId: e.target.value })
+            }
+            className={inputCls}
+          >
+            <option value="">Sem categoria</option>
+            {categorias.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.nome}
+              </option>
+            ))}
+          </select>
+        </Campo>
+      </div>
+      <Campo label="Descrição">
+        <input
+          type="text"
+          value={values.descricao}
+          onChange={(e) => onChange({ ...values, descricao: e.target.value })}
+          placeholder="Opcional"
+          className={inputCls}
+        />
+      </Campo>
+      <div className="grid grid-cols-2 gap-4">
+        <Campo label={`Valor em ${nomePonto}`}>
+          <input
+            type="number"
+            min={1}
+            value={values.valorPontos}
+            onChange={(e) =>
+              onChange({ ...values, valorPontos: e.target.value })
+            }
+            placeholder="500"
+            className={inputCls}
+          />
+        </Campo>
+        <Campo label="Valor estimado (R$)">
+          <input
+            type="number"
+            min={0}
+            step={0.01}
+            value={values.valorEstimado}
+            onChange={(e) =>
+              onChange({ ...values, valorEstimado: e.target.value })
+            }
+            placeholder="50.00"
+            className={inputCls}
+          />
+        </Campo>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Campo label="Emoji">
+          <div className="flex flex-wrap gap-2">
+            {EMOJIS.map((e) => (
+              <button
+                key={e}
+                type="button"
+                onClick={() => onChange({ ...values, emoji: e })}
+                className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center border transition-all ${
+                  values.emoji === e
+                    ? "border-transparent"
+                    : "border-zinc-200 dark:border-zinc-700"
+                }`}
+                style={values.emoji === e ? { background: corAtual } : {}}
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+        </Campo>
+        <Campo label="URL da Imagem">
+          <input
+            type="text"
+            value={values.imagem}
+            onChange={(e) => onChange({ ...values, imagem: e.target.value })}
+            placeholder="https://..."
+            className={inputCls}
+          />
+          {values.imagem && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={values.imagem}
+              alt="preview"
+              className="mt-2 w-16 h-16 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
+            />
+          )}
+        </Campo>
+      </div>
+    </div>
+  );
+}
+
+// ── Props ──
+interface Props {
+  tenantId: string;
+  produtos: Produto[];
+  categorias: CategoriaRef[];
+}
+
+// ── Componente principal ──
 export default function ProdutosClient({
   tenantId,
   produtos: inicial,
@@ -77,21 +203,12 @@ export default function ProdutosClient({
   const [isPending, startTransition] = useTransition();
   const [erro, setErro] = useState("");
 
-  const emptyForm = {
-    nome: "",
-    descricao: "",
-    valorPontos: "",
-    valorEstimado: "",
-    emoji: "🎁",
-    imagem: "",
-    categoriaId: "",
-  };
   const [modalCriar, setModalCriar] = useState(false);
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState<ProdutoForm>(emptyForm);
   const [erroCriar, setErroCriar] = useState("");
 
   const [editando, setEditando] = useState<Produto | null>(null);
-  const [editForm, setEditForm] = useState(emptyForm);
+  const [editForm, setEditForm] = useState<ProdutoForm>(emptyForm);
   const [erroEditar, setErroEditar] = useState("");
 
   const [deletando, setDeletando] = useState<Produto | null>(null);
@@ -231,119 +348,8 @@ export default function ProdutosClient({
     });
   }
 
-  function FormProduto({
-    values,
-    onChange,
-  }: {
-    values: typeof emptyForm;
-    onChange: (v: typeof emptyForm) => void;
-  }) {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Campo label="Nome">
-            <input
-              type="text"
-              value={values.nome}
-              onChange={(e) => onChange({ ...values, nome: e.target.value })}
-              placeholder="Ex: Vale Refeição R$50"
-              className={inputCls}
-            />
-          </Campo>
-          <Campo label="Categoria">
-            <select
-              value={values.categoriaId}
-              onChange={(e) =>
-                onChange({ ...values, categoriaId: e.target.value })
-              }
-              className={inputCls}
-            >
-              <option value="">Sem categoria</option>
-              {categorias.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nome}
-                </option>
-              ))}
-            </select>
-          </Campo>
-        </div>
-        <Campo label="Descrição">
-          <input
-            type="text"
-            value={values.descricao}
-            onChange={(e) => onChange({ ...values, descricao: e.target.value })}
-            placeholder="Opcional"
-            className={inputCls}
-          />
-        </Campo>
-        <div className="grid grid-cols-2 gap-4">
-          <Campo label={`Valor em ${nomePonto}`}>
-            <input
-              type="number"
-              min={1}
-              value={values.valorPontos}
-              onChange={(e) =>
-                onChange({ ...values, valorPontos: e.target.value })
-              }
-              placeholder="500"
-              className={inputCls}
-            />
-          </Campo>
-          <Campo label="Valor estimado (R$)">
-            <input
-              type="number"
-              min={0}
-              step={0.01}
-              value={values.valorEstimado}
-              onChange={(e) =>
-                onChange({ ...values, valorEstimado: e.target.value })
-              }
-              placeholder="50.00"
-              className={inputCls}
-            />
-          </Campo>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Campo label="Emoji">
-            <div className="flex flex-wrap gap-2">
-              {EMOJIS.map((e) => (
-                <button
-                  key={e}
-                  type="button"
-                  onClick={() => onChange({ ...values, emoji: e })}
-                  className={`w-9 h-9 rounded-lg text-lg flex items-center justify-center border transition-all ${values.emoji === e ? "border-transparent" : "border-zinc-200 dark:border-zinc-700"}`}
-                  style={values.emoji === e ? { background: corAtual } : {}}
-                >
-                  {e}
-                </button>
-              ))}
-            </div>
-          </Campo>
-          <Campo label="URL da Imagem">
-            <input
-              type="text"
-              value={values.imagem}
-              onChange={(e) => onChange({ ...values, imagem: e.target.value })}
-              placeholder="https://..."
-              className={inputCls}
-            />
-            {values.imagem && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={values.imagem}
-                alt="preview"
-                className="mt-2 w-16 h-16 object-cover rounded-lg border border-zinc-200 dark:border-zinc-700"
-              />
-            )}
-          </Campo>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
-      {/* Modal Criar */}
       <AnimatePresence>
         {modalCriar && (
           <Modal
@@ -356,7 +362,13 @@ export default function ProdutosClient({
             }}
           >
             <div className="flex flex-col gap-5">
-              <FormProduto values={form} onChange={setForm} />
+              <FormProduto
+                values={form}
+                onChange={setForm}
+                categorias={categorias}
+                nomePonto={nomePonto}
+                corAtual={corAtual}
+              />
               {erroCriar && (
                 <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
                   {erroCriar}
@@ -378,7 +390,6 @@ export default function ProdutosClient({
         )}
       </AnimatePresence>
 
-      {/* Modal Editar */}
       <AnimatePresence>
         {editando && (
           <Modal
@@ -387,7 +398,13 @@ export default function ProdutosClient({
             onClose={() => setEditando(null)}
           >
             <div className="flex flex-col gap-5">
-              <FormProduto values={editForm} onChange={setEditForm} />
+              <FormProduto
+                values={editForm}
+                onChange={setEditForm}
+                categorias={categorias}
+                nomePonto={nomePonto}
+                corAtual={corAtual}
+              />
               {erroEditar && (
                 <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
                   {erroEditar}
@@ -406,7 +423,6 @@ export default function ProdutosClient({
         )}
       </AnimatePresence>
 
-      {/* Modal Deletar */}
       <AnimatePresence>
         {deletando && (
           <ModalConfirmar
@@ -429,7 +445,7 @@ export default function ProdutosClient({
 
       <div className="max-w-full">
         <PageHeader
-          titulo={nomeLoja}
+          titulo="Produtos"
           descricao="Gerencie os produtos disponíveis para resgate"
           action={
             <button
@@ -542,7 +558,7 @@ export default function ProdutosClient({
                         {nomePonto}
                       </p>
                       <p className="text-sm font-bold text-zinc-900 dark:text-white">
-                        {p.valorPontos.toLocaleString()}
+                        {p.valorPontos.toLocaleString("pt-BR")}
                       </p>
                     </div>
                     {p.valorEstimado && (
