@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["192.168.18.6"],
+
   async headers() {
     return [
       {
@@ -8,7 +10,8 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0",
+            value:
+              "no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0",
           },
           {
             key: "Pragma",
@@ -21,12 +24,12 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        // Para APIs também
         source: "/api/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0",
+            value:
+              "no-store, no-cache, must-revalidate, proxy-revalidate, s-maxage=0",
           },
           {
             key: "Pragma",

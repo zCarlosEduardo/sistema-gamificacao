@@ -7,11 +7,13 @@ import { signOut } from "@/lib/auth-client";
 import { useTenant } from "@/contexts/tenant-context";
 import { ThemeToggle } from "../ui/theme/theme-toggle";
 import { Avatar } from "@/components";
-import { Tenant } from "@/types"
+import { Tenant } from "@/types";
 
 interface Membro {
   role: string;
   permissoes: string[];
+  saldoPontos?: number;
+  girosDisponiveis?: number;
 }
 
 interface User {
@@ -54,16 +56,16 @@ const menuItems: MenuItem[] = [
     permission: "resgates.aprovar",
   },
   {
-    label: (t) => t?.nomeUsuario ?? "Usuários",
-    href: "/usuario",
-    permission: "usuario.ver",
+    label: (t) => t?.nomeUsuario ?? "Colaboradores",
+    href: "/usuarios",
+    permission: "usuarios.ver",
   },
   { label: () => "Pools", href: "/pools", permission: "pools.ver" },
   { label: () => "Meu Perfil", href: "/perfil", permission: null },
   {
-    label: () => "Configuração",
+    label: () => "Configurações",
     href: "/configuracoes",
-    permission: "configuracao.ver",
+    permission: "personalizacao.ver",
   },
 ];
 
@@ -74,15 +76,12 @@ function isAtivo(
 ): boolean {
   if (item.href === "/") return pathname === "/";
   if (!pathname.startsWith(item.href)) return false;
-
-  // Verifica se existe outro item mais específico que também bate
   const temFilhoMaisEspecifico = allItems.some(
     (outro) =>
       outro.href !== item.href &&
       outro.href.startsWith(item.href) &&
       pathname.startsWith(outro.href),
   );
-
   return !temFilhoMaisEspecifico;
 }
 
@@ -95,9 +94,6 @@ function hasPermissionStatic(
   return membro.permissoes.includes(permission);
 }
 
-// ──────────────────────────────────────────────────────────────
-// Ícone hamburger/close animado
-// ──────────────────────────────────────────────────────────────
 function HamburgerIcon({ open }: { open: boolean }) {
   return (
     <div className="w-5 h-5 relative flex flex-col justify-center gap-1.25">
@@ -120,9 +116,6 @@ function HamburgerIcon({ open }: { open: boolean }) {
   );
 }
 
-// ──────────────────────────────────────────────────────────────
-// Drawer mobile
-// ──────────────────────────────────────────────────────────────
 interface MobileDrawerProps {
   open: boolean;
   onClose: () => void;
@@ -134,6 +127,8 @@ interface MobileDrawerProps {
   user: User;
   onNavigate: (href: string) => void;
   onSignOut: () => void;
+  podeJogar: boolean;
+  saldoPontos: number;
 }
 
 function MobileDrawer({
@@ -147,14 +142,11 @@ function MobileDrawer({
   user,
   onNavigate,
   onSignOut,
+  podeJogar,
+  saldoPontos,
 }: MobileDrawerProps) {
-  // Bloqueia scroll do body quando drawer está aberto
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -164,7 +156,6 @@ function MobileDrawer({
     <AnimatePresence>
       {open && (
         <>
-          {/* Overlay */}
           <motion.div
             key="overlay"
             initial={{ opacity: 0 }}
@@ -174,8 +165,6 @@ function MobileDrawer({
             onClick={onClose}
             className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
           />
-
-          {/* Drawer */}
           <motion.div
             key="drawer"
             initial={{ x: "-100%" }}
@@ -184,7 +173,7 @@ function MobileDrawer({
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
             className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl"
           >
-            {/* Header do drawer */}
+            {/* Header */}
             <div className="flex items-center justify-between px-4 h-14 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
               {tenant?.logo ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -201,7 +190,6 @@ function MobileDrawer({
                   {tenant?.nome ?? "Logo"}
                 </div>
               )}
-
               <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
@@ -223,20 +211,22 @@ function MobileDrawer({
               </button>
             </div>
 
-            {/* Pontos */}
-            <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
-              <p className="text-[10px] uppercase tracking-widest text-zinc-400 font-regular mb-0.5">
-                Total {tenant?.nomePontos ?? "Coins"}
-              </p>
-              <p className="text-xl font-semibold text-amber-500">880,90</p>
-            </div>
+            {/* Saldo — só pra quem joga */}
+            {podeJogar && (
+              <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
+                <p className="text-[10px] uppercase tracking-widest text-zinc-400 mb-0.5">
+                  Total {tenant?.nomePontos ?? "Pontos"}
+                </p>
+                <p className="text-xl font-semibold text-amber-500">
+                  {saldoPontos.toLocaleString("pt-BR")}
+                </p>
+              </div>
+            )}
 
-            {/* Nav links */}
+            {/* Nav */}
             <nav className="flex-1 overflow-y-auto py-2 px-2">
               {itensVisiveis.map((item, i) => {
                 const ativo = isAtivo(item, pathname, itensVisiveis);
-                const label = item.label(tenant);
-
                 return (
                   <motion.button
                     key={item.href}
@@ -250,20 +240,19 @@ function MobileDrawer({
                         : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800/60"
                     }`}
                   >
-                    {/* Indicador lateral */}
                     <span
                       className="w-1 h-5 rounded-full shrink-0 transition-all"
                       style={{
                         background: ativo ? corPrimaria : "transparent",
                       }}
                     />
-                    {label}
+                    {item.label(tenant)}
                   </motion.button>
                 );
               })}
             </nav>
 
-            {/* Footer do drawer — perfil + sair */}
+            {/* Footer */}
             <div className="shrink-0 border-t border-zinc-100 dark:border-zinc-800 p-3 space-y-1">
               <button
                 onClick={() => onNavigate("/trocar-empresa")}
@@ -277,8 +266,6 @@ function MobileDrawer({
               >
                 Sair
               </button>
-
-              {/* Identidade do usuário */}
               <div className="flex items-center gap-3 px-3 py-2.5 mt-1 rounded-lg bg-zinc-50 dark:bg-zinc-800/60">
                 <Avatar
                   nome={user?.name ?? ""}
@@ -303,9 +290,6 @@ function MobileDrawer({
   );
 }
 
-// ──────────────────────────────────────────────────────────────
-// Topbar principal
-// ──────────────────────────────────────────────────────────────
 export function Topbar({
   initialUser,
   initialTenant,
@@ -315,8 +299,8 @@ export function Topbar({
   const pathname = usePathname();
   const { tenant: tenantCtx, membro: membroCtx, hasPermission } = useTenant();
 
-  const [menuAberto, setMenuAberto] = useState(false); // dropdown desktop
-  const [drawerAberto, setDrawerAberto] = useState(false); // drawer mobile
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [drawerAberto, setDrawerAberto] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const prevPathname = useRef(pathname);
 
@@ -324,12 +308,15 @@ export function Topbar({
   const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
   const corSecundaria = tenant?.corSecundaria ?? "#9333EA";
+
   function checkPermission(permission: string): boolean {
     if (tenantCtx) return hasPermission(permission);
     return hasPermissionStatic(membro, permission);
   }
 
-  // Fecha dropdown ao clicar fora
+  const podeJogar = checkPermission("roleta.jogar");
+  const saldoPontos = membro?.saldoPontos ?? 0;
+
   useEffect(() => {
     function handleClickFora(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -340,7 +327,6 @@ export function Topbar({
     return () => document.removeEventListener("mousedown", handleClickFora);
   }, []);
 
-  // Fecha menus ao navegar
   useEffect(() => {
     if (prevPathname.current !== pathname) {
       prevPathname.current = pathname;
@@ -372,7 +358,7 @@ export function Topbar({
     <>
       <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
         <div className="flex items-center justify-between px-4 sm:px-6 h-14">
-          {/* ── MOBILE: hamburger + logo ── */}
+          {/* MOBILE: hamburger + logo */}
           <div className="flex items-center gap-3 lg:hidden">
             <button
               onClick={() => setDrawerAberto(true)}
@@ -381,7 +367,6 @@ export function Topbar({
             >
               <HamburgerIcon open={drawerAberto} />
             </button>
-
             {tenant?.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={tenant.logo} alt={tenant.nome} className="h-8 w-auto" />
@@ -395,7 +380,7 @@ export function Topbar({
             )}
           </div>
 
-          {/* ── DESKTOP: logo + nav ── */}
+          {/* DESKTOP: logo + nav */}
           <div className="hidden lg:flex items-center gap-8">
             {tenant?.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -412,13 +397,9 @@ export function Topbar({
                 {tenant?.nome ?? "Logo"}
               </div>
             )}
-
             <nav className="flex items-center gap-1">
               {itensVisiveis.map((item) => {
-                // FIX 1: pathname.startsWith para subrotas
                 const ativo = isAtivo(item, pathname, itensVisiveis);
-                const label = item.label(tenant);
-
                 return (
                   <button
                     key={item.href}
@@ -429,10 +410,10 @@ export function Topbar({
                         : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
                     }`}
                   >
-                    {label}
+                    {item.label(tenant)}
                     {ativo && (
                       <motion.div
-                        layoutId="topbar-nav-indicator" // FIX 2: layoutId único
+                        layoutId="topbar-nav-indicator"
                         className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
                         style={{ background: corPrimaria }}
                         suppressHydrationWarning
@@ -444,21 +425,21 @@ export function Topbar({
             </nav>
           </div>
 
-          {/* ── Direita: pontos + avatar (desktop) / só avatar (mobile) ── */}
+          {/* Direita: saldo + avatar */}
           <div className="flex items-center gap-3">
-            {/* Pontos — oculto em mobile (aparece no drawer) */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5">
-              <div className="flex flex-col text-xs font-medium text-zinc-800 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors text-center">
-                <span className="uppercase tracking-widest text-zinc-400 font-regular mb-0.5">
-                  total {tenant?.nomePontos ?? "Coins"}
+            {/* Saldo — desktop, só pra quem joga */}
+            {podeJogar && (
+              <div className="hidden sm:flex flex-col items-end px-3 py-1.5">
+                <span className="text-[10px] uppercase tracking-widest text-zinc-400">
+                  total {tenant?.nomePontos ?? "Pontos"}
                 </span>
-                <span className="text-amber-500 text-base text-end">
-                  880,90
+                <span className="text-amber-500 text-base font-semibold">
+                  {saldoPontos.toLocaleString("pt-BR")}
                 </span>
               </div>
-            </div>
+            )}
 
-            {/* Avatar + dropdown (desktop) */}
+            {/* Avatar + dropdown */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuAberto((v) => !v)}
@@ -490,7 +471,6 @@ export function Topbar({
                         {initialUser?.email}
                       </p>
                     </div>
-
                     <div className="py-1">
                       <button
                         onClick={() => router.push("/perfil")}
@@ -507,7 +487,6 @@ export function Topbar({
                       <div className="flex justify-center">
                         <ThemeToggle />
                       </div>
-
                       <div className="border-t border-zinc-100 dark:border-zinc-800 mt-1 pt-1">
                         <button
                           onClick={handleSignOut}
@@ -525,18 +504,19 @@ export function Topbar({
         </div>
       </header>
 
-      {/* Drawer mobile — fora do header para não herdar z-index */}
       <MobileDrawer
         open={drawerAberto}
         onClose={() => setDrawerAberto(false)}
         itensVisiveis={itensVisiveis}
         tenant={tenant}
         corPrimaria={corPrimaria}
+        corSecundaria={corSecundaria}
         pathname={pathname}
         user={initialUser}
         onNavigate={handleNavigate}
         onSignOut={handleSignOut}
-        corSecundaria={corSecundaria}
+        podeJogar={podeJogar}
+        saldoPontos={saldoPontos}
       />
     </>
   );

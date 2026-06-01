@@ -92,6 +92,8 @@ export default async function TenantLayout({
     role: membroRaw.grupo?.nome ?? "JOGADOR",
     permissoes:
       membroRaw.grupo?.permissoes?.map((p: { chave: string }) => p.chave) ?? [],
+    saldoPontos: membroRaw.saldoPontos ?? 0,
+    girosDisponiveis: membroRaw.girosDisponiveis ?? 0,
   };
 
   return (

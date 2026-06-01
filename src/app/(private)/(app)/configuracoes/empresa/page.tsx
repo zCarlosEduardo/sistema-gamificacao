@@ -23,12 +23,12 @@ export default async function EmpresaPage() {
         "x-tenant-id": tenantId,
       },
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) redirect("/trocar-empresa");
 
   const tenant = await response.json();
 
-  return <EmpresaClient tenant={tenant} />;
+  return <EmpresaClient tenant={tenant} tenantId={""} grupos={[]} produtos={[]} categorias={[]} resgateAtivo={false} corPrimaria={""} corSecundaria={""} />;
 }
