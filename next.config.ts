@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.18.6"],
+  // allowedDevOrigins: ["192.168.18.6"],
+  images: {
+    domains: ["i.ibb.co"],
+  },
 
   async headers() {
     return [

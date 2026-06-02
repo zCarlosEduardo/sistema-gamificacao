@@ -35,6 +35,7 @@ export default function MercadoClient({
   const { tenant } = useTenant();
   const corAtual = tenant?.corPrimaria ?? "#7C3AED";
   const nomePontos = tenant?.nomePontos ?? "Pontos";
+  const nomeLoja = tenant?.nomeLoja ?? "Loja";
 
   const [saldo, setSaldo] = useState(saldoInicial);
   const [, setResgates] = useState<Resgate[]>(resgatesIniciais);

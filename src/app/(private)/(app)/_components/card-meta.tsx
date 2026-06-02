@@ -4,12 +4,7 @@ import { motion } from "framer-motion";
 
 interface MetaAtual {
   titulo: string;
-  descricao?: string;
-  valorAlvo: number;
-  progresso: number;
-  unidade?: string;
   status: "EM_ANDAMENTO" | "CONCLUIDA";
-  dataFim?: string;
   percentual: number;
 }
 
@@ -17,6 +12,7 @@ interface CardMetaProps {
   metaAtual: MetaAtual | null;
   sorteiosPendentes: { id: string }[];
   saldoGiros: number;
+  totalMetasBatidas: number;
   nomeMoeda: string;
   nomeMeta: string;
   corPrimaria: string;
@@ -35,13 +31,13 @@ export function CardMeta({
   metaAtual,
   sorteiosPendentes,
   saldoGiros,
+  totalMetasBatidas,
   nomeMoeda,
   nomeMeta,
   corPrimaria,
   corSecundaria,
   onRevelar,
 }: CardMetaProps) {
-  const metaConcluida = metaAtual?.status === "CONCLUIDA";
   const temGiro = sorteiosPendentes.length > 0;
 
   return (
@@ -49,176 +45,140 @@ export function CardMeta({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="relative overflow-hidden rounded-2xl border p-6 sm:p-8"
+      className="relative overflow-hidden rounded-2xl border h-full flex flex-col"
       style={{
         borderColor: hexToRgba(corPrimaria, 0.2),
-        background: `linear-gradient(135deg, ${hexToRgba(corPrimaria, 0.08)} 0%, ${hexToRgba(corSecundaria, 0.04)} 100%)`,
+        background: `linear-gradient(145deg, ${hexToRgba(corPrimaria, 0.07)} 0%, ${hexToRgba(corSecundaria, 0.03)} 100%)`,
       }}
     >
-      {/* Glow radial de fundo */}
+      {/* Glow */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse at 85% 50%, ${hexToRgba(corPrimaria, 0.12)}, transparent 65%)`,
+          background: `radial-gradient(ellipse at 90% 10%, ${hexToRgba(corPrimaria, 0.1)}, transparent 60%)`,
         }}
       />
 
-      <div className="relative flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+      <div className="relative flex flex-col h-full p-6 gap-5">
 
-        {/* ── Lado esquerdo: info da meta ── */}
-        <div className="flex-1 min-w-0">
-
-          {/* Badge status */}
-          {metaConcluida ? (
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full border mb-4"
-              style={{
-                background: hexToRgba("#f59e0b", 0.1),
-                borderColor: hexToRgba("#f59e0b", 0.3),
-                color: "#f59e0b",
-              }}
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p
+              className="text-[10px] uppercase tracking-widest font-semibold mb-1"
+              style={{ color: hexToRgba(corPrimaria, 0.7) }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              Recompensa pendente
-            </span>
-          ) : (
-            <span
-              className="inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1 rounded-full border mb-4"
-              style={{
-                borderColor: hexToRgba(corPrimaria, 0.25),
-                color: hexToRgba(corPrimaria, 0.9),
-                background: hexToRgba(corPrimaria, 0.08),
-              }}
-            >
-              {nomeMeta} em andamento
-            </span>
-          )}
-
-          {/* Título */}
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2 leading-tight">
-            {metaAtual
-              ? metaConcluida
-                ? `${nomeMeta} Alcançada! 🎉`
-                : metaAtual.titulo
-              : `Nenhuma ${nomeMeta} ativa`}
-          </h2>
-
-          {/* Descrição */}
-          {metaAtual && (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mb-5 leading-relaxed max-w-md">
-              {metaConcluida
-                ? `Você alcançou "${metaAtual.titulo}". Role a roleta e descubra quantos ${nomeMoeda} você ganhou!`
-                : (metaAtual.descricao ?? `${metaAtual.progresso} de ${metaAtual.valorAlvo} ${metaAtual.unidade ?? ""}`)}
+              {nomeMeta}s
             </p>
-          )}
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white leading-tight">
+              {temGiro
+                ? `Você tem ${saldoGiros} giro${saldoGiros > 1 ? "s" : ""} disponível${saldoGiros > 1 ? "is" : ""}!`
+                : totalMetasBatidas > 0
+                  ? `${totalMetasBatidas} ${nomeMeta.toLowerCase()}${totalMetasBatidas > 1 ? "s" : ""} batida${totalMetasBatidas > 1 ? "s" : ""}!`
+                  : `Nenhuma ${nomeMeta.toLowerCase()} concluída ainda`}
+            </h2>
+          </div>
 
-          {/* Barra de progresso */}
-          {metaAtual && !metaConcluida && (
-            <div className="mb-6 max-w-sm">
-              <div className="flex justify-between text-xs text-zinc-400 mb-2">
-                <span>{metaAtual.progresso} {metaAtual.unidade}</span>
-                <span className="font-semibold" style={{ color: corPrimaria }}>{metaAtual.percentual}%</span>
-              </div>
-              <div className="h-2.5 rounded-full bg-zinc-200 dark:bg-zinc-800 overflow-hidden">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${metaAtual.percentual}%` }}
-                  transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
-                  className="h-full rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${corPrimaria}, ${corSecundaria})` }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Botão revelar */}
-          {temGiro && (
-            <div className="flex items-center gap-4 flex-wrap">
-              <button
-                onClick={onRevelar}
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95 shadow-lg"
-                style={{
-                  background: `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`,
-                  boxShadow: `0 8px 24px ${hexToRgba(corPrimaria, 0.35)}`,
-                }}
-              >
-                <span className="text-base">🎰</span>
-                Revelar {nomeMoeda}
-              </button>
-              <span className="text-xs text-zinc-400">
-                {sorteiosPendentes.length} sorteio{sorteiosPendentes.length > 1 ? "s" : ""} disponível
-              </span>
-            </div>
-          )}
-        </div>
-
-        {/* ── Lado direito: giros disponíveis ── */}
-        <div className="shrink-0 flex flex-col items-center justify-center self-center">
-          <div className="relative flex items-center justify-center">
-
-            {/* Anel externo girando lento */}
-            <svg
-              className="absolute animate-spin-slow"
-              width="160" height="160"
-              viewBox="0 0 160 160"
-            >
-              <circle
-                cx="80" cy="80" r="72"
-                fill="none"
-                stroke={corPrimaria}
-                strokeWidth="1.5"
-                strokeDasharray="12 8"
-                opacity="0.3"
-              />
+          {/* Indicador de giros */}
+          <div className="shrink-0 relative flex items-center justify-center">
+            <svg className="absolute animate-spin-slow" width="72" height="72" viewBox="0 0 72 72">
+              <circle cx="36" cy="36" r="32" fill="none" stroke={corPrimaria}
+                strokeWidth="1.5" strokeDasharray="10 7" opacity="0.3" />
             </svg>
-
-            {/* Anel interno girando ao contrário */}
-            <svg
-              className="absolute animate-spin-reverse"
-              width="130" height="130"
-              viewBox="0 0 130 130"
-            >
-              <circle
-                cx="65" cy="65" r="58"
-                fill="none"
-                stroke={corSecundaria}
-                strokeWidth="1"
-                strokeDasharray="6 10"
-                opacity="0.4"
-              />
+            <svg className="absolute animate-spin-reverse" width="56" height="56" viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke={corSecundaria}
+                strokeWidth="1" strokeDasharray="6 8" opacity="0.35" />
             </svg>
-
-            {/* Círculo central com glow */}
             <div
-              className="relative w-28 h-28 rounded-full flex flex-col items-center justify-center"
+              className="w-12 h-12 rounded-full flex flex-col items-center justify-center"
               style={{
                 background: `radial-gradient(circle, ${hexToRgba(corPrimaria, 0.15)}, ${hexToRgba(corPrimaria, 0.04)})`,
                 border: `1px solid ${hexToRgba(corPrimaria, 0.25)}`,
-                boxShadow: `0 0 32px ${hexToRgba(corPrimaria, 0.2)}, inset 0 0 16px ${hexToRgba(corPrimaria, 0.08)}`,
+                boxShadow: `0 0 20px ${hexToRgba(corPrimaria, 0.2)}`,
               }}
             >
               <motion.span
                 key={saldoGiros}
-                initial={{ scale: 0.6, opacity: 0 }}
+                initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="text-5xl font-black leading-none"
+                className="text-xl font-black leading-none"
                 style={{ color: corPrimaria }}
               >
                 {saldoGiros}
               </motion.span>
-              <span className="text-[10px] uppercase tracking-widest mt-1" style={{ color: hexToRgba(corPrimaria, 0.7) }}>
-                giros
-              </span>
             </div>
           </div>
+        </div>
 
-          {/* Label embaixo */}
-          <p className="text-xs text-zinc-400 mt-4 text-center max-w-[120px] leading-relaxed">
-            {saldoGiros > 0
-              ? `${nomeMoeda} te esperando`
-              : `Bata uma ${nomeMeta} para ganhar giros`}
-          </p>
+        {/* Status da meta atual */}
+        <div
+          className="rounded-xl p-4 flex items-center gap-3"
+          style={{
+            background: hexToRgba(corPrimaria, 0.06),
+            border: `1px solid ${hexToRgba(corPrimaria, 0.12)}`,
+          }}
+        >
+          <span className="text-2xl shrink-0">
+            {temGiro ? "🎰" : metaAtual?.status === "CONCLUIDA" ? "✅" : "🎯"}
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-zinc-800 dark:text-zinc-100 truncate">
+              {metaAtual
+                ? metaAtual.titulo
+                : `Aguardando ${nomeMeta.toLowerCase()}...`}
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: hexToRgba(corPrimaria, 0.8) }}>
+              {temGiro
+                ? "Meta batida — pronto para girar!"
+                : metaAtual?.status === "CONCLUIDA"
+                  ? "Aguardando aprovação do gestor"
+                  : metaAtual
+                    ? `${metaAtual.percentual}% concluída`
+                    : "Nenhuma meta ativa no momento"}
+            </p>
+          </div>
+        </div>
+
+        {/* Totais */}
+        <div className="grid grid-cols-2 gap-3">
+          <div
+            className="rounded-xl p-3 flex flex-col gap-0.5"
+            style={{ background: hexToRgba(corPrimaria, 0.05), border: `1px solid ${hexToRgba(corPrimaria, 0.1)}` }}
+          >
+            <span className="text-[10px] uppercase tracking-widest text-zinc-400">Total batidas</span>
+            <span className="text-2xl font-bold text-zinc-900 dark:text-white">{totalMetasBatidas}</span>
+          </div>
+          <div
+            className="rounded-xl p-3 flex flex-col gap-0.5"
+            style={{ background: hexToRgba(corPrimaria, 0.05), border: `1px solid ${hexToRgba(corPrimaria, 0.1)}` }}
+          >
+            <span className="text-[10px] uppercase tracking-widest text-zinc-400">Giros disponíveis</span>
+            <span className="text-2xl font-bold" style={{ color: corPrimaria }}>{saldoGiros}</span>
+          </div>
+        </div>
+
+        {/* Botão — empurra pro fundo */}
+        <div className="mt-auto">
+          {temGiro ? (
+            <button
+              onClick={onRevelar}
+              className="w-full py-3 rounded-xl text-sm font-bold text-white transition-all hover:opacity-90 active:scale-95 flex items-center justify-center gap-2"
+              style={{
+                background: `linear-gradient(135deg, ${corPrimaria}, ${corSecundaria})`,
+                boxShadow: `0 6px 20px ${hexToRgba(corPrimaria, 0.3)}`,
+              }}
+            >
+              🎰 Resgatar {nomeMoeda}
+            </button>
+          ) : (
+            <div
+              className="w-full py-3 rounded-xl text-sm text-center"
+              style={{ color: hexToRgba(corPrimaria, 0.5), background: hexToRgba(corPrimaria, 0.04) }}
+            >
+              Bata uma {nomeMeta.toLowerCase()} para ganhar giros
+            </div>
+          )}
         </div>
       </div>
     </motion.div>
