@@ -3,8 +3,19 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   // allowedDevOrigins: ["192.168.18.6"],
   images: {
-    domains: ["i.ibb.co"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**",
+      },
+      {
+        protocol: "http",
+        hostname: "**",
+      },
+    ],
   },
+
+  allowedDevOrigins: ['192.168.18.6'],
 
   async headers() {
     return [

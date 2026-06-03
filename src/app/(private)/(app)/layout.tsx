@@ -36,6 +36,11 @@ export default async function TenantLayout({
 
   let tenantId: string | null = await getTenantIdFromCookie();
 
+  // Verifica se é primeiro acesso — redireciona antes de renderizar o layout
+  if ((session.user as any).primeiroAcesso === true) {
+    redirect("/primeiro-acesso");
+  }
+
   // Sem tenant selecionado
   if (!tenantId) {
     const cookieStore = await cookies();

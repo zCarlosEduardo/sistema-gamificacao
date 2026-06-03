@@ -308,6 +308,7 @@ export function Topbar({
   const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
   const corSecundaria = tenant?.corSecundaria ?? "#9333EA";
+  
 
   function checkPermission(permission: string): boolean {
     if (tenantCtx) return hasPermission(permission);

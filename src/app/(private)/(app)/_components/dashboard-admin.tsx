@@ -1,16 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { useTenant } from "@/contexts/tenant-context";
 import { StatCard, SectionTitle } from "@/components";
-import { Users, Coins, ShoppingBag, Target, TrendingUp, Dices, Star, BarChart3 } from "lucide-react";
-import { ChartEvolucaoMensal } from "./chart-evolucao-mensal";
+import {
+  Users, Coins, ShoppingBag, Target,
+  TrendingUp, Dices, Star, BarChart3,
+} from "lucide-react";
+import { ChartEvolucaoMensal }  from "./chart-evolucao-mensal";
 import { ChartTopFuncionarios } from "./chart-top-funcionarios";
-import { ChartTopPorEquipe } from "./chart-top-por-equipe";
-import { ChartResgatesMetas } from "./chart-resgates-metas";
+import { ChartTopPorEquipe }    from "./chart-top-por-equipe";
+import { ChartFunil }           from "./chart-funil";
+import { ChartROI }             from "./chart-roi";
+import { FiltroMes, MesSelecionado } from "./filtro-mes";
 import {
   getMockMesesData,
   getMockTopFuncionarios,
   getMockTopPorEquipe,
+  getMockFunilData,
+  getMockRoiData,
 } from "./use-admin-charts";
 
 interface Metricas {
@@ -42,27 +50,45 @@ interface DesempenhoEquipe {
 interface DashboardAdminProps {
   dados: {
     metricas: Metricas;
-    rankingGlobal: { posicao: number; nome: string; pontos: number; metasBatidas: number; resgates: number; equipe?: string }[];
+    rankingGlobal: {
+      posicao: number; nome: string; pontos: number;
+      metasBatidas: number; resgates: number; equipe?: string;
+    }[];
     produtosMaisResgatados: ProdutoResgatado[];
     desempenhoEquipes: DesempenhoEquipe[];
   };
 }
 
+const MESES_CURTOS = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+
 export function DashboardAdmin({ dados }: DashboardAdminProps) {
   const { tenant } = useTenant();
   const { metricas, produtosMaisResgatados, desempenhoEquipes } = dados;
 
-  const nomeMoeda     = tenant?.nomeMoeda     ?? "Coins";
+  const hoje = new Date();
+  const [mesSelecionado, setMesSelecionado] = useState<MesSelecionado>({
+    mes: hoje.getMonth(),
+    ano: hoje.getFullYear(),
+  });
+
+  const nomePontos     = tenant?.nomePontos     ?? "Coins";
   const nomeMeta      = tenant?.nomeMeta      ?? "Meta";
   const nomeEquipe    = tenant?.nomeEquipe    ?? "Equipe";
   const corPrimaria   = tenant?.corPrimaria   ?? "#7C3AED";
   const corSecundaria = tenant?.corSecundaria ?? "#A78BFA";
 
-  // TODO: substituir por dados reais do backend
+  // TODO: quando tiver backend real, passar mesSelecionado como query param
+  // ex: fetch(`/dashboard/admin?mes=${mesSelecionado.mes}&ano=${mesSelecionado.ano}`)
   const mesesData       = getMockMesesData();
   const topFuncionarios = getMockTopFuncionarios();
+  const funilData       = getMockFunilData(metricas.totalMembros || 10);
+  const roiData         = getMockRoiData();
 
-  // Top por equipe — usa dados reais se disponíveis, senão mock
+  // Filtra os dados do mês selecionado para os charts de mês único
+  // (quando vier do backend, isso não será necessário — virá já filtrado)
+  const mesNome = MESES_CURTOS[mesSelecionado.mes];
+  const dadosMesSelecionado = mesesData.find((m) => m.mes === mesNome) ?? mesesData[mesesData.length - 1];
+
   const topPorEquipe = desempenhoEquipes.length > 0
     ? desempenhoEquipes.map((eq, i) => ({
         equipe: eq.nome,
@@ -73,71 +99,94 @@ export function DashboardAdmin({ dados }: DashboardAdminProps) {
       }))
     : getMockTopPorEquipe();
 
+  const isAtual =
+    mesSelecionado.mes === hoje.getMonth() &&
+    mesSelecionado.ano === hoje.getFullYear();
+
   return (
     <div className="space-y-4">
 
-      <SectionTitle titulo="Visão geral" cor="#14b8a6" />
-
-      {/* Métricas — linha 1 */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label="Colaboradores"               valor={metricas.totalMembros}                                                                           icon={Users}       cor={corPrimaria} />
-        <StatCard label={`${nomeMoeda} distribuídos`} valor={metricas.totalCoinsDistribuidos.toLocaleString("pt-BR")}                                         icon={Coins}       cor="#f59e0b"     />
-        <StatCard label="Valor gasto (R$)"            valor={`R$ ${metricas.valorTotalGastoReais.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}     icon={TrendingUp}  cor="#10b981"     />
-        <StatCard label="Resgates realizados"         valor={metricas.totalResgates}                                                                           icon={ShoppingBag} cor="#8b5cf6"     />
+      {/* ── Header com filtro ── */}
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <SectionTitle
+          titulo={isAtual ? "Visão geral — mês atual" : `Visão geral — ${MESES_CURTOS[mesSelecionado.mes]}/${mesSelecionado.ano}`}
+          cor="#14b8a6"
+        />
+        <FiltroMes
+          valor={mesSelecionado}
+          onChange={setMesSelecionado}
+          corPrimaria={corPrimaria}
+          limitePassado={6}
+        />
       </div>
 
-      {/* Métricas — linha 2 */}
+      {/* ── Métricas macro ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <StatCard label={`${nomeMeta}s aprovadas`}    valor={metricas.totalMetasAprovadas}                                                                     icon={Target}      cor="#10b981"     />
-        <StatCard label="Giros usados"                valor={metricas.totalGirosUsados}                                                                        icon={Dices}       cor="#f59e0b"     />
-        <StatCard label="Pontos distribuídos"         valor={metricas.totalPontosDistribuidos.toLocaleString("pt-BR")}                                         icon={Star}        cor="#8b5cf6"     />
-        <StatCard label={`${nomeEquipe}s ativas`}     valor={desempenhoEquipes.length}                                                                         icon={BarChart3}   cor={corPrimaria} />
+        <StatCard label="Colaboradores"               valor={metricas.totalMembros}                                                                                     icon={Users}       cor={corPrimaria} />
+        <StatCard label={`${nomePontos} distribuídos`} valor={metricas.totalCoinsDistribuidos.toLocaleString("pt-BR")}                                                   icon={Coins}       cor="#f59e0b"     />
+        <StatCard label="Total investido (R$)"        valor={`R$ ${metricas.valorTotalGastoReais.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`}               icon={TrendingUp}  cor="#10b981"     />
+        <StatCard label="Resgates realizados"         valor={metricas.totalResgates}                                                                                     icon={ShoppingBag} cor="#8b5cf6"     />
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <StatCard label={`${nomeMeta}s aprovadas`}    valor={metricas.totalMetasAprovadas}                                                                               icon={Target}      cor="#10b981"     />
+        <StatCard label="Giros usados"                valor={metricas.totalGirosUsados}                                                                                  icon={Dices}       cor="#f59e0b"     />
+        <StatCard label="Pontos distribuídos"         valor={metricas.totalPontosDistribuidos.toLocaleString("pt-BR")}                                                   icon={Star}        cor="#8b5cf6"     />
+        <StatCard label={`${nomeEquipe}s ativas`}     valor={desempenhoEquipes.length}                                                                                   icon={BarChart3}   cor={corPrimaria} />
       </div>
 
-      {/* Chart evolução mensal — full width */}
-      <ChartEvolucaoMensal
-        dados={mesesData}
-        corPrimaria={corPrimaria}
-        corSecundaria={corSecundaria}
-        nomeMoeda={nomeMoeda}
-        nomeMeta={nomeMeta}
-      />
 
-      {/* Top funcionários + Metas x Resgates */}
+      {/* ── Custo-benefício + Evolução mensal ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <ChartROI dados={roiData} nomeMeta={nomeMeta} corPrimaria={corPrimaria} />
+        <ChartEvolucaoMensal
+          dados={mesesData}
+          corPrimaria={corPrimaria}
+          corSecundaria={corSecundaria}
+          nomePontos={nomePontos}
+          nomeMeta={nomeMeta}
+        />
+      </div>
+
+      {/* ── Top funcionários + Desempenho por equipe ── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <ChartTopFuncionarios
           dados={topFuncionarios}
           corPrimaria={corPrimaria}
           corSecundaria={corSecundaria}
         />
-        <ChartResgatesMetas
-          dados={mesesData}
+        <ChartTopPorEquipe
+          dados={topPorEquipe}
+          nomeEquipe={nomeEquipe}
           nomeMeta={nomeMeta}
-          corPrimaria={corPrimaria}
         />
       </div>
 
-      {/* Top por equipe — full width */}
-      <ChartTopPorEquipe
-        dados={topPorEquipe}
-        nomeEquipe={nomeEquipe}
-        nomeMeta={nomeMeta}
-      />
+      {/* ── Funil de engajamento — full width ── */}
+      <ChartFunil dados={funilData} corPrimaria={corPrimaria} />
 
-      {/* Produtos mais resgatados */}
+      {/* ── Produtos mais resgatados ── */}
       <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
-        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">Produtos mais resgatados</h3>
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">
+          Produtos mais resgatados
+        </h3>
         {produtosMaisResgatados.length === 0 ? (
           <p className="text-sm text-zinc-400 text-center py-4">Nenhum resgate ainda.</p>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {produtosMaisResgatados.map((p) => (
-              <div key={p.id} className="flex flex-col items-center gap-2 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800">
+              <div
+                key={p.id}
+                className="flex flex-col items-center gap-2 p-3 rounded-xl border border-zinc-100 dark:border-zinc-800 hover:border-zinc-200 dark:hover:border-zinc-700 transition-colors"
+              >
                 <span className="text-3xl">{p.emoji ?? "🎁"}</span>
-                <p className="text-xs font-medium text-zinc-800 dark:text-zinc-200 text-center line-clamp-2">{p.nome}</p>
+                <p className="text-xs font-medium text-zinc-800 dark:text-zinc-200 text-center line-clamp-2">
+                  {p.nome}
+                </p>
                 <p className="text-xs text-zinc-400">{p.totalResgates} resgates</p>
                 {p.valorEstimado && (
-                  <p className="text-xs font-semibold text-emerald-500">R$ {p.valorEstimado.toFixed(0)}</p>
+                  <p className="text-xs font-semibold text-emerald-500">
+                    R$ {p.valorEstimado.toFixed(0)}
+                  </p>
                 )}
               </div>
             ))}

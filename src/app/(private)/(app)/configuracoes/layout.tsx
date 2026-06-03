@@ -319,10 +319,9 @@ export default function ConfiguracoesLayout({
     <>
       {/* ── Barra de contexto mobile — com cor do tenant ── */}
       <div
-        className="lg:hidden border-b px-4 py-0 flex items-center h-11 rounded-lg -tracking-tighter"
+        className="lg:hidden border-b px-4 py-0 flex items-center h-11 rounded-lg tracking-wider dark:border-zinc-50 shrink-0"
         style={{
           background: corPrimaria,
-          borderColor: dark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.1)",
         }}
       >
         <button
@@ -333,42 +332,30 @@ export default function ConfiguracoesLayout({
           <AlignLeft
             size={15}
             strokeWidth={2}
-            style={{
-              color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)",
-              flexShrink: 0,
-            }}
+            className="text-zinc-50 shrink-0"
           />
 
           {/* Breadcrumb */}
           <span
-            className="text-xs uppercase tracking-widest font-semibold shrink-0"
-            style={{
-              color: dark ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.5)",
-            }}
+            className="text-xs uppercase tracking-widest font-semibold shrink-0 text-zinc-50"
           >
             Configurações
           </span>
 
           <ChevronRight
             size={13}
-            style={{
-              color: dark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.3)",
-              flexShrink: 0,
-            }}
+            className="text-zinc-50 shrink-0"
+
           />
 
           <ActiveIcon
             size={13}
             strokeWidth={2}
-            style={{
-              color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.6)",
-              flexShrink: 0,
-            }}
+            className="text-zinc-50 shrink-0"
           />
 
           <span
-            className="text-sm font-semibold truncate"
-            style={{ color: dark ? "#ffffff" : "#000000" }}
+            className="text-sm font-semibold truncate dark text-zinc-50"
           >
             {activeItem?.label ?? "Configurações"}
           </span>
@@ -378,7 +365,7 @@ export default function ConfiguracoesLayout({
       {/* ── Layout desktop ── */}
       <div className="flex gap-6 min-h-[calc(100vh-56px)]">
         {/* Sidebar — só desktop */}
-        <aside className="hidden lg:flex flex-col w-56 flex-shrink-0">
+        <aside className="hidden lg:flex flex-col w-56 shrink-0">
           {/* Cabeçalho da sidebar com cor do tenant */}
           <div className="sticky top-0 rounded-b-xl overflow-hidden">
             <div
@@ -386,17 +373,12 @@ export default function ConfiguracoesLayout({
               // style={{ background: corPrimaria }}
             >
               <Settings2
-                size={14}
+                size={18}
                 strokeWidth={2}
-                style={{
-                  color: dark ? "rgba(255,255,255,0.75)" : "rgba(0,0,0,0.55)",
-                }}
+                className="dark:text-zinc-50"
               />
               <p
-                className="text-xs font-semibold uppercase tracking-widest"
-                style={{
-                  color: dark ? "rgba(255,255,255,0.85)" : "rgba(0,0,0,0.65)",
-                }}
+                className="text-xs font-semibold uppercase tracking-widest dark:text-zinc-50"
               >
                 Configurações
               </p>
@@ -414,7 +396,7 @@ export default function ConfiguracoesLayout({
         </aside>
 
         {/* Divisor — só desktop */}
-        <div className="hidden lg:block w-px bg-zinc-200 dark:bg-zinc-800 flex-shrink-0" />
+        <div className="hidden lg:block w-px bg-zinc-200 dark:bg-zinc-800 shrink-0" />
 
         {/* Conteúdo */}
         <main className="flex-1 min-w-0 py-1">{children}</main>

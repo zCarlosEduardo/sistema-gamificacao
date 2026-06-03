@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse, type ProxyConfig } from "next/server";
 
-const publicRoutes = ["/login", "/"];
+const publicRoutes = [
+  "/login",
+  "/",
+  "/recuperar-senha",
+  "/redefinir-senha",
+  "/primeiro-acesso",
+];
 const bypass = process.env.BYPASS_AUTH === "true";
 
 export async function proxy(request: NextRequest) {
@@ -8,7 +14,7 @@ export async function proxy(request: NextRequest) {
   if (bypass) return NextResponse.next();
 
   const path = request.nextUrl.pathname;
-  
+
   // Se for rota pública, permite acesso
   if (publicRoutes.includes(path)) {
     return NextResponse.next();
@@ -37,7 +43,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config: ProxyConfig = {
-  matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*$).*)"
-  ],
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*$).*)"],
 };

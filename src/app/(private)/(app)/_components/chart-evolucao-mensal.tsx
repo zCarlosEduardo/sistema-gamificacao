@@ -10,7 +10,7 @@ interface Props {
   dados: MesData[];
   corPrimaria: string;
   corSecundaria: string;
-  nomeMoeda: string;
+  nomePontos: string;
   nomeMeta: string;
 }
 
@@ -22,7 +22,7 @@ function hexToRgba(hex: string, alpha: number) {
 }
 
 // Tooltip customizado
-function CustomTooltip({ active, payload, label, nomeMoeda, nomeMeta }: any) {
+function CustomTooltip({ active, payload, label, nomePontos, nomeMeta }: any) {
   if (!active || !payload?.length) return null;
   return (
     <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 shadow-xl text-xs space-y-1.5 min-w-[140px]">
@@ -40,8 +40,8 @@ function CustomTooltip({ active, payload, label, nomeMoeda, nomeMeta }: any) {
   );
 }
 
-export function ChartEvolucaoMensal({ dados, corPrimaria, corSecundaria, nomeMoeda, nomeMeta }: Props) {
-  const id1 = "grad-coins";
+export function ChartEvolucaoMensal({ dados, corPrimaria, corSecundaria, nomePontos, nomeMeta }: Props) {
+  const id1 = "grad-pontos";
   const id2 = "grad-metas";
 
   return (
@@ -51,7 +51,7 @@ export function ChartEvolucaoMensal({ dados, corPrimaria, corSecundaria, nomeMoe
           Evolução mensal
         </h3>
         <p className="text-xs text-zinc-400 mt-0.5">
-          {nomeMoeda} distribuídos e {nomeMeta.toLowerCase()}s aprovadas — últimos 6 meses
+          {nomePontos} distribuídos e {nomeMeta.toLowerCase()}s aprovadas — últimos 6 meses
         </p>
       </div>
 
@@ -82,7 +82,7 @@ export function ChartEvolucaoMensal({ dados, corPrimaria, corSecundaria, nomeMoe
             tickLine={false}
           />
           <Tooltip
-            content={<CustomTooltip nomeMoeda={nomeMoeda} nomeMeta={nomeMeta} />}
+            content={<CustomTooltip nomePontos={nomePontos} nomeMeta={nomeMeta} />}
             cursor={{ stroke: hexToRgba("#6b7280", 0.15), strokeWidth: 1 }}
           />
           <Legend
@@ -93,8 +93,8 @@ export function ChartEvolucaoMensal({ dados, corPrimaria, corSecundaria, nomeMoe
 
           <Area
             type="monotone"
-            dataKey="coins"
-            name={nomeMoeda}
+            dataKey="pontos"
+            name={nomePontos}
             stroke={corPrimaria}
             strokeWidth={2.5}
             fill={`url(#${id1})`}

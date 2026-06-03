@@ -5,6 +5,7 @@ import { Eye, EyeOff } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function LoginClient() {
   const [showPassword, setShowPassword] = useState(false);
@@ -65,7 +66,7 @@ export default function LoginClient() {
         {/* Left */}
         <section className="z-10 text-center lg:pl-4 lg:text-left">
           <h1 className="mt-6 text-4xl text-zinc-50 leading-tight tracking-widest sm:text-5xl">
-            Bem-vindo ao Ascend
+            Bem-vindo ao Await
           </h1>
 
           <p className="mt-6 max-w-sm text-md leading-relaxed text-slate-400 max-lg:mx-auto">
@@ -167,12 +168,12 @@ export default function LoginClient() {
               </div>
 
               <div className="mt-2 text-right">
-                <a
-                  href="#"
+                <Link
+                  href="/recuperar-senha"
                   className="text-xs text-slate-400 transition hover:text-slate-600"
                 >
                   Recuperar senha?
-                </a>
+                </Link>
               </div>
             </div>
 

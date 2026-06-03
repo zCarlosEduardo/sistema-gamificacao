@@ -1,9 +1,25 @@
+import { getActiveTenantId, getServerTenant } from "@/lib/auth-server";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme/theme-provider";
 
-export const metadata = {
-  title: "Await App",
-};
+
+export async function generateMetadata() {
+  const tenantId = await getActiveTenantId();
+
+  if (!tenantId) {
+    return {
+      title: "Await",
+    };
+  }
+
+  const tenant = await getServerTenant(tenantId);
+
+  return {
+    title: tenant?.nome
+      ? `${tenant.nome} • Await`
+      : "Await",
+  };
+}
 
 export default function RootLayout({
   children,
