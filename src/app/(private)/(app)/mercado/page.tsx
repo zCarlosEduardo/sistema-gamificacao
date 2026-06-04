@@ -15,48 +15,39 @@ export default async function MercadoPage() {
   const headersList = await headers();
   const cookie = headersList.get("cookie") ?? "";
 
-  const [categoriasRes, produtosRes, saldoRes, configRes, resgatesRes] =
-    await Promise.all([
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias?tipo=PRODUTO`, {
-        headers: { cookie, "x-tenant-id": tenantId },
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/produtos`, {
-        headers: { cookie, "x-tenant-id": tenantId },
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/funcionarios/me/saldo`, {
-        headers: { cookie, "x-tenant-id": tenantId },
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/configuracoes/resgate`, {
-        headers: { cookie, "x-tenant-id": tenantId },
-        cache: "no-store",
-      }),
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/resgates/historico`, {
-        headers: { cookie, "x-tenant-id": tenantId },
-        cache: "no-store",
-      }),
-    ]);
+  const [categoriasRes, produtosRes, membroRes, resgatesRes] = await Promise.all([
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/categorias?tipo=PRODUTO`, {
+      headers: { cookie, "x-tenant-id": tenantId },
+      cache: "no-store",
+    }),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/produtos`, {
+      headers: { cookie, "x-tenant-id": tenantId },
+      cache: "no-store",
+    }),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/meu-acesso`, {
+      headers: { cookie, "x-tenant-id": tenantId },
+      cache: "no-store",
+    }),
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/resgates/historico`, {
+      headers: { cookie, "x-tenant-id": tenantId },
+      cache: "no-store",
+    }),
+  ]);
 
-  const [categorias, produtos, saldoData, configResgate, resgates] =
-    await Promise.all([
-      categoriasRes.ok ? categoriasRes.json() : [],
-      produtosRes.ok ? produtosRes.json() : [],
-      saldoRes.ok ? saldoRes.json() : { saldo: 0 },
-      configRes.ok ? configRes.json() : { ativo: false },
-      resgatesRes.ok ? resgatesRes.json() : [],
-    ]);
+  const [categorias, produtos, membro] = await Promise.all([
+    categoriasRes.ok ? categoriasRes.json() : [],
+    produtosRes.ok ? produtosRes.json() : [],
+    membroRes.ok ? membroRes.json() : null,
+  ]);
 
   return (
     <MercadoClient
       tenantId={tenantId}
       produtos={produtos}
       categorias={categorias}
-      saldoInicial={saldoData.saldo ?? 0}
-      resgateAtivo={configResgate.ativo ?? false}
-      nomePeriodo={configResgate.nomePeriodo}
-      resgatesIniciais={resgates}
+      saldoInicial={membro?.saldoPontos ?? 0}
+      resgateAtivo={true}
+      resgatesIniciais={resgatesRes.ok ? await resgatesRes.json() : []}
     />
   );
 }
