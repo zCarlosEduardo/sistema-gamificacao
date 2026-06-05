@@ -166,42 +166,47 @@ export default function UsuariosClient({
     setErroCriar("");
     startTransition(async () => {
       try {
-        // Busca usuário por CPF antes de criar
-        const cpfRaw = cpf.replace(/\D/g, "");
         let usuarioId: string | null = null;
 
-        if (cpfRaw.length === 11) {
-          const cpfRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/tenants/buscar-cpf/${cpfRaw}`,
+        // 1. Tenta criar o usuário
+        const signupRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/auth/sign-up/email`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: nome, email, password: senha }),
+          },
+        );
+
+        const signupData = await signupRes.json().catch(() => null);
+
+        if (signupRes.ok && signupData?.user?.id) {
+          // Usuário novo — criado com sucesso
+          usuarioId = signupData.user.id;
+        } else if (
+          signupData?.message?.toLowerCase().includes("already exists") ||
+          signupData?.message?.toLowerCase().includes("already use")
+        ) {
+          // Usuário já existe — busca pelo email
+          const buscaRes = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/tenants/buscar-email/${encodeURIComponent(email)}`,
             { credentials: "include" },
           );
-          if (cpfRes.ok) {
-            const encontrado = await cpfRes.json();
-            if (encontrado?.id) {
-              usuarioId = encontrado.id;
-            }
-          }
+
+          if (!buscaRes.ok)
+            throw new Error(
+              "Usuário já existe mas não foi possível localizá-lo",
+            );
+
+          const encontrado = await buscaRes.json().catch(() => null);
+          if (!encontrado?.id) throw new Error("Usuário não encontrado");
+
+          usuarioId = encontrado.id;
+        } else {
+          throw new Error(signupData?.message ?? "Erro ao criar usuário");
         }
 
-        // Se não encontrou por CPF, cria novo usuário
-        if (!usuarioId) {
-          const signupRes = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/sign-up/email`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ name: nome, email, password: senha }),
-            },
-          );
-          if (!signupRes.ok) {
-            const err = await signupRes.json().catch(() => ({}));
-            throw new Error(err?.message ?? "Erro ao criar usuário");
-          }
-          const { user } = await signupRes.json();
-          usuarioId = user.id;
-        }
-
-        // Vincula ao tenant
+        // 2. Vincula ao tenant
         const membroRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros`,
           {
@@ -217,10 +222,13 @@ export default function UsuariosClient({
             }),
           },
         );
-        if (!membroRes.ok) throw new Error("Erro ao vincular ao tenant");
-        const novoMembro = await membroRes.json();
 
-        // Vincula equipes se selecionadas
+        if (!membroRes.ok) {
+          const err = await membroRes.json().catch(() => ({}));
+          throw new Error(err?.message ?? "Erro ao vincular ao tenant");
+        }
+
+        // 3. Vincula equipes
         if (equipeIds.length > 0) {
           await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros/${usuarioId}`,
@@ -238,13 +246,15 @@ export default function UsuariosClient({
 
         setMembros((prev) => [
           {
-            ...novoMembro,
+            id: usuarioId!,
+            ativo: true,
+            criadoEm: new Date().toISOString(),
             usuario: {
-              id: usuarioId,
+              id: usuarioId!,
               name: nome,
               email,
-              cpf: cpfRaw || null,
-              telefone,
+              cpf: null,
+              telefone: telefone || null,
               image: null,
               role: "MEMBRO",
               createdAt: new Date().toISOString(),
@@ -256,6 +266,7 @@ export default function UsuariosClient({
           },
           ...prev,
         ]);
+
         setModalCriar(false);
         resetModalCriar();
       } catch (e: unknown) {
@@ -336,7 +347,7 @@ export default function UsuariosClient({
       </div>
 
       {/* Filtros */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 mb-4">
+      <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 mb-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search
@@ -349,13 +360,13 @@ export default function UsuariosClient({
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Buscar por nome, e-mail ou CPF..."
-              className="w-full pl-10 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+              className="w-full pl-10 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
             />
           </div>
           <select
             value={filtroGrupo}
             onChange={(e) => setFiltroGrupo(e.target.value)}
-            className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+            className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
           >
             <option value="">Todos os grupos</option>
             {grupos.map((g) => (
@@ -372,7 +383,7 @@ export default function UsuariosClient({
                 className={`px-4 py-2 text-xs font-medium capitalize transition-colors ${
                   filtroAtivo === f
                     ? "text-white"
-                    : "text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    : "text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
                 style={filtroAtivo === f ? { background: corPrimaria } : {}}
               >
@@ -384,7 +395,7 @@ export default function UsuariosClient({
       </div>
 
       {/* Tabela */}
-      <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
+      <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -572,7 +583,7 @@ export default function UsuariosClient({
                     className={inputCls}
                   />
                 </Campo>
-                <Campo label="Senha provisória" required>
+                <Campo label="Senha provisória">
                   <input
                     type="password"
                     value={senha}
@@ -585,7 +596,7 @@ export default function UsuariosClient({
 
               {/* Grupo + Equipes */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Campo label="Grupo de acesso">
+                <Campo label="Grupo de acesso" required>
                   <select
                     value={grupoId}
                     onChange={(e) => setGrupoId(e.target.value)}
@@ -603,7 +614,7 @@ export default function UsuariosClient({
 
               <Campo label={nomeEquipe}>
                 <MultiSelect
-                  label={nomeEquipe}
+                  label=" "
                   opcoes={equipes.map((e) => ({ id: e.id, nome: e.nome }))}
                   selecionados={equipeIds}
                   onChange={setEquipeIds}
@@ -664,7 +675,7 @@ export default function UsuariosClient({
                     type="text"
                     value={editCpf}
                     disabled
-                    className={`${inputCls} opacity-60 cursor-not-allowed bg-zinc-100 dark:bg-zinc-900`}
+                    className={`${inputCls} opacity-60 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800`}
                   />
                 </Campo>
                 <Campo label="Telefone / WhatsApp">

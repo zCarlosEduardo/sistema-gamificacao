@@ -16,7 +16,7 @@ function CustomTooltip({ active, payload, label, nomeEquipe, nomeMeta }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload as TopPorEquipe;
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 shadow-xl text-xs min-w-[150px]">
+    <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 shadow-xl text-xs min-w-[150px]">
       <p className="font-semibold text-zinc-800 dark:text-zinc-200 mb-2">{d.equipe}</p>
       <div className="space-y-1">
         <div className="flex justify-between gap-4">
@@ -38,7 +38,7 @@ function CustomTooltip({ active, payload, label, nomeEquipe, nomeMeta }: any) {
 
 export function ChartTopPorEquipe({ dados, nomeEquipe, nomeMeta }: Props) {
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5">
       <div className="mb-5">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
           Desempenho por {nomeEquipe.toLowerCase()}

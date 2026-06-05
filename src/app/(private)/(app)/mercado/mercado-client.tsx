@@ -109,8 +109,8 @@ export default function MercadoClient({
       <div className="max-w-full">
         {/* Header */}
         <PageHeader
-          titulo="Mercado"
-          descricao="Troque seus pontos por recompensas"
+          titulo={nomeLoja}
+          descricao={`Troque seus ${nomePontos} por recompensas`}
         />
 
         {/* Banner de status */}
@@ -136,7 +136,7 @@ export default function MercadoClient({
 
         {/* Grid de produtos */}
         {produtosFiltrados.length === 0 ? (
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-14 flex flex-col items-center gap-3 text-center">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-14 flex flex-col items-center gap-3 text-center">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center"
               style={{ background: `${corAtual}18` }}

@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Settings2,
   Package,
+  Megaphone,
 } from "lucide-react";
 import { CanAccess } from "@/components/ui/can-access";
 import { useTenant } from "@/contexts/tenant-context";
@@ -94,6 +95,13 @@ const menuItems = [
     permission: "personalizacao.ver",
     Icon: Paintbrush,
     descricao: "Nomenclaturas",
+  },
+  {
+    label: "Avisos",
+    href: "/configuracoes/avisos",
+    permission: "",
+    Icon: Megaphone,
+    descricao: "Notificações e comunicados",
   },
 ];
 
@@ -245,7 +253,7 @@ function MobileConfigDrawer({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl"
+            className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl"
           >
             {/* Header colorido com a cor do tenant */}
             <div className="flex items-center justify-between px-4 h-14 shrink-0">

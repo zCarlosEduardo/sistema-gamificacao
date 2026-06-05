@@ -75,7 +75,7 @@ export default function EmpresaClient({ tenant }: Props) {
         <section>
           <SectionTitle titulo="Dados Empresariais" cor={corAtual} />
 
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
@@ -104,7 +104,7 @@ export default function EmpresaClient({ tenant }: Props) {
         <section className="max-w-2xl">
           <SectionTitle titulo="Identificação" cor={corAtual} />
 
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
             <div className="grid grid-cols-1 gap-4">
               <div>
                 <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1.5">
@@ -114,7 +114,7 @@ export default function EmpresaClient({ tenant }: Props) {
                   type="text"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+                  className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
                   placeholder="Nome que aparece no sistema"
                 />
               </div>
@@ -126,9 +126,9 @@ export default function EmpresaClient({ tenant }: Props) {
         <section>
           <SectionTitle titulo="Logo" cor={corAtual} />
 
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0 overflow-hidden border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 bg-zinc-100">
+              <div className="w-16 h-16 rounded-xl flex items-center justify-center text-white font-bold text-xl shrink-0 overflow-hidden border border-zinc-200 dark:border-zinc-700 dark:bg-zinc-900 bg-zinc-100">
                 {logo ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -160,7 +160,7 @@ export default function EmpresaClient({ tenant }: Props) {
                   type="text"
                   value={logo}
                   onChange={(e) => setLogo(e.target.value)}
-                  className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+                  className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
                   placeholder="https://..."
                 />
               </div>
@@ -172,7 +172,7 @@ export default function EmpresaClient({ tenant }: Props) {
         <section>
           <SectionTitle titulo="Cores" cor={corAtual} />
 
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
             <div className="flex gap-6 w-full sm:flex-row flex-col">
               <ColorPicker
                 label="Cor Primária"

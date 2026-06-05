@@ -51,8 +51,8 @@ export default function LoginClient() {
         <Image
           src="/assets/purpel-await.svg"
           alt="Página não encontrada"
-          width={220}
-          height={220}
+          width={120}
+          height={120}
           priority
         />
       </div>
@@ -94,6 +94,7 @@ export default function LoginClient() {
               alt="Página não encontrada"
               width={420}
               height={320}
+              style={{ width: "auto" }}
               priority
             />
           </motion.div>

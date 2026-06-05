@@ -3,10 +3,10 @@
 // ── inputCls ────────────────────────────────────────────────────
 // Classe base para inputs — importe onde precisar
 export const inputCls =
-  "w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors placeholder-zinc-400 dark:placeholder-zinc-600";
+  "w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors placeholder-zinc-400 dark:placeholder-zinc-600";
 
 export const inputDisabledCls =
-  "w-full bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-60";
+  "w-full bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-60";
 
 // ── Campo ───────────────────────────────────────────────────────
 

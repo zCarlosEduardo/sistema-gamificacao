@@ -103,7 +103,7 @@ export default async function TenantLayout({
 
   return (
     <Providers initialTenant={tenant} initialMembro={membro}>
-      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-white">
+      <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 text-zinc-900 dark:text-white">
         <Topbar
           initialUser={session.user}
           initialTenant={tenant}

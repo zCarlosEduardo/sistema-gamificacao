@@ -17,6 +17,9 @@ export interface Tenant {
   nomeEquipe: string;
   nomeLoja: string;
   nomeUsuario: string;
+  nomePool: string;
+  nomeGiro: string;
+  
 }
 
 export type TenantNomenclaturas = Pick<
@@ -27,6 +30,8 @@ export type TenantNomenclaturas = Pick<
   | "nomeEquipe"
   | "nomeLoja"
   | "nomeUsuario"
+  | "nomePool"
+  | "nomeGiro"
 >;
 
 export interface Props {
@@ -41,7 +46,6 @@ export interface Props {
   corSecundaria: string;
 }
 
-/** Shape reduzida do tenant usada no contexto e na Topbar */
 
 /** Shape mínima usada na tela de trocar empresa */
 export interface TenantCard {

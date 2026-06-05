@@ -165,7 +165,7 @@ export function DashboardAdmin({ dados }: DashboardAdminProps) {
       <ChartFunil dados={funilData} corPrimaria={corPrimaria} />
 
       {/* ── Produtos mais resgatados ── */}
-      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+      <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">
           Produtos mais resgatados
         </h3>

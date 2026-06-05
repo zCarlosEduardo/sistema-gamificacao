@@ -29,7 +29,7 @@ export default function TrocarEmpresaClient({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-900 flex flex-col items-center justify-center p-6">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -16 }}
@@ -66,7 +66,7 @@ export default function TrocarEmpresaClient({
               className={`relative group flex flex-col items-center gap-4 p-6 rounded-2xl border text-left transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                 ativo
                   ? "border-(--cor) bg-(--cor)/5 dark:bg-(--cor)/10"
-                  : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:border-zinc-300 dark:hover:border-zinc-700"
+                  : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
               }`}
               style={{ "--cor": tenant.corPrimaria } as React.CSSProperties}
             >
@@ -126,7 +126,7 @@ export default function TrocarEmpresaClient({
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 bg-white/50 dark:bg-zinc-950/50 flex items-center justify-center backdrop-blur-sm z-50"
+          className="fixed inset-0 bg-white/50 dark:bg-zinc-900/50 flex items-center justify-center backdrop-blur-sm z-50"
         >
           <div className="w-6 h-6 rounded-full border-2 border-zinc-300 border-t-zinc-900 dark:border-zinc-700 dark:border-t-white animate-spin" />
         </motion.div>

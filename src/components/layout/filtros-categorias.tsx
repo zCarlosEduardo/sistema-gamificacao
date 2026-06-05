@@ -29,7 +29,7 @@ export function FiltrosCategorias({
             onClick={() => onCategoria(tab.id)}
             className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
               categoriaAtiva === tab.id
-                ? "bg-white dark:bg-zinc-950 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 shadow-sm"
+                ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 shadow-sm"
                 : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
             }`}
           >
@@ -38,7 +38,7 @@ export function FiltrosCategorias({
         ))}
       </div>
 
-      <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2">
+      <div className="flex items-center gap-2 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2">
         <Search size={13} className="text-zinc-400 shrink-0" />
         <input
           type="text"

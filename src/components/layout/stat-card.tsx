@@ -20,7 +20,7 @@ interface StatCardProps {
 export function StatCard({ label, valor, icon: Icon, cor }: StatCardProps) {
   return (
     <div
-      className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3
+      className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex items-center gap-3
         hover:shadow-sm hover:-translate-y-0.5 transition-all duration-300 hover:border-zinc-300 dark:hover:border-zinc-700"
     >
       <div

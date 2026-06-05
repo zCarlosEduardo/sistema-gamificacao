@@ -8,6 +8,7 @@ import { useTenant } from "@/contexts/tenant-context";
 import { ThemeToggle } from "../ui/theme/theme-toggle";
 import { Avatar } from "@/components";
 import { Tenant } from "@/types";
+import { limparTenantCookie } from "@/app/actions/tenant";
 
 interface Membro {
   role: string;
@@ -60,7 +61,11 @@ const menuItems: MenuItem[] = [
     href: "/usuarios",
     permission: "usuarios.ver",
   },
-  { label: () => "Pools", href: "/pools", permission: "pools.ver" },
+  {
+    label: (t) => t?.nomePool ?? "Mercado",
+    href: "/pools",
+    permission: "pools.ver",
+  },
   { label: () => "Meu Perfil", href: "/perfil", permission: null },
   {
     label: () => "Configurações",
@@ -171,7 +176,7 @@ function MobileDrawer({
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-zinc-950 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl"
+            className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col shadow-2xl"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 h-14 border-b border-zinc-100 dark:border-zinc-800 shrink-0">
@@ -308,7 +313,6 @@ export function Topbar({
   const membro = membroCtx ?? initialMembro;
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
   const corSecundaria = tenant?.corSecundaria ?? "#9333EA";
-  
 
   function checkPermission(permission: string): boolean {
     if (tenantCtx) return hasPermission(permission);
@@ -337,6 +341,7 @@ export function Topbar({
   }, [pathname]);
 
   async function handleSignOut() {
+    await limparTenantCookie();
     await signOut({
       fetchOptions: {
         onSuccess: () => {
@@ -357,7 +362,7 @@ export function Topbar({
 
   return (
     <>
-      <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950">
+      <header className="w-full border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
         <div className="flex items-center justify-between px-4 sm:px-6 h-14">
           {/* MOBILE: hamburger + logo */}
           <div className="flex items-center gap-3 lg:hidden">
@@ -462,7 +467,7 @@ export function Topbar({
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.97 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-10 w-52 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg overflow-hidden z-50"
+                    className="absolute right-0 top-10 w-52 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl shadow-lg overflow-hidden z-50"
                   >
                     <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
                       <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">

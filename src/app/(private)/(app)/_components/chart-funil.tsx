@@ -12,7 +12,7 @@ export function ChartFunil({ dados, corPrimaria }: Props) {
   const max = dados[0]?.valor ?? 1;
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5">
       <div className="mb-6">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
           Funil de engajamento

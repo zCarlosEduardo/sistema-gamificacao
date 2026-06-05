@@ -92,7 +92,7 @@ function Thumbnail({ imagem, emoji, nome }: { imagem?: string | null; emoji?: st
     );
   }
   return (
-    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 shrink-0">
+    <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 shrink-0">
       {emoji ?? "🎁"}
     </div>
   );
@@ -503,7 +503,7 @@ export default function ProdutosClient({
 
         {/* Lista vazia */}
         {produtos.length === 0 ? (
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-14 flex flex-col items-center gap-3 text-center">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-14 flex flex-col items-center gap-3 text-center">
             <div
               className="w-12 h-12 rounded-full flex items-center justify-center"
               style={{ background: `${corAtual}18` }}
@@ -536,7 +536,7 @@ export default function ProdutosClient({
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+                  className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 flex flex-col gap-3 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
                 >
                   {/* Header */}
                   <div className="flex items-start justify-between gap-2">
@@ -568,14 +568,14 @@ export default function ProdutosClient({
 
                   {/* Valores */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="bg-zinc-50 dark:bg-zinc-950 rounded-lg px-3 py-2">
+                    <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg px-3 py-2">
                       <p className="text-[11px] text-zinc-400 mb-0.5">{nomePonto}</p>
                       <p className="text-sm font-semibold text-zinc-900 dark:text-white">
                         {p.valorPontos.toLocaleString("pt-BR")}
                       </p>
                     </div>
                     {p.valorEstimado ? (
-                      <div className="bg-zinc-50 dark:bg-zinc-950 rounded-lg px-3 py-2">
+                      <div className="bg-zinc-50 dark:bg-zinc-900 rounded-lg px-3 py-2">
                         <p className="text-[11px] text-zinc-400 mb-0.5">Estimado</p>
                         <p className="text-sm font-semibold text-zinc-900 dark:text-white">
                           R$ {p.valorEstimado.toFixed(2)}

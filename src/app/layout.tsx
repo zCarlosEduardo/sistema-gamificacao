@@ -28,7 +28,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body className="h-full antialiased bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-white">
+      <body className="h-full antialiased bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white">
         <ThemeProvider>
           {children}
         </ThemeProvider>

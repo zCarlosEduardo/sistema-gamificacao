@@ -57,7 +57,7 @@ export function ProdutoCard({
   }
 
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden flex flex-col hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+    <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden flex flex-col hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
       {/* Corpo com imagem interna */}
       <div className="flex flex-col gap-2 p-3 flex-1">
         {/* Imagem quadrada contida no card */}

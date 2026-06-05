@@ -238,7 +238,7 @@ export default function CategoriasClient({
 
     if (lista.length === 0) {
       return (
-        <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center gap-3 text-center">
+        <div className="bg-zinc-50 dark:bg-zinc-800 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center gap-3 text-center">
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center"
             style={{ background: `color-mix(in srgb, ${corAtual} 15%, transparent)` }}
@@ -278,7 +278,7 @@ export default function CategoriasClient({
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -8 }}
-              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+              className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl px-5 py-4 flex items-center justify-between gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
             >
               <div className="flex items-center gap-3 min-w-0">
                 <div

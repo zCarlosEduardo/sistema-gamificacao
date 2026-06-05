@@ -44,7 +44,7 @@ export function CardHistorico({ items, limit = 5, onVerTodos }: CardHistoricoPro
   const lista = items.slice(0, limit);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Histórico</h3>
         {onVerTodos && (

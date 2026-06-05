@@ -3,9 +3,9 @@
 import { useState, useTransition } from "react";
 import { motion } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
-import { Coins, Target, Star, Users, ShoppingCart, User } from "lucide-react";
+import { Coins, Target, Star, Users, ShoppingCart, User, Layers } from "lucide-react";
 import { PageHeader, SectionTitle } from "@/components";
-import type { Props, TenantNomenclaturas} from "@/types";
+import type { Props, TenantNomenclaturas } from "@/types";
 
 const CAMPOS: {
   key: keyof TenantNomenclaturas;
@@ -56,11 +56,23 @@ const CAMPOS: {
     placeholder: "Ex: Equipe, Time, Squad...",
     icon: Users,
   },
+  {
+    key: "nomePool",
+    label: "Pool",
+    descricao: "Como a configuração de coins é chamado",
+    placeholder: "Ex: Pool, Configuração...",
+    icon: Layers,
+  },
+  {
+    key: "nomeGiro",
+    label: "Giro",
+    descricao: "Nome do sistema de giros ou rodadas",
+    placeholder: "Ex: Giro, Rodada, Turno...",
+    icon: Target,
+  },
 ];
 
-export default function PersonalizacaoClient({
-  tenant,
-}: Props) {
+export default function PersonalizacaoClient({ tenant }: Props) {
   const { tenant: tenantCtx, atualizarTenant } = useTenant();
   const corPrimaria = tenantCtx?.corPrimaria ?? tenant.corPrimaria;
 
@@ -70,7 +82,9 @@ export default function PersonalizacaoClient({
     nomePontos: tenant.nomePontos,
     nomeEquipe: tenant.nomeEquipe,
     nomeLoja: tenant.nomeLoja,
-    nomeUsuario: tenant.nomeUsuario
+    nomeUsuario: tenant.nomeUsuario,
+    nomePool: tenant.nomePool,
+    nomeGiro: tenant.nomeGiro,
   });
 
   const [sucesso, setSucesso] = useState(false);
@@ -123,7 +137,7 @@ export default function PersonalizacaoClient({
         <section>
           <SectionTitle titulo="Elementos do Sistema" cor={corPrimaria} />
 
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-5">
             {CAMPOS.map((campo) => {
               const Icon = campo.icon;
 
@@ -138,7 +152,7 @@ export default function PersonalizacaoClient({
                     type="text"
                     value={valores[campo.key]}
                     onChange={(e) => handleChange(campo.key, e.target.value)}
-                    className="w-full bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
+                    className="w-full bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
                     placeholder={campo.placeholder}
                   />
 
@@ -155,7 +169,7 @@ export default function PersonalizacaoClient({
         <section>
           <SectionTitle titulo="Preview" cor={corPrimaria} />
 
-          <div className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
+          <div className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5">
             <div className="flex flex-wrap gap-2">
               {CAMPOS.map((campo) => {
                 const Icon = campo.icon;

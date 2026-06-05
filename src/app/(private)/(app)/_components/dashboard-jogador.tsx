@@ -161,7 +161,7 @@ export function DashboardJogador({ dados }: DashboardJogadorProps) {
         {/* COLUNA DIREITA */}
         <div className="space-y-4">
           {/* Ranking */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 h-fit">
+          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5 h-fit">
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">
               Top 3 Ranking
             </h3>
@@ -234,7 +234,7 @@ export function DashboardJogador({ dados }: DashboardJogadorProps) {
           </div>
 
           {/* Resgates */}
-          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 h-fit">
+          <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5 h-fit">
             <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-3">
               Resgates Populares
             </h3>

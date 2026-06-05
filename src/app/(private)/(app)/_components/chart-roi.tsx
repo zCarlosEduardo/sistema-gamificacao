@@ -15,7 +15,7 @@ interface Props {
 function CustomTooltip({ active, payload, label, nomeMeta }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 shadow-xl text-xs min-w-[180px]">
+    <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 shadow-xl text-xs min-w-[180px]">
       <p className="font-semibold text-zinc-700 dark:text-zinc-300 mb-2">{label}</p>
       {payload.map((p: any) => (
         <div key={p.name} className="flex items-center justify-between gap-4 mb-1">
@@ -36,7 +36,7 @@ function CustomTooltip({ active, payload, label, nomeMeta }: any) {
 
 export function ChartROI({ dados, nomeMeta, corPrimaria }: Props) {
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5">
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5">
       <div className="mb-5">
         <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">
           Custo-benefício mensal

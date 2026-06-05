@@ -45,7 +45,7 @@ export function MultiSelect({ label, opcoes, selecionados, onChange, cor }: Mult
               className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                 sel
                   ? "text-white border-transparent"
-                  : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 hover:border-zinc-400"
+                  : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-800 hover:border-zinc-400"
               }`}
               style={sel ? { background: cor, borderColor: cor } : {}}
             >

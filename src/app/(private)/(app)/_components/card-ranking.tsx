@@ -32,7 +32,7 @@ export function CardRanking({
   const lista = items.slice(0, limit);
 
   return (
-    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 h-full">
+    <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 p-5 h-full">
       <h3 className="text-sm font-semibold text-zinc-900 dark:text-white mb-4">{titulo}</h3>
 
       {lista.length === 0 ? (

@@ -35,7 +35,7 @@ export function ModalConfirmarResgate({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 24 }}
         transition={{ duration: 0.2 }}
-        className="w-full sm:max-w-sm bg-white dark:bg-zinc-900 rounded-t-2xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-5"
+        className="w-full sm:max-w-sm bg-white dark:bg-zinc-800 rounded-t-2xl sm:rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 flex flex-col gap-5"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

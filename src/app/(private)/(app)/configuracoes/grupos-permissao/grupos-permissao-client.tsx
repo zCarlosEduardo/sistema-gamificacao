@@ -158,7 +158,7 @@ function SeletorPermissoes({
         return (
           <div
             key={recurso}
-            className="bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
+            className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ function SeletorPermissoes({
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                       sel
                         ? "text-white border-transparent"
-                        : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-900 hover:border-zinc-400 disabled:cursor-default"
+                        : "border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 bg-white dark:bg-zinc-800 hover:border-zinc-400 disabled:cursor-default"
                     }`}
                     style={sel ? { background: cor } : {}}
                   >
@@ -238,7 +238,7 @@ function GrupoCard({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -8 }}
-      className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
+      className="bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 flex flex-col gap-4 hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -301,7 +301,7 @@ function GrupoCard({
           return (
             <div
               key={s.label}
-              className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5"
+              className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2.5"
             >
               <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-1">
                 {s.label}
@@ -324,14 +324,14 @@ function GrupoCard({
             return (
               <span
                 key={recurso}
-                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400"
+                className="inline-flex items-center gap-1 px-2 py-1 rounded-md text-[11px] font-medium bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400"
               >
                 <Icon size={10} /> {recurso}
               </span>
             );
           })}
           {extras > 0 && (
-            <span className="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-400">
+            <span className="inline-flex items-center px-2 py-1 rounded-md text-[11px] font-medium bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-400">
               +{extras} mais
             </span>
           )}
@@ -768,7 +768,7 @@ export default function GruposPermissaoClient({
           <section>
             <SectionTitle titulo="Grupos Customizados" cor={corAtual} />
             {gruposCustom.length === 0 ? (
-              <div className="bg-zinc-50 dark:bg-zinc-900 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center justify-center gap-3 text-center">
+              <div className="bg-zinc-50 dark:bg-zinc-800 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-xl px-6 py-10 flex flex-col items-center justify-center gap-3 text-center">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center"
                   style={{ background: `${corAtual}18` }}
