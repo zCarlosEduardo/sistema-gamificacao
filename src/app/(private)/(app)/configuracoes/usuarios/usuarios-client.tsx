@@ -1,16 +1,9 @@
 "use client";
 
-import { useState, useTransition, useRef } from "react";
+import { useState, useTransition } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useTenant } from "@/contexts/tenant-context";
-import {
-  Users,
-  CheckCircle2,
-  PauseCircle,
-  Plus,
-  Pencil,
-  Search,
-} from "lucide-react";
+import { Users, CheckCircle2, PauseCircle, Plus, Pencil, Search } from "lucide-react";
 import {
   Modal,
   Campo,
@@ -21,6 +14,8 @@ import {
   StatCard,
   StatusBadge,
 } from "@/components";
+
+// ─── Tipos ────────────────────────────────────────────────────────────────────
 
 interface Usuario {
   id: string;
@@ -54,12 +49,14 @@ interface Membro {
   equipes: { equipe: Equipe }[];
 }
 
-interface UsuariosClientProps {
+interface Props {
   membros: Membro[];
   grupos: Grupo[];
   equipes: Equipe[];
   tenantId: string;
 }
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatCpf(v: string) {
   return v
@@ -78,12 +75,14 @@ function formatDate(d: string) {
   });
 }
 
+// ─── Componente Principal ─────────────────────────────────────────────────────
+
 export default function UsuariosClient({
   membros: membrosIniciais,
   grupos,
   equipes,
   tenantId,
-}: UsuariosClientProps) {
+}: Props) {
   const { tenant } = useTenant();
   const corPrimaria = tenant?.corPrimaria ?? "#7C3AED";
   const nomeEquipe = tenant?.nomeEquipe ?? "Equipes";
@@ -91,9 +90,7 @@ export default function UsuariosClient({
   const [membros, setMembros] = useState<Membro[]>(membrosIniciais);
   const [busca, setBusca] = useState("");
   const [filtroGrupo, setFiltroGrupo] = useState("");
-  const [filtroAtivo, setFiltroAtivo] = useState<
-    "todos" | "ativos" | "inativos"
-  >("ativos");
+  const [filtroAtivo, setFiltroAtivo] = useState<"todos" | "ativos" | "inativos">("ativos");
   const [isPending, startTransition] = useTransition();
 
   // Modal criar
@@ -118,6 +115,8 @@ export default function UsuariosClient({
   const [erroEditar, setErroEditar] = useState("");
   const [editCpf, setEditCpf] = useState("");
 
+  // ─── Filtros ────────────────────────────────────────────────────────────────
+
   const ativos = membros.filter((m) => m.ativo).length;
   const inativos = membros.filter((m) => !m.ativo).length;
 
@@ -134,11 +133,7 @@ export default function UsuariosClient({
     return matchBusca && matchGrupo && matchAtivo;
   });
 
-  function handleCpfChange(v: string) {
-    const formatted = formatCpf(v);
-    setCpf(formatted);
-    setNome("");
-  }
+  // ─── Reset ───────────────────────────────────────────────────────────────────
 
   function resetModalCriar() {
     setCpf("");
@@ -147,6 +142,7 @@ export default function UsuariosClient({
     setSenha("");
     setTelefone("");
     setGrupoId("");
+    setEquipeIds([]);
     setErroCriar("");
   }
 
@@ -162,7 +158,9 @@ export default function UsuariosClient({
     setErroEditar("");
   }
 
-  async function handleCriar() {
+  // ─── Criar ───────────────────────────────────────────────────────────────────
+
+  function handleCriar() {
     setErroCriar("");
     startTransition(async () => {
       try {
@@ -175,13 +173,12 @@ export default function UsuariosClient({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: nome, email, password: senha }),
-          },
+          }
         );
 
         const signupData = await signupRes.json().catch(() => null);
 
         if (signupRes.ok && signupData?.user?.id) {
-          // Usuário novo — criado com sucesso
           usuarioId = signupData.user.id;
         } else if (
           signupData?.message?.toLowerCase().includes("already exists") ||
@@ -190,17 +187,11 @@ export default function UsuariosClient({
           // Usuário já existe — busca pelo email
           const buscaRes = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/tenants/buscar-email/${encodeURIComponent(email)}`,
-            { credentials: "include" },
+            { credentials: "include" }
           );
-
-          if (!buscaRes.ok)
-            throw new Error(
-              "Usuário já existe mas não foi possível localizá-lo",
-            );
-
+          if (!buscaRes.ok) throw new Error("Usuário já existe mas não foi possível localizá-lo");
           const encontrado = await buscaRes.json().catch(() => null);
           if (!encontrado?.id) throw new Error("Usuário não encontrado");
-
           usuarioId = encontrado.id;
         } else {
           throw new Error(signupData?.message ?? "Erro ao criar usuário");
@@ -211,16 +202,10 @@ export default function UsuariosClient({
           `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros`,
           {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "x-tenant-id": tenantId,
-            },
+            headers: { "Content-Type": "application/json", "x-tenant-id": tenantId },
             credentials: "include",
-            body: JSON.stringify({
-              usuarioId,
-              grupoId: grupoId || undefined,
-            }),
-          },
+            body: JSON.stringify({ usuarioId, grupoId: grupoId || undefined }),
+          }
         );
 
         if (!membroRes.ok) {
@@ -228,44 +213,28 @@ export default function UsuariosClient({
           throw new Error(err?.message ?? "Erro ao vincular ao tenant");
         }
 
-        // 3. Vincula equipes
-        if (equipeIds.length > 0) {
-          await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros/${usuarioId}`,
-            {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json",
-                "x-tenant-id": tenantId,
-              },
-              credentials: "include",
-              body: JSON.stringify({ equipeIds }),
-            },
-          );
+        // 3. Atualiza grupo + equipes via PATCH — usa resposta do servidor para o state
+        const patchRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros/${usuarioId}`,
+          {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json", "x-tenant-id": tenantId },
+            credentials: "include",
+            body: JSON.stringify({
+              grupoId: grupoId || null,
+              equipeIds,
+            }),
+          }
+        );
+
+        if (!patchRes.ok) {
+          const err = await patchRes.json().catch(() => ({}));
+          throw new Error(err?.message ?? "Erro ao definir equipes");
         }
 
-        setMembros((prev) => [
-          {
-            id: usuarioId!,
-            ativo: true,
-            criadoEm: new Date().toISOString(),
-            usuario: {
-              id: usuarioId!,
-              name: nome,
-              email,
-              cpf: null,
-              telefone: telefone || null,
-              image: null,
-              role: "MEMBRO",
-              createdAt: new Date().toISOString(),
-            },
-            grupo: grupos.find((g) => g.id === grupoId) ?? null,
-            equipes: equipeIds.map((id) => ({
-              equipe: equipes.find((e) => e.id === id)!,
-            })),
-          },
-          ...prev,
-        ]);
+        // Usa o retorno do PATCH (que já inclui equipes populadas) para o state
+        const membroAtualizado: Membro = await patchRes.json();
+        setMembros((prev) => [membroAtualizado, ...prev]);
 
         setModalCriar(false);
         resetModalCriar();
@@ -274,6 +243,8 @@ export default function UsuariosClient({
       }
     });
   }
+
+  // ─── Editar ───────────────────────────────────────────────────────────────────
 
   function handleEditar() {
     if (!membroEditando) return;
@@ -284,24 +255,25 @@ export default function UsuariosClient({
           `${process.env.NEXT_PUBLIC_API_URL}/tenants/${tenantId}/membros/${membroEditando.usuario.id}`,
           {
             method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-              "x-tenant-id": tenantId,
-            },
+            headers: { "Content-Type": "application/json", "x-tenant-id": tenantId },
             credentials: "include",
             body: JSON.stringify({
               grupoId: editGrupoId || null,
               equipeIds: editEquipeIds,
               ativo: editAtivo,
             }),
-          },
+          }
         );
-        if (!res.ok) throw new Error("Erro ao atualizar");
-        const atualizado = await res.json();
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.message ?? "Erro ao atualizar");
+        }
+
+        // Usa o retorno do servidor (já inclui equipes populadas)
+        const membroAtualizado: Membro = await res.json();
         setMembros((prev) =>
-          prev.map((m) =>
-            m.usuario.id === membroEditando.usuario.id ? atualizado : m,
-          ),
+          prev.map((m) => (m.usuario.id === membroEditando.usuario.id ? membroAtualizado : m))
         );
         setMembroEditando(null);
       } catch (e: unknown) {
@@ -310,18 +282,16 @@ export default function UsuariosClient({
     });
   }
 
+  // ─── Render ──────────────────────────────────────────────────────────────────
+
   return (
     <div className="max-w-full">
-      {/* Header */}
       <PageHeader
         titulo="Usuários"
         descricao="Gerencie os membros e seus acessos dentro do sistema"
         action={
           <button
-            onClick={() => {
-              resetModalCriar();
-              setModalCriar(true);
-            }}
+            onClick={() => { resetModalCriar(); setModalCriar(true); }}
             className="px-4 py-2.5 rounded-lg text-sm font-medium text-white transition-colors flex items-center gap-2"
             style={{ background: corPrimaria }}
           >
@@ -330,19 +300,15 @@ export default function UsuariosClient({
           </button>
         }
       />
-      {/* Cards totais */}
+
+      {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
         {[
-          { label: "Total", valor: membros.length, icon: Users },
-          { label: "Ativos", valor: ativos, icon: CheckCircle2 },
-          { label: "Inativos", valor: inativos, icon: PauseCircle },
+          { label: "Total",    valor: membros.length, icon: Users },
+          { label: "Ativos",   valor: ativos,         icon: CheckCircle2 },
+          { label: "Inativos", valor: inativos,        icon: PauseCircle },
         ].map((c) => (
-          <StatCard
-            key={c.label}
-            label={c.label}
-            valor={c.valor}
-            icon={c.icon}
-          />
+          <StatCard key={c.label} label={c.label} valor={c.valor} icon={c.icon} />
         ))}
       </div>
 
@@ -350,11 +316,7 @@ export default function UsuariosClient({
       <div className="bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 mb-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"
-            />
-
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
             <input
               type="text"
               value={busca}
@@ -369,11 +331,7 @@ export default function UsuariosClient({
             className="bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-white focus:outline-none focus:border-zinc-400 dark:focus:border-zinc-600 transition-colors"
           >
             <option value="">Todos os grupos</option>
-            {grupos.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.nome}
-              </option>
-            ))}
+            {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
           </select>
           <div className="flex rounded-lg border border-zinc-200 dark:border-zinc-800 overflow-hidden flex-shrink-0">
             {(["todos", "ativos", "inativos"] as const).map((f) => (
@@ -400,114 +358,70 @@ export default function UsuariosClient({
           <table className="w-full">
             <thead>
               <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Usuário
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden md:table-cell">
-                  CPF
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden sm:table-cell">
-                  Grupo
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden lg:table-cell">
-                  {nomeEquipe}
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider hidden lg:table-cell">
-                  Cadastro
-                </th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-4 py-3 w-16"></th>
+                {["Usuário", "CPF", "Grupo", nomeEquipe, "Cadastro", "Status", ""].map(
+                  (h, i) => (
+                    <th
+                      key={i}
+                      className={`text-left px-4 py-3 text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider ${
+                        i === 1 ? "hidden md:table-cell" :
+                        i === 2 ? "hidden sm:table-cell" :
+                        i === 3 || i === 4 ? "hidden lg:table-cell" : ""
+                      }`}
+                    >
+                      {h}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {membrosFiltrados.length === 0 && (
                 <tr>
-                  <td
-                    colSpan={7}
-                    className="text-center py-12 text-sm text-zinc-400 dark:text-zinc-600"
-                  >
+                  <td colSpan={7} className="text-center py-12 text-sm text-zinc-400 dark:text-zinc-600">
                     Nenhum usuário encontrado.
                   </td>
                 </tr>
               )}
               {membrosFiltrados.map((membro) => (
-                <tr
-                  key={membro.id}
-                  className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors"
-                >
-                  {/* Usuário */}
+                <tr key={membro.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <Avatar
-                        nome={membro.usuario.name}
-                        imagem={membro.usuario.image}
-                        cor={corPrimaria}
-                        size="sm"
-                      />
-
+                      <Avatar nome={membro.usuario.name} imagem={membro.usuario.image} cor={corPrimaria} size="sm" />
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">
-                          {membro.usuario.name}
-                        </p>
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">
-                          {membro.usuario.email}
-                        </p>
+                        <p className="text-sm font-medium text-zinc-900 dark:text-white truncate">{membro.usuario.name}</p>
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">{membro.usuario.email}</p>
                       </div>
                     </div>
                   </td>
-                  {/* CPF */}
                   <td className="px-4 py-3 hidden md:table-cell">
-                    <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
-                      {membro.usuario.cpf ?? "—"}
-                    </span>
+                    <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">{membro.usuario.cpf ?? "—"}</span>
                   </td>
-                  {/* Grupo */}
                   <td className="px-4 py-3 hidden sm:table-cell">
                     {membro.grupo ? (
-                      <span
-                        className="text-xs font-medium px-2.5 py-1 rounded-full text-white"
-                        style={{ background: `${corPrimaria}cc` }}
-                      >
+                      <span className="text-xs font-medium px-2.5 py-1 rounded-full text-white" style={{ background: `${corPrimaria}cc` }}>
                         {membro.grupo.nome}
                       </span>
                     ) : (
-                      <span className="text-xs text-zinc-400 dark:text-zinc-600">
-                        —
-                      </span>
+                      <span className="text-xs text-zinc-400 dark:text-zinc-600">—</span>
                     )}
                   </td>
-                  {/* Equipes */}
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    {membro.equipes && membro.equipes.length > 0 ? (
+                    {membro.equipes?.length > 0 ? (
                       <div className="flex flex-wrap gap-1">
                         {membro.equipes.map((e) => (
-                          <span
-                            key={e.equipe.id}
-                            className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-                          >
+                          <span key={e.equipe.id} className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400">
                             {e.equipe.nome}
                           </span>
                         ))}
                       </div>
                     ) : (
-                      <span className="text-xs text-zinc-400 dark:text-zinc-600">
-                        —
-                      </span>
+                      <span className="text-xs text-zinc-400 dark:text-zinc-600">—</span>
                     )}
                   </td>
-                  {/* Cadastro */}
                   <td className="px-4 py-3 hidden lg:table-cell">
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                      {formatDate(membro.criadoEm)}
-                    </span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">{formatDate(membro.criadoEm)}</span>
                   </td>
-                  {/* Status */}
-                  <td className="px-4 py-3">
-                    <StatusBadge ativo={membro.ativo} />
-                  </td>
-                  {/* Ação */}
+                  <td className="px-4 py-3"><StatusBadge ativo={membro.ativo} /></td>
                   <td className="px-4 py-3">
                     <button
                       onClick={() => abrirEditar(membro)}
@@ -535,82 +449,40 @@ export default function UsuariosClient({
           <Modal
             titulo="Adicionar Usuário"
             subtitulo="Após o cadastro o usuário receberá acesso ao sistema"
-            onClose={() => {
-              setModalCriar(false);
-              resetModalCriar();
-            }}
+            onClose={() => { setModalCriar(false); resetModalCriar(); }}
           >
             <div className="flex flex-col gap-5">
-              {/* CPF */}
               <Campo label="CPF">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={cpf}
-                    onChange={(e) => handleCpfChange(e.target.value)}
-                    placeholder="000.000.000-00"
-                    className={inputCls}
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={cpf}
+                  onChange={(e) => setCpf(formatCpf(e.target.value))}
+                  placeholder="000.000.000-00"
+                  className={inputCls}
+                />
               </Campo>
 
-              {/* 2 colunas — dados pessoais */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Campo label="Nome completo" required>
-                  <input
-                    type="text"
-                    value={nome}
-                    onChange={(e) => setNome(e.target.value)}
-                    placeholder="João Silva"
-                    className={inputCls}
-                  />
+                  <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="João Silva" className={inputCls} />
                 </Campo>
                 <Campo label="Telefone / WhatsApp">
-                  <input
-                    type="text"
-                    value={telefone}
-                    onChange={(e) => setTelefone(e.target.value)}
-                    placeholder="(11) 99999-9999"
-                    className={inputCls}
-                  />
+                  <input type="text" value={telefone} onChange={(e) => setTelefone(e.target.value)} placeholder="(11) 99999-9999" className={inputCls} />
                 </Campo>
                 <Campo label="E-mail" required>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="joao@empresa.com"
-                    className={inputCls}
-                  />
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="joao@empresa.com" className={inputCls} />
                 </Campo>
                 <Campo label="Senha provisória">
-                  <input
-                    type="password"
-                    value={senha}
-                    onChange={(e) => setSenha(e.target.value)}
-                    placeholder="Mínimo 8 caracteres"
-                    className={inputCls}
-                  />
+                  <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} placeholder="Mínimo 8 caracteres" className={inputCls} />
                 </Campo>
               </div>
 
-              {/* Grupo + Equipes */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Campo label="Grupo de acesso" required>
-                  <select
-                    value={grupoId}
-                    onChange={(e) => setGrupoId(e.target.value)}
-                    className={inputCls}
-                  >
-                    <option value="">Sem grupo</option>
-                    {grupos.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.nome}
-                      </option>
-                    ))}
-                  </select>
-                </Campo>
-              </div>
+              <Campo label="Grupo de acesso" required>
+                <select value={grupoId} onChange={(e) => setGrupoId(e.target.value)} className={inputCls}>
+                  <option value="">Sem grupo</option>
+                  {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
+                </select>
+              </Campo>
 
               <Campo label={nomeEquipe}>
                 <MultiSelect
@@ -623,17 +495,12 @@ export default function UsuariosClient({
               </Campo>
 
               {erroCriar && (
-                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
-                  {erroCriar}
-                </p>
+                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">{erroCriar}</p>
               )}
 
               <div className="flex gap-3 pt-1">
                 <button
-                  onClick={() => {
-                    setModalCriar(false);
-                    resetModalCriar();
-                  }}
+                  onClick={() => { setModalCriar(false); resetModalCriar(); }}
                   className="flex-1 py-2.5 rounded-lg text-sm font-medium border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
                 >
                   Cancelar
@@ -656,57 +523,34 @@ export default function UsuariosClient({
       <AnimatePresence>
         {membroEditando && (
           <Modal
-            titulo={`Editar usuário`}
+            titulo="Editar usuário"
             subtitulo={membroEditando.usuario.name}
             onClose={() => setMembroEditando(null)}
           >
             <div className="flex flex-col gap-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Campo label="Nome completo" required>
-                  <input
-                    type="text"
-                    value={editNome}
-                    onChange={(e) => setEditNome(e.target.value)}
-                    className={inputCls}
-                  />
+                  <input type="text" value={editNome} onChange={(e) => setEditNome(e.target.value)} className={inputCls} />
                 </Campo>
                 <Campo label="CPF">
-                  <input
-                    type="text"
-                    value={editCpf}
-                    disabled
-                    className={`${inputCls} opacity-60 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800`}
-                  />
+                  <input type="text" value={editCpf} disabled className={`${inputCls} opacity-60 cursor-not-allowed bg-zinc-100 dark:bg-zinc-800`} />
                 </Campo>
                 <Campo label="Telefone / WhatsApp">
-                  <input
-                    type="text"
-                    value={editTelefone}
-                    onChange={(e) => setEditTelefone(e.target.value)}
-                    placeholder="(11) 99999-9999"
-                    className={inputCls}
-                  />
+                  <input type="text" value={editTelefone} onChange={(e) => setEditTelefone(e.target.value)} placeholder="(11) 99999-9999" className={inputCls} />
                 </Campo>
                 <Campo label="E-mail" required>
-                  <input
-                    type="email"
-                    value={editEmail}
-                    onChange={(e) => setEditEmail(e.target.value)}
-                    className={inputCls}
-                  />
+                  <input type="email" value={editEmail} onChange={(e) => setEditEmail(e.target.value)} className={inputCls} />
                 </Campo>
                 <Campo label="Grupo de acesso">
-                  <select
-                    value={editGrupoId}
-                    onChange={(e) => setEditGrupoId(e.target.value)}
-                    className={inputCls}
-                  >
+                  <select value={editGrupoId} onChange={(e) => setEditGrupoId(e.target.value)} className={inputCls}>
                     <option value="">Sem grupo</option>
-                    {grupos.map((g) => (
-                      <option key={g.id} value={g.id}>
-                        {g.nome}
-                      </option>
-                    ))}
+                    {grupos.map((g) => <option key={g.id} value={g.id}>{g.nome}</option>)}
+                  </select>
+                </Campo>
+                <Campo label="Status">
+                  <select value={editAtivo ? "ativo" : "inativo"} onChange={(e) => setEditAtivo(e.target.value === "ativo")} className={inputCls}>
+                    <option value="ativo">Ativo</option>
+                    <option value="inativo">Inativo</option>
                   </select>
                 </Campo>
               </div>
@@ -721,21 +565,8 @@ export default function UsuariosClient({
                 />
               </Campo>
 
-              <Campo label="Status">
-                <select
-                  value={editAtivo ? "ativo" : "inativo"}
-                  onChange={(e) => setEditAtivo(e.target.value === "ativo")}
-                  className={inputCls}
-                >
-                  <option value="ativo">Ativo</option>
-                  <option value="inativo">Inativo</option>
-                </select>
-              </Campo>
-
               {erroEditar && (
-                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">
-                  {erroEditar}
-                </p>
+                <p className="text-xs text-red-500 bg-red-50 dark:bg-red-950/30 px-3 py-2 rounded-lg">{erroEditar}</p>
               )}
 
               <div className="flex gap-3 pt-1">
