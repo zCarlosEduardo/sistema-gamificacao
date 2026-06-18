@@ -22,3 +22,32 @@ body {
   background-color: var(--color-bg);
   color: var(--color-text);
 }
+
+.shadow-primary {
+  box-shadow: 0 10px 25px -5px color-mix(in srgb, var(--color-primary) 50%, transparent);
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(-6deg); }
+  50% { transform: translateY(-12px) rotate(-4deg); }
+}
+
+@keyframes float-mid {
+  0%, 100% { transform: translateY(0px) rotate(4deg); }
+  50% { transform: translateY(-8px) rotate(6deg); }
+}
+
+@keyframes float-fast {
+  0%, 100% { transform: translateY(0px) rotate(2deg); }
+  50% { transform: translateY(-15px) rotate(0deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+.animate-float-mid { animation: float-mid 5s ease-in-out infinite; }
+.animate-float-fast { animation: float-fast 4s ease-in-out infinite; }
+.animate-spin-slow { animation: spin-slow 8s linear infinite; }

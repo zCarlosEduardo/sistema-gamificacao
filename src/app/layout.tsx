@@ -8,7 +8,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Await — Gamificação Corporativa",
+  title: "Await Gamificação Corporativa",
   description: "Engaje sua equipe com metas, coins e recompensas",
 };
 
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className="dark">
+    <html lang="pt-BR" className="dark scroll-smooth">
       <body className={`${inter.variable} font-sans antialiased`}>
         {children}
       </body>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const publicRoutes = ["/", "/login", "/primeiro-acesso"];
-const authRoutes = ["/login", "/primeiro-acesso"];
+const publicRoutes = ["/", "/login", "/primeiro-acesso", "/esqueci-senha", "/redefinir-senha"];
+const authRoutes = ["/login", "/primeiro-acesso", "/esqueci-senha", "/redefinir-senha"];
 const marketingRoutes = ["/"];
 
 export function middleware(request: NextRequest) {
