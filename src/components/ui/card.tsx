@@ -1,0 +1,47 @@
+import { cn } from "@/lib/cn";
+import type { HTMLAttributes } from "react";
+
+interface CardProps extends HTMLAttributes<HTMLDivElement> {}
+
+export function Card({ className, ...props }: CardProps) {
+  return (
+    <div
+      className={cn(
+        "rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-6",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export function CardHeader({ className, ...props }: CardProps) {
+  return <div className={cn("mb-4", className)} {...props} />;
+}
+
+export function CardTitle({
+  className,
+  ...props
+}: HTMLAttributes<HTMLHeadingElement>) {
+  return (
+    <h3
+      className={cn(
+        "text-lg font-semibold font-[family-name:var(--font-geist)]",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export function CardDescription({
+  className,
+  ...props
+}: HTMLAttributes<HTMLParagraphElement>) {
+  return (
+    <p
+      className={cn("text-sm text-[var(--color-text-muted)]", className)}
+      {...props}
+    />
+  );
+}
