@@ -47,7 +47,24 @@ export default function LoginPage() {
         return;
       }
 
-      // Checa se é primeiro acesso
+      // Busca tenants do usuário
+      const { tenants, needsSelection } = await api.get("/tenants/mine");
+
+      if (tenants.length === 0) {
+        setError("Você não está vinculado a nenhuma empresa.");
+        return;
+      }
+
+      if (needsSelection) {
+        // Múltiplos tenants — redireciona pra seleção
+        router.push("/selecionar-empresa");
+        return;
+      }
+
+      // Tenant único — seleciona automaticamente
+      await api.post("/tenants/select", { tenantId: tenants[0].id });
+
+      // Agora sim pode checar primeiro acesso
       const me = await api.get("/users/me");
       if (me.user.primeiroAcesso) {
         router.push("/primeiro-acesso");
@@ -84,9 +101,7 @@ export default function LoginPage() {
           {...register("password")}
         />
 
-        {error && (
-          <p className="text-sm text-red-500 text-center">{error}</p>
-        )}
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
 
         <Button type="submit" loading={loading} className="w-full">
           Entrar
