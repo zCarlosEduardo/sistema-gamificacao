@@ -34,3 +34,57 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+```
+sistema-gamificacao
+├─ eslint.config.mjs
+├─ next.config.ts
+├─ package-lock.json
+├─ package.json
+├─ postcss.config.mjs
+├─ public
+├─ README.md
+├─ src
+│  ├─ app
+│  │  ├─ (app)
+│  │  │  ├─ dashboard
+│  │  │  │  └─ page.tsx
+│  │  │  └─ layout.tsx
+│  │  ├─ (auth)
+│  │  │  ├─ esqueci-senha
+│  │  │  │  └─ page.tsx
+│  │  │  ├─ layout.tsx
+│  │  │  ├─ login
+│  │  │  │  └─ page.tsx
+│  │  │  └─ primeiro-acesso
+│  │  │     └─ page.tsx
+│  │  ├─ (landingpage)
+│  │  │  ├─ layout.tsx
+│  │  │  └─ page.tsx
+│  │  ├─ favicon.ico
+│  │  ├─ globals.css
+│  │  └─ layout.tsx
+│  ├─ components
+│  │  ├─ layout
+│  │  │  ├─ hero-buttons.tsx
+│  │  │  ├─ landingpage-cards.tsx
+│  │  │  ├─ landingpage-footer.tsx
+│  │  │  ├─ landingpage-header.tsx
+│  │  │  └─ topbar.tsx
+│  │  └─ ui
+│  │     ├─ badge.tsx
+│  │     ├─ button.tsx
+│  │     ├─ card.tsx
+│  │     ├─ input.tsx
+│  │     └─ logo.tsx
+│  ├─ lib
+│  │  ├─ api-server.ts
+│  │  ├─ api.ts
+│  │  ├─ auth-client.ts
+│  │  └─ cn.ts
+│  ├─ proxy.ts
+│  └─ types
+│     └─ index.ts
+└─ tsconfig.json
+
+```

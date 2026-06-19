@@ -45,6 +45,7 @@ export default function LoginPage() {
         return;
       }
 
+      // Busca tenants do usuário
       const { tenants, needsSelection } = await api.get("/tenants/mine");
 
       if (tenants.length === 0) {
@@ -57,14 +58,9 @@ export default function LoginPage() {
         return;
       }
 
+      // Tenant único — seleciona automaticamente
       await api.post("/tenants/select", { tenantId: tenants[0].id });
-
-      const me = await api.get("/users/me");
-      if (me.user.primeiroAcesso) {
-        router.push("/primeiro-acesso");
-      } else {
-        router.push("/dashboard");
-      }
+      router.push("/dashboard");
     } catch {
       setError("Erro ao fazer login. Tente novamente.");
     } finally {
@@ -92,7 +88,7 @@ export default function LoginPage() {
           error={errors.email?.message}
           {...register("email")}
           className="p-3"
-          />
+        />
         <div>
           <Input
             id="password"
