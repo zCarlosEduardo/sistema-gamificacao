@@ -1,6 +1,13 @@
 import Link from "next/link";
 import { Logo } from "@/components/ui/logo";
-import { ArrowLeft, CircleCheck, Dices, Gift, Medal, Trophy } from "lucide-react";
+import {
+  ArrowLeft,
+  CircleCheck,
+  Dices,
+  Gift,
+  Medal,
+  Trophy,
+} from "lucide-react";
 
 export default function AuthLayout({
   children,
@@ -9,6 +16,27 @@ export default function AuthLayout({
 }) {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-(--color-bg)">
+      {/* Lado do formulário */}
+      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
+        {/* Header mobile */}
+        <div className="flex items-center justify-between px-6 py-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Voltar
+          </Link>
+          <div className="lg:hidden">
+            <Logo />
+          </div>
+          <div className="w-16" />
+        </div>
+        {/* Form centralizado */}
+        <div className="flex-1 flex items-center justify-center px-6 pb-12">
+          <div className="w-full max-w-sm">{children}</div>
+        </div>
+      </div>
       {/* Lado decorativo — só desktop */}
       <div className="hidden lg:flex relative w-1/2 overflow-hidden items-center justify-center">
         {/* Gradiente de fundo */}
@@ -60,10 +88,7 @@ export default function AuthLayout({
             <div className="absolute bottom-16 left-4 animate-float-fast bg-(--color-bg-subtle)/80 backdrop-blur-md rounded-xl p-4 border border-(--color-border) w-56 rotate-2 shadow-xl">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-(--color-primary)/10 flex items-center justify-center">
-                  <Gift
-                    size={20}
-                    className="text-(--color-primary-light)"
-                  />
+                  <Gift size={20} className="text-(--color-primary-light)" />
                 </div>
                 <div>
                   <p className="text-sm font-semibold">Camiseta Await</p>
@@ -115,29 +140,6 @@ export default function AuthLayout({
               Onde produtividade vira recompensa.
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Lado do formulário */}
-      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
-        {/* Header mobile */}
-        <div className="flex items-center justify-between px-6 py-4">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-sm text-(--color-text-muted) hover:text-(--color-text) transition-colors"
-          >
-            <ArrowLeft size={16} />
-            Voltar
-          </Link>
-          <div className="lg:hidden">
-            <Logo />
-          </div>
-          <div className="w-16" />
-        </div>
-
-        {/* Form centralizado */}
-        <div className="flex-1 flex items-center justify-center px-6 pb-12">
-          <div className="w-full max-w-sm">{children}</div>
         </div>
       </div>
     </div>
