@@ -58,7 +58,7 @@ export default function LoginPage() {
         return;
       }
 
-      // Tenant único — seleciona automaticamente
+      // Tenant único seleciona automaticamente
       await api.post("/tenants/select", { tenantId: tenants[0].id });
       router.push("/dashboard");
     } catch {

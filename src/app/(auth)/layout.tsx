@@ -37,7 +37,7 @@ export default function AuthLayout({
           <div className="w-full max-w-sm">{children}</div>
         </div>
       </div>
-      {/* Lado decorativo — só desktop */}
+      {/* Lado decorativo só desktop */}
       <div className="hidden lg:flex relative w-1/2 overflow-hidden items-center justify-center">
         {/* Gradiente de fundo */}
 
@@ -48,7 +48,7 @@ export default function AuthLayout({
         {/* Conteúdo */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full px-8">
           <div className="relative w-80 h-96">
-            {/* Card 1 — Meta batida */}
+            {/* Card 1 Meta batida */}
             <div className="absolute top-0 left-0 animate-float-slow bg-(--color-bg-subtle)/80 backdrop-blur-md rounded-xl p-4 border border-(--color-border) w-52 -rotate-6 shadow-xl">
               <div className="flex items-center gap-2 mb-3">
                 <div className="h-6 w-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
@@ -67,7 +67,7 @@ export default function AuthLayout({
               </div>
             </div>
 
-            {/* Card 2 — Roleta */}
+            {/* Card 2 Roleta */}
             <div className="absolute top-20 right-0 animate-float-mid bg-(--color-bg-subtle)/80 backdrop-blur-md rounded-xl p-4 border border-(--color-border) w-48 rotate-[4deg] shadow-xl">
               <div className="flex items-center gap-2 mb-2">
                 <Dices
@@ -84,7 +84,7 @@ export default function AuthLayout({
               </p>
             </div>
 
-            {/* Card 3 — Resgate */}
+            {/* Card 3 Resgate */}
             <div className="absolute bottom-16 left-4 animate-float-fast bg-(--color-bg-subtle)/80 backdrop-blur-md rounded-xl p-4 border border-(--color-border) w-56 rotate-2 shadow-xl">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-lg bg-(--color-primary)/10 flex items-center justify-center">
@@ -99,7 +99,7 @@ export default function AuthLayout({
               </div>
             </div>
 
-            {/* Card 4 — Ranking */}
+            {/* Card 4 Ranking */}
             <div className="absolute bottom-0 right-2 animate-float-slow bg-(--color-bg-subtle)/80 backdrop-blur-md rounded-xl p-4 border border-(--color-border) w-44 -rotate-8 shadow-xl">
               <div className="flex items-center gap-1.5 mb-2">
                 <Trophy size={12} className="text-amber-400" />

@@ -30,13 +30,32 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: <LayoutDashboard size={18} />,
+  },
   { label: "Metas", href: "/metas", icon: <Target size={18} /> },
   { label: "Loja", href: "/loja", icon: <ShoppingBag size={18} /> },
   { label: "Resgates", href: "/resgates", icon: <Package size={18} /> },
-  { label: "Equipes", href: "/admin/equipes", icon: <Users size={18} />, adminOnly: true },
-  { label: "Permissões", href: "/admin/permissoes", icon: <Shield size={18} />, adminOnly: true },
-  { label: "Configurações", href: "/admin/configuracoes", icon: <Settings size={18} />, adminOnly: true },
+  {
+    label: "Equipes",
+    href: "/equipes",
+    icon: <Users size={18} />,
+    adminOnly: true,
+  },
+  {
+    label: "Pools",
+    href: "/Pools",
+    icon: <Shield size={18} />,
+    adminOnly: true,
+  },
+  {
+    label: "Configurações",
+    href: "/configuracoes",
+    icon: <Settings size={18} />,
+    adminOnly: true,
+  },
 ];
 
 interface TopbarProps {
@@ -73,7 +92,9 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
   // Bloqueia scroll quando drawer aberto
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [drawerOpen]);
 
   function isActive(href: string) {
@@ -95,7 +116,7 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full border-b border-(--color-border) bg-(--color-bg)/80 backdrop-blur-lg">
+      <div className="z-40 w-full border-b border-(--color-border) bg-(--color-bg)/80 backdrop-blur-lg">
         <div className="flex items-center justify-between px-4 sm:px-6 h-14 max-w-7xl mx-auto">
           {/* Esquerda: hamburger (mobile) + logo */}
           <div className="flex items-center gap-3">
@@ -106,9 +127,16 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
               <Menu size={20} />
             </button>
 
-            <button onClick={() => navigate("/dashboard")} className="flex items-center gap-2">
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="flex items-center gap-2"
+            >
               {tenant?.logo ? (
-                <img src={tenant.logo} alt={tenant.nome} className="h-8 w-auto" />
+                <img
+                  src={tenant.logo}
+                  alt={tenant.nome}
+                  className="h-8 w-auto"
+                />
               ) : (
                 <Logo />
               )}
@@ -134,7 +162,11 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                     <motion.div
                       layoutId="topbar-indicator"
                       className="absolute -bottom-3.25 left-2 right-2 h-0.5 rounded-full bg-(--color-primary)"
-                      transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 35,
+                      }}
                     />
                   )}
                 </button>
@@ -149,7 +181,9 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
               <div className="hidden sm:flex items-center gap-3 mr-2">
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-(--color-bg-subtle) border border-(--color-border)">
                   <Coins size={14} className="text-amber-400" />
-                  <span className="text-xs font-semibold">{saldo.pontos.toLocaleString("pt-BR")}</span>
+                  <span className="text-xs font-semibold">
+                    {saldo.pontos.toLocaleString("pt-BR")}
+                  </span>
                 </div>
               </div>
             )}
@@ -184,8 +218,12 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                   >
                     {/* Info do usuário */}
                     <div className="px-4 py-3 border-b border-(--color-border)">
-                      <p className="text-sm font-medium truncate">{user.name}</p>
-                      <p className="text-xs text-(--color-text-muted) truncate">{user.email}</p>
+                      <p className="text-sm font-medium truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-xs text-(--color-text-muted) truncate">
+                        {user.email}
+                      </p>
                       {tenant && (
                         <p className="text-[10px] text-(--color-primary-light) mt-1 truncate">
                           {tenant.nome}
@@ -196,8 +234,12 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                     {/* Saldo mobile */}
                     {saldo && (
                       <div className="sm:hidden px-4 py-2 border-b border-(--color-border) flex items-center justify-between">
-                        <span className="text-xs text-(--color-text-muted)">Pontos</span>
-                        <span className="text-sm font-semibold text-amber-400">{saldo.pontos.toLocaleString("pt-BR")}</span>
+                        <span className="text-xs text-(--color-text-muted)">
+                          Pontos
+                        </span>
+                        <span className="text-sm font-semibold text-amber-400">
+                          {saldo.pontos.toLocaleString("pt-BR")}
+                        </span>
                       </div>
                     )}
 
@@ -226,7 +268,7 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Mobile Drawer */}
       <AnimatePresence>
@@ -246,10 +288,14 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-(--color-bg) border-r border-(--color-border) flex flex-col"
             >
-              {/* Drawer header */}
+              {/* Drawer div */}
               <div className="flex items-center justify-between px-4 h-14 border-b border-(--color-border)">
                 {tenant?.logo ? (
-                  <img src={tenant.logo} alt={tenant.nome} className="h-8 w-auto" />
+                  <img
+                    src={tenant.logo}
+                    alt={tenant.nome}
+                    className="h-8 w-auto"
+                  />
                 ) : (
                   <Logo />
                 )}
@@ -268,13 +314,21 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                     <div className="flex items-center gap-2">
                       <Coins size={16} className="text-amber-400" />
                       <div>
-                        <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">Pontos</p>
-                        <p className="text-lg font-bold text-amber-400">{saldo.pontos.toLocaleString("pt-BR")}</p>
+                        <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">
+                          Pontos
+                        </p>
+                        <p className="text-lg font-bold text-amber-400">
+                          {saldo.pontos.toLocaleString("pt-BR")}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">Giros</p>
-                      <p className="text-lg font-bold text-(--color-primary-light)">{saldo.giros}</p>
+                      <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">
+                        Giros
+                      </p>
+                      <p className="text-lg font-bold text-(--color-primary-light)">
+                        {saldo.giros}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -314,7 +368,9 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{user.name}</p>
-                    <p className="text-xs text-(--color-text-muted) truncate">{user.email}</p>
+                    <p className="text-xs text-(--color-text-muted) truncate">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
                 <button
