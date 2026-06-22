@@ -27,7 +27,7 @@ export function RouletteCard({ giros, nomeGiro, nomeMoeda = "Coins", nomePontos 
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <Card className="p-6 border-(--color-primary)/30 bg-gradient-to-r from-(--color-primary)/15 via-(--color-primary)/5 to-transparent relative overflow-hidden">
+        <Card className="p-8 border-(--color-primary)/30 bg-linear-to-r from-(--color-primary)/15 via-(--color-primary)/5 to-transparent relative overflow-hidden">
           <div className="absolute top-0 right-0 w-32 h-32 bg-(--color-primary)/10 rounded-full blur-3xl -translate-y-8 translate-x-8" />
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative">

@@ -291,6 +291,7 @@ export default async function DashboardPage() {
                             : i === 2
                               ? "text-amber-600"
                               : "text-(--color-text-muted)"
+                              
                       }`}
                     >
                       {i + 1}º

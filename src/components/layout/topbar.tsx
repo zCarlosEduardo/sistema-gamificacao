@@ -146,7 +146,7 @@ export function Topbar({
     },
     {
       label: `${nome.pool}s`,
-      href: "/parametros",
+      href: "/pools",
       icon: <Shield size={18} />,
       adminOnly: true,
     },
