@@ -18,7 +18,7 @@ export default function GlobalError({
         <AlertCircle size={28} className="text-red-400" />
       </div>
       <h1 className="text-xl font-semibold">Algo deu errado</h1>
-      <p className="text-sm text-[var(--color-text-muted)] mt-2 max-w-sm">
+      <p className="text-sm text-(--color-text-muted) mt-2 max-w-sm">
         Ocorreu um erro inesperado. Tente novamente ou volte pro início.
       </p>
       <div className="flex gap-3 mt-6">

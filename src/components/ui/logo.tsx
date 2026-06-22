@@ -15,7 +15,7 @@ export function Logo({ className, size = "md" }: LogoProps) {
   return (
     <span
       className={cn(
-        "font-[family-name:var(--font-geist)] font-bold text-[var(--color-text)]",
+        "font-(family-name:--font-geist) font-bold text-(--color-text)",
         sizes[size],
         className,
       )}

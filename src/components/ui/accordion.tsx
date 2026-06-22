@@ -29,17 +29,17 @@ export function Accordion({ items }: AccordionProps) {
         return (
           <div
             key={index}
-            className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] overflow-hidden"
+            className="rounded-xl border border-(--color-border) bg-(--color-bg-subtle) overflow-hidden"
           >
             <button
               onClick={() => toggle(index)}
-              className="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-medium hover:bg-[var(--color-border)]/30 transition-colors"
+              className="w-full flex items-center justify-between px-5 py-4 text-left text-sm font-medium hover:bg-(--color-border)/30 transition-colors"
             >
               {item.question}
               <ChevronDown
                 size={16}
                 className={cn(
-                  "text-[var(--color-text-muted)] transition-transform duration-200 shrink-0 ml-4",
+                  "text-(--color-text-muted) transition-transform duration-200 shrink-0 ml-4",
                   isOpen && "rotate-180",
                 )}
               />
@@ -52,7 +52,7 @@ export function Accordion({ items }: AccordionProps) {
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <div className="px-5 pb-4 text-sm text-[var(--color-text-muted)] leading-relaxed">
+                  <div className="px-5 pb-4 text-sm text-(--color-text-muted) leading-relaxed">
                     {item.answer}
                   </div>
                 </motion.div>

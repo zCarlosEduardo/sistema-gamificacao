@@ -75,18 +75,18 @@ export default function LandingPage() {
       <section className="flex flex-col md:flex-row items-center justify-between py-32 gap-12">
         <div className="md:flex-1 space-y-6">
           <FadeIn>
-            <span className="text-xs font-medium text-[var(--color-primary-light)] border px-2 py-1.5 border-[var(--color-primary)]/20 rounded-full bg-[var(--color-primary)]/10 inline-block">
+            <span className="text-xs font-medium text-(--color-primary-light) border px-2 py-1.5 border-(--color-primary)/20 rounded-full bg-(--color-primary)/10 inline-block">
               Gamificação corporativa
             </span>
           </FadeIn>
           <FadeIn delay={0.1}>
-            <h1 className="text-4xl sm:text-5xl font-[family-name:var(--font-geist)] font-bold leading-tight">
+            <h1 className="text-4xl sm:text-5xl font-(family-name:--font-geist) font-bold leading-tight">
               Bater meta nunca foi tão{" "}
-              <span className="text-[var(--color-primary-light)]">divertido.</span>
+              <span className="text-(--color-primary-light)">divertido.</span>
             </h1>
           </FadeIn>
           <FadeIn delay={0.2}>
-            <p className="text-lg text-[var(--color-text-muted)] max-w-2xl">
+            <p className="text-lg text-(--color-text-muted) max-w-2xl">
               Metas, roleta de coins, ranking e loja de recompensas tudo num lugar
               só. Sua equipe se engaja, você acompanha. Sem planilha, sem
               complicação.
@@ -104,7 +104,7 @@ export default function LandingPage() {
       {/* Como funciona */}
       <section id="como-funciona" className="flex flex-col gap-12 py-20 max-w-6xl mx-auto">
         <FadeIn>
-          <h2 className="text-lg font-[family-name:var(--font-geist)] font-semibold text-start text-[var(--color-text-muted)] uppercase">
+          <h2 className="text-lg font-(family-name:--font-geist) font-semibold text-start text-(--color-text-muted) uppercase">
             Como funciona
           </h2>
         </FadeIn>
@@ -113,12 +113,12 @@ export default function LandingPage() {
             const Icon = item.icon;
             return (
               <FadeIn key={item.titulo} delay={i * 0.1}>
-                <Card className="p-6 bg-[var(--color-bg-subtle)] border-[var(--color-border)] hover:scale-[1.03] transition-transform duration-300 h-full">
-                  <div className="w-12 h-12 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center mb-4">
-                    <Icon size={24} className="text-[var(--color-primary-light)]" />
+                <Card className="p-6 bg-(--color-bg-subtle) border-(--color-border) hover:scale-[1.03] transition-transform duration-300 h-full">
+                  <div className="w-12 h-12 rounded-lg bg-(--color-primary)/10 flex items-center justify-center mb-4">
+                    <Icon size={24} className="text-(--color-primary-light)" />
                   </div>
                   <h3 className="text-lg font-semibold mb-2">{item.titulo}</h3>
-                  <p className="text-sm text-[var(--color-text-muted)]">{item.desc}</p>
+                  <p className="text-sm text-(--color-text-muted)">{item.desc}</p>
                 </Card>
               </FadeIn>
             );
@@ -132,7 +132,7 @@ export default function LandingPage() {
       {/* Passo a passo */}
       <section className="py-20 max-w-4xl mx-auto">
         <FadeIn>
-          <h2 className="text-lg font-[family-name:var(--font-geist)] font-semibold text-start text-[var(--color-text-muted)] uppercase mb-12">
+          <h2 className="text-lg font-(family-name:--font-geist) font-semibold text-start text-(--color-text-muted) uppercase mb-12">
             O ciclo completo
           </h2>
         </FadeIn>
@@ -146,13 +146,13 @@ export default function LandingPage() {
             { step: "06", title: "Troca por recompensas", desc: "O colaborador escolhe o prêmio na loja e solicita o resgate." },
           ].map((item, i) => (
             <FadeIn key={item.step} delay={i * 0.05}>
-              <div className="flex gap-6 py-5 border-b border-[var(--color-border)] group">
-                <span className="text-2xl font-bold text-[var(--color-primary)]/30 group-hover:text-[var(--color-primary-light)] transition-colors font-[family-name:var(--font-geist)]">
+              <div className="flex gap-6 py-5 border-b border-(--color-border) group">
+                <span className="text-2xl font-bold text-(--color-primary)/30 group-hover:text-(--color-primary-light) transition-colors font-(family-name:--font-geist)">
                   {item.step}
                 </span>
                 <div>
                   <h3 className="font-semibold">{item.title}</h3>
-                  <p className="text-sm text-[var(--color-text-muted)] mt-0.5">{item.desc}</p>
+                  <p className="text-sm text-(--color-text-muted) mt-0.5">{item.desc}</p>
                 </div>
               </div>
             </FadeIn>
@@ -163,7 +163,7 @@ export default function LandingPage() {
       {/* Diferenciais */}
       <section className="py-20 max-w-6xl mx-auto">
         <FadeIn>
-          <h2 className="text-lg font-[family-name:var(--font-geist)] font-semibold text-start text-[var(--color-text-muted)] uppercase mb-12">
+          <h2 className="text-lg font-(family-name:--font-geist) font-semibold text-start text-(--color-text-muted) uppercase mb-12">
             Por que o Await
           </h2>
         </FadeIn>
@@ -172,14 +172,14 @@ export default function LandingPage() {
             const Icon = item.icon;
             return (
               <FadeIn key={item.titulo} delay={i * 0.08}>
-                <div className="p-5 rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)]/30 transition-colors group">
+                <div className="p-5 rounded-xl border border-(--color-border) hover:border-(--color-primary)/30 transition-colors group">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="h-9 w-9 rounded-lg bg-[var(--color-primary)]/10 flex items-center justify-center group-hover:bg-[var(--color-primary)]/20 transition-colors">
-                      <Icon size={18} className="text-[var(--color-primary-light)]" />
+                    <div className="h-9 w-9 rounded-lg bg-(--color-primary)/10 flex items-center justify-center group-hover:bg-(--color-primary)/20 transition-colors">
+                      <Icon size={18} className="text-(--color-primary-light)" />
                     </div>
                     <h3 className="font-semibold text-sm">{item.titulo}</h3>
                   </div>
-                  <p className="text-sm text-[var(--color-text-muted)] leading-relaxed">{item.desc}</p>
+                  <p className="text-sm text-(--color-text-muted) leading-relaxed">{item.desc}</p>
                 </div>
               </FadeIn>
             );
@@ -190,7 +190,7 @@ export default function LandingPage() {
       {/* FAQ */}
       <section className="py-20 max-w-3xl mx-auto">
         <FadeIn>
-          <h2 className="text-lg font-[family-name:var(--font-geist)] font-semibold text-start text-[var(--color-text-muted)] uppercase mb-8">
+          <h2 className="text-lg font-(family-name:--font-geist) font-semibold text-start text-(--color-text-muted) uppercase mb-8">
             Perguntas frequentes
           </h2>
         </FadeIn>
@@ -203,13 +203,13 @@ export default function LandingPage() {
       <FadeIn>
         <section
           id="contato"
-          className="px-6 py-12 mb-24 text-center bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-primary-light)]/5 rounded-xl border border-[var(--color-primary)]/30"
+          className="px-6 py-12 mb-24 text-center bg-linear-to-br from-(--color-primary)/15 to-(--color-primary-light)/5 rounded-xl border border-(--color-primary)/30"
         >
           <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-4xl font-[family-name:var(--font-geist)] font-bold">
+            <h2 className="text-4xl font-(family-name:--font-geist) font-bold">
               Quer levar o Await pra sua empresa?
             </h2>
-            <p className="text-[var(--color-text-muted)] mb-6">
+            <p className="text-(--color-text-muted) mb-6">
               Fale com a gente e veja como transformar seus resultados com
               gamificação. Personalizamos toda a plataforma para refletir a
               identidade da sua empresa.

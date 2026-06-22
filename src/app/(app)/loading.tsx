@@ -4,7 +4,7 @@ export default function AppLoading() {
   return (
     <div>
       {/* Topbar skeleton */}
-      <div className="h-14 border-b border-[var(--color-border)] px-6 flex items-center justify-between">
+      <div className="h-14 border-b border-(--color-border) px-6 flex items-center justify-between">
         <Skeleton className="h-6 w-24" />
         <div className="flex gap-4">
           <Skeleton className="h-6 w-32 hidden sm:block" />

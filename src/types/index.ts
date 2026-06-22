@@ -46,6 +46,8 @@ export interface Member {
   saldoPontos: number;
   girosDisponiveis: number;
   grupoNome: string;
+  nativo: boolean;
+  permissoes: string[];
 }
 
 export interface MemberWithUser extends Member {
@@ -211,4 +213,41 @@ export interface ApiError {
   status: number;
   message: string;
   errors?: { campo: string; mensagem: string }[];
+}
+
+
+// ─── Notificacaoes ───
+export interface Announcement {
+  id: string;
+  titulo: string;
+  conteudo: string;
+  tipo: "INFO" | "ALERTA" | "SUCESSO";
+  ativo: boolean;
+  fixado: boolean;
+  expiraEm?: string | null;
+  createdAt: string;
+}
+
+export interface AdminAnalytics {
+  topProducts: { nome: string; total: number; pontosTotal: number }[];
+  topMembers: { nome: string; saldoPontos: number; saldoCoins: number; totalMetasBatidas: number }[];
+  topTeams: { nome: string; totalMembros: number; pontosTotal: number }[];
+  investimento: { totalEstimado: number; totalResgates: number; totalPontosGastos: number };
+  resgatesPorStatus: { status: string; total: number }[];
+}
+
+export interface TopbarProps {
+  user: { name: string; email: string };
+  tenant?: { nome: string; logo?: string; corPrimaria?: string };
+  saldo?: { coins: number; pontos: number; giros: number };
+  memberId?: string;
+  nomenclaturas?: {
+    moeda: string;
+    pontos: string;
+    meta: string;
+    equipe: string;
+    loja: string;
+    giro: string;
+    pool: string;
+  };
 }

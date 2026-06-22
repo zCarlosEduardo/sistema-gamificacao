@@ -102,7 +102,7 @@ export default function RedefinirSenhaPage() {
           <div className="h-14 w-14 rounded-full bg-red-500/10 flex items-center justify-center mb-6">
             <Lock size={24} className="text-red-400" />
           </div>
-          <h1 className="text-2xl font-[family-name:var(--font-geist)] font-bold">
+          <h1 className="text-2xl font-(family-name:--font-geist) font-bold">
             Link inválido
           </h1>
           <p className="text-sm text-(--color-text-muted) mt-2 max-w-xs">
@@ -127,7 +127,7 @@ export default function RedefinirSenhaPage() {
           <div className="h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
             <CheckCircle size={24} className="text-emerald-400" />
           </div>
-          <h1 className="text-2xl font-[family-name:var(--font-geist)] font-bold">
+          <h1 className="text-2xl font-(family-name:--font-geist) font-bold">
             Senha redefinida!
           </h1>
           <p className="text-sm text-(--color-text-muted) mt-2">
@@ -149,7 +149,7 @@ export default function RedefinirSenhaPage() {
   return (
     <>
       <div className="mb-8">
-        <h1 className="text-2xl font-[family-name:var(--font-geist)] font-bold">
+        <h1 className="text-2xl font-(family-name:--font-geist) font-bold">
           Redefinir senha{userName ? `, ${userName}` : ""}
         </h1>
         <p className="text-sm text-(--color-text-muted) mt-1">

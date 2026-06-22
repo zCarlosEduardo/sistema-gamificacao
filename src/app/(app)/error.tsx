@@ -16,7 +16,7 @@ export default function AppError({
         <AlertCircle size={28} className="text-red-400" />
       </div>
       <h2 className="text-lg font-semibold">Erro ao carregar</h2>
-      <p className="text-sm text-[var(--color-text-muted)] mt-2 max-w-xs">
+      <p className="text-sm text-(--color-text-muted) mt-2 max-w-xs">
         Não foi possível carregar essa página. Tente novamente.
       </p>
       <Button onClick={reset} className="mt-6">

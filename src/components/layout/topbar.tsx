@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { signOut } from "@/lib/auth-client";
-import { Logo } from "@/components/ui/logo";
+import { api } from "@/lib/api";
+import { useSSE } from "@/lib/use-sse";
 import {
   LayoutDashboard,
   Target,
@@ -21,6 +22,7 @@ import {
   Coins,
   ArrowLeftRight,
 } from "lucide-react";
+import type { TopbarProps } from "@/types";
 
 interface NavItem {
   label: string;
@@ -29,49 +31,60 @@ interface NavItem {
   adminOnly?: boolean;
 }
 
-const navItems: NavItem[] = [
-  {
-    label: "Dashboard",
-    href: "/dashboard",
-    icon: <LayoutDashboard size={18} />,
-  },
-  { label: "Metas", href: "/metas", icon: <Target size={18} /> },
-  { label: "Loja", href: "/loja", icon: <ShoppingBag size={18} /> },
-  { label: "Resgates", href: "/resgates", icon: <Package size={18} /> },
-  {
-    label: "Equipes",
-    href: "/equipes",
-    icon: <Users size={18} />,
-    adminOnly: true,
-  },
-  {
-    label: "Pools",
-    href: "/Pools",
-    icon: <Shield size={18} />,
-    adminOnly: true,
-  },
-  {
-    label: "Configurações",
-    href: "/configuracoes",
-    icon: <Settings size={18} />,
-    adminOnly: true,
-  },
-];
-
-interface TopbarProps {
-  user: { name: string; email: string };
-  tenant?: { nome: string; logo?: string; corPrimaria?: string };
-  saldo?: { coins: number; pontos: number; giros: number };
-}
-
-export function Topbar({ user, tenant, saldo }: TopbarProps) {
+export function Topbar({
+  user,
+  tenant,
+  saldo: initialSaldo,
+  memberId,
+  nomenclaturas,
+}: TopbarProps) {
+  const nome = {
+    moeda: nomenclaturas?.moeda ?? "Coins",
+    pontos: nomenclaturas?.pontos ?? "Pontos",
+    meta: nomenclaturas?.meta ?? "Meta",
+    equipe: nomenclaturas?.equipe ?? "Equipe",
+    loja: nomenclaturas?.loja ?? "Loja",
+    giro: nomenclaturas?.giro ?? "Giro",
+    pool: nomenclaturas?.pool ?? "Parâmetros",
+  };
   const router = useRouter();
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [saldo, setSaldo] = useState(
+    initialSaldo ?? { coins: 0, pontos: 0, giros: 0 },
+  );
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fecha menu ao clicar fora
+  // Atualiza saldo em realtime
+  const handleEvent = useCallback(
+    async (event: { type: string; data: any }) => {
+      if (
+        [
+          "ROLETA_GIRADA",
+          "META_APROVADA",
+          "RESGATE_REJEITADO",
+          "RESGATE_APROVADO",
+        ].includes(event.type)
+      ) {
+        try {
+          const member = await api.get("/tenants/me");
+          setSaldo({
+            coins: member.saldoCoins,
+            pontos: member.saldoPontos,
+            giros: member.girosDisponiveis,
+          });
+        } catch {}
+      }
+    },
+    [],
+  );
+
+  useSSE({
+    url: `/events/stream?memberId=${memberId}`,
+    onEvent: handleEvent,
+  });
+
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -82,14 +95,11 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  // Fecha drawer ao navegar
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDrawerOpen(false);
     setMenuOpen(false);
   }, [pathname]);
 
-  // Bloqueia scroll quando drawer aberto
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
     return () => {
@@ -111,14 +121,48 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
     router.push(href);
   }
 
-  // Filtra itens admin por enquanto (depois integra com permissões reais)
-  const visibleItems = navItems;
+  const visibleItems: NavItem[] = [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: <LayoutDashboard size={18} />,
+    },
+    {
+      label: `${nome.meta}s`,
+      href: "/metas",
+      icon: <Target size={18} />,
+    },
+    {
+      label: nome.loja,
+      href: "/loja",
+      icon: <ShoppingBag size={18} />,
+    },
+    { label: "Resgates", href: "/resgates", icon: <Package size={18} /> },
+    {
+      label: `${nome.equipe}s`,
+      href: "/equipes",
+      icon: <Users size={18} />,
+      adminOnly: true,
+    },
+    {
+      label: `${nome.pool}s`,
+      href: "/parametros",
+      icon: <Shield size={18} />,
+      adminOnly: true,
+    },
+    {
+      label: "Configurações",
+      href: "/configuracoes",
+      icon: <Settings size={18} />,
+      adminOnly: true,
+    },
+  ];
 
   return (
     <>
-      <div className="z-40 w-full border-b border-(--color-border) bg-(--color-bg)/80 backdrop-blur-lg">
+      <header className="sticky top-0 z-40 w-full border-b border-(--color-border) bg-(--color-bg)/80 backdrop-blur-lg">
         <div className="flex items-center justify-between px-4 sm:px-6 h-14 max-w-7xl mx-auto">
-          {/* Esquerda: hamburger (mobile) + logo */}
+          {/* Esquerda */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setDrawerOpen(true)}
@@ -126,7 +170,6 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
             >
               <Menu size={20} />
             </button>
-
             <button
               onClick={() => navigate("/dashboard")}
               className="flex items-center gap-2"
@@ -138,7 +181,9 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                   className="h-8 w-auto"
                 />
               ) : (
-                <Logo />
+                <span className="text-xl font-[family-name:var(--font-geist)] font-bold text-(--color-text)">
+                  {tenant?.nome ?? "Await"}
+                </span>
               )}
             </button>
           </div>
@@ -174,21 +219,18 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
             })}
           </nav>
 
-          {/* Direita: saldo + avatar */}
+          {/* Direita */}
           <div className="flex items-center gap-2">
-            {/* Saldo */}
-            {saldo && (
-              <div className="hidden sm:flex items-center gap-3 mr-2">
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-(--color-bg-subtle) border border-(--color-border)">
-                  <Coins size={14} className="text-amber-400" />
-                  <span className="text-xs font-semibold">
-                    {saldo.pontos.toLocaleString("pt-BR")}
-                  </span>
-                </div>
+            <div className="hidden sm:flex items-center gap-3 mr-2">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-(--color-bg-subtle) border border-(--color-border)">
+                <Coins size={14} className="text-amber-400" />
+                <span className="text-xs font-semibold">
+                  {saldo.pontos.toLocaleString("pt-BR")}{" "}
+                  {nome.pontos.toLowerCase()}
+                </span>
               </div>
-            )}
+            </div>
 
-            {/* Avatar + dropdown */}
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
@@ -201,9 +243,7 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                 </div>
                 <ChevronDown
                   size={14}
-                  className={`hidden sm:block text-(--color-text-muted) transition-transform duration-200 ${
-                    menuOpen ? "rotate-180" : ""
-                  }`}
+                  className={`hidden sm:block text-(--color-text-muted) transition-transform duration-200 ${menuOpen ? "rotate-180" : ""}`}
                 />
               </button>
 
@@ -216,7 +256,6 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 top-12 w-56 bg-(--color-bg) border border-(--color-border) rounded-xl shadow-xl overflow-hidden"
                   >
-                    {/* Info do usuário */}
                     <div className="px-4 py-3 border-b border-(--color-border)">
                       <p className="text-sm font-medium truncate">
                         {user.name}
@@ -231,17 +270,14 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                       )}
                     </div>
 
-                    {/* Saldo mobile */}
-                    {saldo && (
-                      <div className="sm:hidden px-4 py-2 border-b border-(--color-border) flex items-center justify-between">
-                        <span className="text-xs text-(--color-text-muted)">
-                          Pontos
-                        </span>
-                        <span className="text-sm font-semibold text-amber-400">
-                          {saldo.pontos.toLocaleString("pt-BR")}
-                        </span>
-                      </div>
-                    )}
+                    <div className="sm:hidden px-4 py-2 border-b border-(--color-border) flex items-center justify-between">
+                      <span className="text-xs text-(--color-text-muted)">
+                        {nome.pontos}
+                      </span>
+                      <span className="text-sm font-semibold text-amber-400">
+                        {saldo.pontos.toLocaleString("pt-BR")}
+                      </span>
+                    </div>
 
                     <div className="py-1">
                       <DropdownItem
@@ -268,7 +304,7 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Mobile Drawer */}
       <AnimatePresence>
@@ -288,53 +324,53 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="fixed top-0 left-0 bottom-0 z-50 w-72 bg-(--color-bg) border-r border-(--color-border) flex flex-col"
             >
-              {/* Drawer div */}
               <div className="flex items-center justify-between px-4 h-14 border-b border-(--color-border)">
-                {tenant?.logo ? (
-                  <img
-                    src={tenant.logo}
-                    alt={tenant.nome}
-                    className="h-8 w-auto"
-                  />
-                ) : (
-                  <Logo />
-                )}
+                <div className="flex-1 min-w-0 flex items-center">
+                  {tenant?.logo ? (
+                    <img
+                      src={tenant.logo}
+                      alt={tenant.nome}
+                      className="max-h-10 w-auto object-contain"
+                    />
+                  ) : (
+                    <span className="text-xl font-[family-name:var(--font-geist)] font-bold">
+                      {tenant?.nome ?? "Await"}
+                    </span>
+                  )}
+                </div>
+
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="p-2 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-bg-subtle) transition-colors"
+                  className="ml-2 p-2 rounded-lg text-(--color-text-muted) hover:text-(--color-text) hover:bg-(--color-bg-subtle) transition-colors"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              {/* Drawer saldo */}
-              {saldo && (
-                <div className="px-4 py-3 border-b border-(--color-border)">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Coins size={16} className="text-amber-400" />
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">
-                          Pontos
-                        </p>
-                        <p className="text-lg font-bold text-amber-400">
-                          {saldo.pontos.toLocaleString("pt-BR")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
+              <div className="px-4 py-3 border-b border-(--color-border)">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Coins size={16} className="text-amber-400" />
+                    <div>
                       <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">
-                        Giros
+                        {nome.pontos}
                       </p>
-                      <p className="text-lg font-bold text-(--color-primary-light)">
-                        {saldo.giros}
+                      <p className="text-lg font-bold text-amber-400">
+                        {saldo.pontos.toLocaleString("pt-BR")}
                       </p>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <p className="text-[10px] uppercase tracking-wider text-(--color-text-muted)">
+                      {nome.giro}s
+                    </p>
+                    <p className="text-lg font-bold text-(--color-primary-light)">
+                      {saldo.giros}
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
 
-              {/* Drawer nav */}
               <nav className="flex-1 overflow-y-auto py-2 px-2">
                 {visibleItems.map((item, i) => {
                   const active = isActive(item.href);
@@ -358,7 +394,6 @@ export function Topbar({ user, tenant, saldo }: TopbarProps) {
                 })}
               </nav>
 
-              {/* Drawer footer */}
               <div className="border-t border-(--color-border) p-3 space-y-1">
                 <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg bg-(--color-bg-subtle)">
                   <div className="h-8 w-8 rounded-full bg-(--color-primary)/20 flex items-center justify-center shrink-0">

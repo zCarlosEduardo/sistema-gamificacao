@@ -7,7 +7,7 @@ export function Card({ className, ...props }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-subtle)] p-6",
+        "rounded-xl border border-(--color-border) bg-(--color-bg-subtle) p-6",
         className,
       )}
       {...props}
@@ -26,7 +26,7 @@ export function CardTitle({
   return (
     <h3
       className={cn(
-        "text-lg font-semibold font-[family-name:var(--font-geist)]",
+        "text-lg font-semibold font-(family-name:--font-geist)",
         className,
       )}
       {...props}
@@ -40,7 +40,7 @@ export function CardDescription({
 }: HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn("text-sm text-[var(--color-text-muted)]", className)}
+      className={cn("text-sm text-(--color-text-muted)", className)}
       {...props}
     />
   );
