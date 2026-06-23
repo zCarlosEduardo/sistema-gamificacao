@@ -16,7 +16,6 @@ interface ProductsPreviewProps {
 }
 
 export function ProductsPreview({
-  tenantId,
   nomeLoja,
   nomePontos,
 }: ProductsPreviewProps) {
