@@ -37,6 +37,7 @@ export function Topbar({
   saldo: initialSaldo,
   memberId,
   nomenclaturas,
+  tenantCount,
 }: TopbarProps) {
   const nome = {
     moeda: nomenclaturas?.moeda ?? "Coins",
@@ -65,6 +66,7 @@ export function Topbar({
           "META_APROVADA",
           "RESGATE_REJEITADO",
           "RESGATE_APROVADO",
+          "RESGATE_SOLICITADO",
         ].includes(event.type)
       ) {
         try {
@@ -137,7 +139,17 @@ export function Topbar({
       href: "/loja",
       icon: <ShoppingBag size={18} />,
     },
-    { label: "Resgates", href: "/resgates", icon: <Package size={18} /> },
+    {
+      label: "Meus resgates",
+      href: "/meus-resgates",
+      icon: <Package size={18} />,
+    },
+    {
+      label: "Resgates",
+      href: "/resgates",
+      icon: <Package size={18} />,
+      adminOnly: true,
+    },
     {
       label: `${nome.equipe}s`,
       href: "/equipes",
@@ -181,7 +193,7 @@ export function Topbar({
                   className="h-8 w-auto"
                 />
               ) : (
-                <span className="text-xl font-[family-name:var(--font-geist)] font-bold text-(--color-text)">
+                <span className="text-xl font-(family-name:--font-geist) font-bold text-(--color-text)">
                   {tenant?.nome ?? "Await"}
                 </span>
               )}
@@ -285,11 +297,13 @@ export function Topbar({
                         label="Meu perfil"
                         onClick={() => navigate("/perfil")}
                       />
-                      <DropdownItem
-                        icon={<ArrowLeftRight size={16} />}
-                        label="Trocar empresa"
-                        onClick={() => navigate("/selecionar-empresa")}
-                      />
+                      {(tenantCount ?? 0) > 1 && (
+                        <DropdownItem
+                          icon={<ArrowLeftRight size={16} />}
+                          label="Trocar empresa"
+                          onClick={() => navigate("/selecionar-empresa")}
+                        />
+                      )}
                       <div className="border-t border-(--color-border) my-1" />
                       <DropdownItem
                         icon={<LogOut size={16} />}
@@ -333,7 +347,7 @@ export function Topbar({
                       className="max-h-10 w-auto object-contain"
                     />
                   ) : (
-                    <span className="text-xl font-[family-name:var(--font-geist)] font-bold">
+                    <span className="text-xl font-(family-name:--font-geist) font-bold">
                       {tenant?.nome ?? "Await"}
                     </span>
                   )}

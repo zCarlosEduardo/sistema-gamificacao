@@ -159,6 +159,8 @@ export interface Redemption {
   createdAt: string;
   membroNome?: string;
   produtoNome?: string;
+  produtoImagem?: string;
+  produtoEmoji?: string;
 }
 
 // ─── Ledger ───
@@ -241,6 +243,7 @@ export interface TopbarProps {
   tenant?: { nome: string; logo?: string; corPrimaria?: string };
   saldo?: { coins: number; pontos: number; giros: number };
   memberId?: string;
+  tenantCount?: number;
   nomenclaturas?: {
     moeda: string;
     pontos: string;
@@ -250,4 +253,17 @@ export interface TopbarProps {
     giro: string;
     pool: string;
   };
+}
+
+export interface PendingApproval {
+  assignmentId: string;
+  goalId: string;
+  titulo: string;
+  tipo: "INDIVIDUAL" | "EQUIPE";
+  valorAlvo: number;
+  unidade?: string;
+  girosRecompensa: number;
+  progresso: number;
+  memberId: string;
+  memberNome: string;
 }

@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { ProductCard } from "./product-card";
 import type { Product, ProductCategory } from "@/types";
+import { RedeemModal } from "./redeem-modal";
+import { useRouter } from "next/navigation";
 
 interface StoreClientProps {
   categories: ProductCategory[];
@@ -27,6 +29,13 @@ export function StoreClient({
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  const [saldo, setSaldo] = useState(saldoPontos);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const router = useRouter();
+
+  const [wasRedeemed, setWasRedeemed] = useState(false);
+
   // Debounce: atrasa o search 400ms e volta pra página 1
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -49,9 +58,10 @@ export function StoreClient({
         if (debouncedSearch) params.set("search", debouncedSearch);
         if (activeCategory) params.set("categoryId", activeCategory);
 
-        const res = await api.get<{ data: Product[]; meta: { totalPages: number } }>(
-          `/products?${params.toString()}`,
-        );
+        const res = await api.get<{
+          data: Product[];
+          meta: { totalPages: number };
+        }>(`/products?${params.toString()}`);
 
         setProducts(res.data);
         setTotalPages(res.meta.totalPages);
@@ -65,6 +75,10 @@ export function StoreClient({
     fetchProducts();
   }, [debouncedSearch, activeCategory, page]);
 
+  function handleRedeemed(pontosGastos: number) {
+    setWasRedeemed(true);
+  }
+
   return (
     <div className="space-y-6">
       {/* Busca */}
@@ -75,7 +89,6 @@ export function StoreClient({
         onChange={(e) => setSearch(e.target.value)}
         className="w-full px-3 py-2 rounded-lg text-sm bg-(--color-bg-subtle) border border-(--color-border) text-(--color-text) placeholder:text-(--color-text-muted) focus:outline-none focus:ring-2 focus:ring-(--color-primary)"
       />
-
       {/* Categorias */}
       <div className="flex gap-2 flex-wrap">
         <button
@@ -110,29 +123,38 @@ export function StoreClient({
             </button>
           ))}
       </div>
-
       {/* Grid de produtos */}
       {loading ? (
-        <p className="text-sm text-(--color-text-muted) text-center py-12">Carregando...</p>
+        <p className="text-sm text-(--color-text-muted) text-center py-12">
+          Carregando...
+        </p>
       ) : products.length === 0 ? (
-        <p className="text-sm text-(--color-text-muted) text-center py-12">Nenhum produto encontrado.</p>
+        <p className="text-sm text-(--color-text-muted) text-center py-12">
+          Nenhum produto encontrado.
+        </p>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
               product={product}
-              saldoPontos={saldoPontos}
+              saldoPontos={saldo}
               nomePontos={nomePontos}
-              onRedeem={() => console.log("Resgatar:", product.nome)}
+              onRedeem={() => setSelectedProduct(product)}
             />
           ))}
         </div>
       )}
-
       {/* Paginação */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-4">
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <button
+            onClick={() => setPage(1)}
+            disabled={page === 1}
+            className="px-3 py-1.5 rounded-lg text-sm border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            «
+          </button>
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
@@ -140,7 +162,7 @@ export function StoreClient({
           >
             Anterior
           </button>
-          <span className="text-sm text-(--color-text-muted)">
+          <span className="text-sm text-(--color-text-muted) px-2">
             Página {page} de {totalPages}
           </span>
           <button
@@ -150,8 +172,30 @@ export function StoreClient({
           >
             Próxima
           </button>
+          <button
+            onClick={() => setPage(totalPages)}
+            disabled={page === totalPages}
+            className="px-3 py-1.5 rounded-lg text-sm border border-(--color-border) text-(--color-text-muted) hover:text-(--color-text) disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          >
+            »
+          </button>
         </div>
       )}
+      <RedeemModal
+        open={!!selectedProduct}
+        onClose={() => {
+          setSelectedProduct(null);
+          if (wasRedeemed) {
+            window.location.reload();
+          }
+          setWasRedeemed(false);
+        }}
+        product={selectedProduct}
+        saldoPontos={saldo}
+        memberId={memberId}
+        nomePontos={nomePontos}
+        onRedeemed={handleRedeemed}
+      />
     </div>
   );
 }

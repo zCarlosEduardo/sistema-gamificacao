@@ -15,8 +15,15 @@ interface RouletteCardProps {
   memberId?: string;
 }
 
-export function RouletteCard({ giros, nomeGiro, nomeMoeda = "Coins", nomePontos = "Pontos", memberId = "" }: RouletteCardProps) {
+export function RouletteCard({
+  giros: girosIniciais,
+  nomeGiro,
+  nomeMoeda = "Coins",
+  nomePontos = "Pontos",
+  memberId = "",
+}: RouletteCardProps) {
   const [modalOpen, setModalOpen] = useState(false);
+  const [giros, setGiros] = useState(girosIniciais);
 
   if (giros <= 0) return null;
 
@@ -46,7 +53,11 @@ export function RouletteCard({ giros, nomeGiro, nomeMoeda = "Coins", nomePontos 
                   <Sparkles size={16} className="text-amber-400" />
                 </div>
                 <p className="text-sm text-(--color-text-muted)">
-                  Você tem <span className="font-bold text-(--color-primary-light)">{giros} {nomeGiro.toLowerCase()}(s)</span> pra usar agora
+                  Você tem{" "}
+                  <span className="font-bold text-(--color-primary-light)">
+                    {giros} {nomeGiro.toLowerCase()}(s)
+                  </span>{" "}
+                  pra usar agora
                 </p>
               </div>
             </div>
@@ -69,6 +80,7 @@ export function RouletteCard({ giros, nomeGiro, nomeMoeda = "Coins", nomePontos 
         nomeGiro={nomeGiro}
         nomeMoeda={nomeMoeda}
         nomePontos={nomePontos}
+        onSpinComplete={(result) => setGiros(result.girosRestantes)}
       />
     </>
   );

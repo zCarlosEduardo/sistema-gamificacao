@@ -12,6 +12,12 @@ export default async function AppLayout({
   let user: User;
   let tenantData: Tenant | null = null;
   let currentMember: Member | null = null;
+  let tenantCount = 0;
+
+  try {
+    const res = await apiServer<{ tenants: any[] }>("/tenants/mine");
+    tenantCount = res.tenants.length;
+  } catch {}
 
   try {
     const res = await apiServer<{ user: User }>("/users/me");
@@ -65,6 +71,7 @@ export default async function AppLayout({
                 }
               : undefined
           }
+          tenantCount={tenantCount}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
           <ToastProvider>{children}</ToastProvider>
